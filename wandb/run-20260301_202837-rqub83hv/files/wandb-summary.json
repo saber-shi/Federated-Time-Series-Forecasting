@@ -1,0 +1,1 @@
+{"_timestamp":1.772368190086572e+09,"server/train_mse":0.0016574061010032892,"_runtime":74.822183895,"round":10,"_wandb":{"runtime":74},"_step":10,"server/train_nrmse":0.14055955327675188,"server/train_mae":0.02810771018266678,"server/train_rmse":0.04071125275649583,"server/train_r2":0.8357787897971696}

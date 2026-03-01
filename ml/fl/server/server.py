@@ -14,6 +14,7 @@ if parent not in sys.path:
 import time
 from logging import DEBUG, INFO
 from typing import Optional, Callable, List, Tuple, Dict, Union
+import wandb
 
 import numpy as np
 from torch.utils.data import DataLoader
@@ -226,6 +227,13 @@ class Server:
                 num_test_examples.append(num_test_instances)
                 test_losses[cid] = test_loss
                 test_metrics[cid] = test_eval_metrics
+                wandb.log({"Test_client/Loss_{}".format(cid): test_loss}, step = fl_round + 1)
+                wandb.log({"Test_client/R2_{}".format(cid): test_eval_metrics["R^2"]}, step = fl_round + 1)
+                wandb.log({"Test_client/NRMSE_{}".format(cid): test_eval_metrics["NRMSE"]}, step = fl_round + 1)
+                wandb.log({"Test_client/MAE_{}".format(cid): test_eval_metrics["MAE"]}, step = fl_round + 1)
+
+                # metrics = {"MSE": mse, "RMSE": rmse, "MAE": mae, "R^2": r2, "NRMSE": nrmse}
+
 
         history.add_global_train_losses(self.weighted_loss(num_train_examples, list(train_losses.values())))
         history.add_global_train_metrics(self.weighted_metrics(num_train_examples, train_metrics))

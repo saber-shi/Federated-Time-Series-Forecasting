@@ -8,3 +8,5 @@ pandas
 scikit_learn
 scipy
 torch
+flwr
+wandb

@@ -29,6 +29,7 @@ def read_data(data_path: str, filter_data: str = None) -> pd.DataFrame:
         df = df.loc[df['District'] == filter_data]
     df.set_index(pd.DatetimeIndex(df["time"]), inplace=True)
     df.drop(["time"], axis=1, inplace=True)
+    df.drop(["Timestamp"], axis=1, inplace=True)
     cols = [col for col in df.columns if col != "District"]
     df[cols] = df[cols].astype("float32")
 

@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 387, in <module>
+    X_train, X_val, y_train, y_val, exogenous_data_train, exogenous_data_val, x_scalers, y_scalers = make_preprocessing()
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 52, in make_preprocessing
+    df = read_data(args.data_path)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/utils/data_utils.py", line 32, in read_data
+    df = df.drop(["Timestamp"])
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/pandas/core/frame.py", line 5258, in drop
+    return super().drop(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/pandas/core/generic.py", line 4549, in drop
+    obj = obj._drop_axis(labels, axis, level=level, errors=errors)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/pandas/core/generic.py", line 4620, in _drop_axis
+    raise KeyError(f"{labels} not found in axis")
+KeyError: "['Timestamp'] not found in axis"
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 387, in <module>
+    X_train, X_val, y_train, y_val, exogenous_data_train, exogenous_data_val, x_scalers, y_scalers = make_preprocessing()
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 52, in make_preprocessing
+    df = read_data(args.data_path)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/utils/data_utils.py", line 32, in read_data
+    df = df.drop(["Timestamp"])
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/pandas/core/frame.py", line 5258, in drop
+    return super().drop(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/pandas/core/generic.py", line 4549, in drop
+    obj = obj._drop_axis(labels, axis, level=level, errors=errors)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/pandas/core/generic.py", line 4620, in _drop_axis
+    raise KeyError(f"{labels} not found in axis")
+KeyError: "['Timestamp'] not found in axis"

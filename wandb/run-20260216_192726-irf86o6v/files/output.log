@@ -1,0 +1,147 @@
+INFO logger 2026-02-16 19:27:28,404 | data_utils.py:384 | Observations info in 12167-0
+INFO logger 2026-02-16 19:27:28,404 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:27:28,405 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:27:28,405 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:27:28,414 | data_utils.py:384 | Observations info in 12167-1
+INFO logger 2026-02-16 19:27:28,414 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:27:28,414 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:27:28,414 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:27:28,423 | data_utils.py:384 | Observations info in 12167-2
+INFO logger 2026-02-16 19:27:28,423 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:27:28,423 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:27:28,423 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:27:28,432 | data_utils.py:384 | Observations info in 12167-3
+INFO logger 2026-02-16 19:27:28,432 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:27:28,432 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:27:28,432 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:27:28,441 | data_utils.py:384 | Observations info in 12167-4
+INFO logger 2026-02-16 19:27:28,442 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:27:28,442 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:27:28,442 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:27:28,451 | data_utils.py:384 | Observations info in 12167-5
+INFO logger 2026-02-16 19:27:28,451 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:27:28,451 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:27:28,451 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:27:28,454 | data_utils.py:390 | Observations info using all data
+INFO logger 2026-02-16 19:27:28,455 | data_utils.py:391 | 	Total number of samples:  210240
+INFO logger 2026-02-16 19:27:28,455 | data_utils.py:392 | 	Number of samples for training: 168192
+INFO logger 2026-02-16 19:27:28,455 | data_utils.py:393 | 	Number of samples for validation:  42048
+
+Client: 12167-0
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-1
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-2
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-3
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-4
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-5
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+9 0
+INFO logger 2026-02-16 19:27:34,537 | server.py:63 | Initializing client manager...
+INFO logger 2026-02-16 19:27:34,538 | server.py:70 | Registering clients...
+INFO logger 2026-02-16 19:27:34,538 | client_manager.py:66 | Registered client with id: 12167-0
+INFO logger 2026-02-16 19:27:34,538 | client_manager.py:66 | Registered client with id: 12167-1
+INFO logger 2026-02-16 19:27:34,538 | client_manager.py:66 | Registered client with id: 12167-2
+INFO logger 2026-02-16 19:27:34,538 | client_manager.py:66 | Registered client with id: 12167-3
+INFO logger 2026-02-16 19:27:34,538 | client_manager.py:66 | Registered client with id: 12167-4
+INFO logger 2026-02-16 19:27:34,538 | client_manager.py:66 | Registered client with id: 12167-5
+INFO logger 2026-02-16 19:27:34,539 | server.py:74 | Client manager initialized!
+INFO logger 2026-02-16 19:27:34,539 | server.py:56 | Aggregation algorithm: FedAvg()
+INFO logger 2026-02-16 19:27:34,539 | client_manager.py:88 | Parameter c=0.0. Sampled 1 client(s): ['12167-3']
+INFO logger 2026-02-16 19:27:39,018 | server.py:87 | Starting FL rounds
+INFO logger 2026-02-16 19:27:39,018 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-3', '12167-0', '12167-2', '12167-5', '12167-1', '12167-4']
+INFO logger 2026-02-16 19:27:43,024 | train_utils.py:142 | Best Loss: 3.314814707612212e-05
+INFO logger 2026-02-16 19:27:46,991 | train_utils.py:142 | Best Loss: 2.267133904856512e-05
+INFO logger 2026-02-16 19:27:50,850 | train_utils.py:142 | Best Loss: 2.8788561005434344e-05
+INFO logger 2026-02-16 19:27:54,726 | train_utils.py:142 | Best Loss: 2.4978358274454185e-05
+INFO logger 2026-02-16 19:27:58,630 | train_utils.py:142 | Best Loss: 2.419350199781401e-05
+INFO logger 2026-02-16 19:28:02,497 | train_utils.py:142 | Best Loss: 2.9546496372712754e-05
+INFO logger 2026-02-16 19:28:03,039 | server.py:192 | [Global round 1] Aggregating local models...
+INFO logger 2026-02-16 19:28:06,415 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-2', '12167-3', '12167-5', '12167-4', '12167-0', '12167-1']
+INFO logger 2026-02-16 19:28:09,412 | train_utils.py:142 | Best Loss: 2.2419416693563775e-05
+INFO logger 2026-02-16 19:28:12,891 | train_utils.py:142 | Best Loss: 1.6275217626832597e-05
+INFO logger 2026-02-16 19:28:16,399 | train_utils.py:142 | Best Loss: 1.877304286985048e-05
+INFO logger 2026-02-16 19:28:19,868 | train_utils.py:142 | Best Loss: 2.0723273086457932e-05
+INFO logger 2026-02-16 19:28:23,377 | train_utils.py:142 | Best Loss: 1.9656234917942778e-05
+INFO logger 2026-02-16 19:28:26,892 | train_utils.py:142 | Best Loss: 1.6930373820433415e-05
+INFO logger 2026-02-16 19:28:27,430 | server.py:192 | [Global round 2] Aggregating local models...
+INFO logger 2026-02-16 19:28:30,848 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-2', '12167-1', '12167-0', '12167-5', '12167-4', '12167-3']
+INFO logger 2026-02-16 19:28:33,801 | train_utils.py:142 | Best Loss: 1.9340413614529475e-05
+INFO logger 2026-02-16 19:28:37,254 | train_utils.py:142 | Best Loss: 1.5391754327695175e-05
+INFO logger 2026-02-16 19:28:40,768 | train_utils.py:142 | Best Loss: 1.593923797341192e-05
+INFO logger 2026-02-16 19:28:44,278 | train_utils.py:142 | Best Loss: 1.7817592467101098e-05
+INFO logger 2026-02-16 19:28:47,777 | train_utils.py:142 | Best Loss: 1.9066920587605658e-05
+INFO logger 2026-02-16 19:28:51,279 | train_utils.py:142 | Best Loss: 1.4370975091962421e-05
+INFO logger 2026-02-16 19:28:51,814 | server.py:192 | [Global round 3] Aggregating local models...
+INFO logger 2026-02-16 19:28:55,133 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-2', '12167-0', '12167-4', '12167-5', '12167-1', '12167-3']
+INFO logger 2026-02-16 19:28:58,100 | train_utils.py:142 | Best Loss: 1.9274789193677235e-05
+INFO logger 2026-02-16 19:29:01,550 | train_utils.py:142 | Best Loss: 1.5050198865422829e-05
+INFO logger 2026-02-16 19:29:05,021 | train_utils.py:142 | Best Loss: 1.858089053294161e-05
+INFO logger 2026-02-16 19:29:08,471 | train_utils.py:142 | Best Loss: 1.669269404374063e-05
+INFO logger 2026-02-16 19:29:11,926 | train_utils.py:142 | Best Loss: 1.4750803814098325e-05
+INFO logger 2026-02-16 19:29:15,375 | train_utils.py:142 | Best Loss: 1.3969569576063846e-05
+INFO logger 2026-02-16 19:29:15,906 | server.py:192 | [Global round 4] Aggregating local models...
+INFO logger 2026-02-16 19:29:19,238 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-4', '12167-0', '12167-2', '12167-1', '12167-3', '12167-5']
+INFO logger 2026-02-16 19:29:22,424 | train_utils.py:142 | Best Loss: 1.827168285755719e-05
+INFO logger 2026-02-16 19:29:25,913 | train_utils.py:142 | Best Loss: 1.478196988511167e-05
+INFO logger 2026-02-16 19:29:29,403 | train_utils.py:142 | Best Loss: 1.9235675920325534e-05
+INFO logger 2026-02-16 19:29:32,889 | train_utils.py:142 | Best Loss: 1.4830589874503042e-05
+INFO logger 2026-02-16 19:29:36,388 | train_utils.py:142 | Best Loss: 1.39816097470921e-05
+INFO logger 2026-02-16 19:29:39,861 | train_utils.py:142 | Best Loss: 1.6351931794658945e-05
+INFO logger 2026-02-16 19:29:40,396 | server.py:192 | [Global round 5] Aggregating local models...
+INFO logger 2026-02-16 19:29:43,711 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-4', '12167-3', '12167-5', '12167-2', '12167-1', '12167-0']
+INFO logger 2026-02-16 19:29:46,688 | train_utils.py:142 | Best Loss: 1.7734649427229773e-05
+INFO logger 2026-02-16 19:29:50,157 | train_utils.py:142 | Best Loss: 1.3747365292878929e-05
+INFO logger 2026-02-16 19:29:53,685 | train_utils.py:142 | Best Loss: 1.6178796218370956e-05
+INFO logger 2026-02-16 19:29:57,309 | train_utils.py:142 | Best Loss: 1.9034714272095898e-05
+INFO logger 2026-02-16 19:30:00,917 | train_utils.py:142 | Best Loss: 1.4668508501718056e-05
+INFO logger 2026-02-16 19:30:04,658 | train_utils.py:142 | Best Loss: 1.471824908894005e-05
+INFO logger 2026-02-16 19:30:05,194 | server.py:192 | [Global round 6] Aggregating local models...
+INFO logger 2026-02-16 19:30:08,686 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-4', '12167-0', '12167-5', '12167-2', '12167-1', '12167-3']
+INFO logger 2026-02-16 19:30:11,651 | train_utils.py:142 | Best Loss: 1.7303991249906992e-05
+INFO logger 2026-02-16 19:30:15,133 | train_utils.py:142 | Best Loss: 1.453852704819827e-05
+INFO logger 2026-02-16 19:30:18,663 | train_utils.py:142 | Best Loss: 1.6078650238843442e-05
+INFO logger 2026-02-16 19:30:22,157 | train_utils.py:142 | Best Loss: 1.8700875355942368e-05
+INFO logger 2026-02-16 19:30:25,655 | train_utils.py:142 | Best Loss: 1.4806352990636624e-05
+INFO logger 2026-02-16 19:30:29,146 | train_utils.py:142 | Best Loss: 1.3800388022764832e-05
+INFO logger 2026-02-16 19:30:29,700 | server.py:192 | [Global round 7] Aggregating local models...
+INFO logger 2026-02-16 19:30:33,123 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-4', '12167-3', '12167-2', '12167-0', '12167-1', '12167-5']
+INFO logger 2026-02-16 19:30:36,087 | train_utils.py:142 | Best Loss: 1.7023434305172842e-05
+INFO logger 2026-02-16 19:30:39,584 | train_utils.py:142 | Best Loss: 1.378424444581093e-05
+INFO logger 2026-02-16 19:30:43,061 | train_utils.py:142 | Best Loss: 1.84745834397698e-05
+INFO logger 2026-02-16 19:30:46,596 | train_utils.py:142 | Best Loss: 1.440464778891604e-05
+INFO logger 2026-02-16 19:30:50,142 | train_utils.py:142 | Best Loss: 1.4586321392026998e-05
+INFO logger 2026-02-16 19:30:53,658 | train_utils.py:142 | Best Loss: 1.601529867661282e-05
+INFO logger 2026-02-16 19:30:54,183 | server.py:192 | [Global round 8] Aggregating local models...
+INFO logger 2026-02-16 19:30:57,580 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-1', '12167-4', '12167-5', '12167-0', '12167-2', '12167-3']
+INFO logger 2026-02-16 19:31:00,544 | train_utils.py:142 | Best Loss: 1.432928617979432e-05
+INFO logger 2026-02-16 19:31:04,024 | train_utils.py:142 | Best Loss: 1.676880761890019e-05
+INFO logger 2026-02-16 19:31:07,505 | train_utils.py:142 | Best Loss: 1.5972347360709148e-05
+INFO logger 2026-02-16 19:31:10,979 | train_utils.py:142 | Best Loss: 1.4248139147336284e-05
+INFO logger 2026-02-16 19:31:14,439 | train_utils.py:142 | Best Loss: 1.831556872421897e-05
+INFO logger 2026-02-16 19:31:17,907 | train_utils.py:142 | Best Loss: 1.3238449876020052e-05
+INFO logger 2026-02-16 19:31:18,430 | server.py:192 | [Global round 9] Aggregating local models...
+INFO logger 2026-02-16 19:31:21,882 | client_manager.py:88 | Parameter c=1.0. Sampled 6 client(s): ['12167-0', '12167-5', '12167-2', '12167-3', '12167-1', '12167-4']
+INFO logger 2026-02-16 19:31:24,831 | train_utils.py:142 | Best Loss: 1.4043285748279043e-05
+INFO logger 2026-02-16 19:31:28,338 | train_utils.py:142 | Best Loss: 1.5953583234717705e-05
+INFO logger 2026-02-16 19:31:31,806 | train_utils.py:142 | Best Loss: 1.8158618122574756e-05
+INFO logger 2026-02-16 19:31:35,360 | train_utils.py:142 | Best Loss: 1.3098569390171304e-05
+INFO logger 2026-02-16 19:31:38,879 | train_utils.py:142 | Best Loss: 1.4228799150207604e-05
+INFO logger 2026-02-16 19:31:42,394 | train_utils.py:142 | Best Loss: 1.6576373710794825e-05
+INFO logger 2026-02-16 19:31:42,916 | server.py:192 | [Global round 10] Aggregating local models...
+INFO logger 2026-02-16 19:31:46,372 | server.py:113 | Time passed: 247.353755235672 seconds.
+INFO logger 2026-02-16 19:31:46,372 | server.py:114 | Best global model found on fl_round=10 with loss=2.6280157311758833e-05

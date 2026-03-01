@@ -1,0 +1,100 @@
+INFO logger 2026-02-16 19:17:32,790 | data_utils.py:384 | Observations info in 12167-0
+INFO logger 2026-02-16 19:17:32,791 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:17:32,791 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:17:32,791 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:17:32,800 | data_utils.py:384 | Observations info in 12167-1
+INFO logger 2026-02-16 19:17:32,800 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:17:32,800 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:17:32,800 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:17:32,809 | data_utils.py:384 | Observations info in 12167-2
+INFO logger 2026-02-16 19:17:32,809 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:17:32,809 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:17:32,810 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:17:32,818 | data_utils.py:384 | Observations info in 12167-3
+INFO logger 2026-02-16 19:17:32,818 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:17:32,818 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:17:32,819 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:17:32,827 | data_utils.py:384 | Observations info in 12167-4
+INFO logger 2026-02-16 19:17:32,827 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:17:32,828 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:17:32,828 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:17:32,836 | data_utils.py:384 | Observations info in 12167-5
+INFO logger 2026-02-16 19:17:32,837 | data_utils.py:385 | 	Total number of samples:  35040
+INFO logger 2026-02-16 19:17:32,837 | data_utils.py:386 | 	Number of samples for training: 28032
+INFO logger 2026-02-16 19:17:32,837 | data_utils.py:387 | 	Number of samples for validation:  7008
+INFO logger 2026-02-16 19:17:32,840 | data_utils.py:390 | Observations info using all data
+INFO logger 2026-02-16 19:17:32,840 | data_utils.py:391 | 	Total number of samples:  210240
+INFO logger 2026-02-16 19:17:32,840 | data_utils.py:392 | 	Number of samples for training: 168192
+INFO logger 2026-02-16 19:17:32,840 | data_utils.py:393 | 	Number of samples for validation:  42048
+
+Client: 12167-0
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-1
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-2
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-3
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-4
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+
+Client: 12167-5
+X_train shape: (27984, 48, 9, 1), y_train shape: (27984, 4)
+X_val shape: (6960, 48, 9, 1), y_val shape: (6960, 4)
+9 0
+INFO logger 2026-02-16 19:17:38,916 | server.py:63 | Initializing client manager...
+INFO logger 2026-02-16 19:17:38,916 | server.py:70 | Registering clients...
+INFO logger 2026-02-16 19:17:38,916 | client_manager.py:66 | Registered client with id: 12167-0
+INFO logger 2026-02-16 19:17:38,917 | client_manager.py:66 | Registered client with id: 12167-1
+INFO logger 2026-02-16 19:17:38,917 | client_manager.py:66 | Registered client with id: 12167-2
+INFO logger 2026-02-16 19:17:38,917 | client_manager.py:66 | Registered client with id: 12167-3
+INFO logger 2026-02-16 19:17:38,917 | client_manager.py:66 | Registered client with id: 12167-4
+INFO logger 2026-02-16 19:17:38,917 | client_manager.py:66 | Registered client with id: 12167-5
+INFO logger 2026-02-16 19:17:38,918 | server.py:74 | Client manager initialized!
+INFO logger 2026-02-16 19:17:38,918 | server.py:56 | Aggregation algorithm: FedAvg()
+INFO logger 2026-02-16 19:17:38,918 | client_manager.py:88 | Parameter c=0.0. Sampled 1 client(s): ['12167-3']
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 414, in <module>
+    global_model, history = fit(
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 308, in fit
+    model_params, history = server.fit(args.fl_rounds, args.fraction, use_carbontracker=use_carbontracker)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/server/server.py", line 85, in fit
+    self.evaluate_round(fl_round=0, history=history)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/server/server.py", line 218, in evaluate_round
+    num_train_instances, train_loss, train_eval_metrics = client_proxy.evaluate(model=self.global_model,
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/client_proxy.py", line 43, in evaluate
+    return self.client.evaluate(data, model, params, method, verbose)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/torch_client.py", line 144, in evaluate
+    loss, mse, rmse, mae, r2, nrmse = test(self.net, data, params["criterion"], device=self.device)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 171, in test
+    mse, rmse, mae, r2, nrmse = accumulate_metric(y_true.cpu(), y_pred.cpu())
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/utils/helpers.py", line 95, in accumulate_metric
+    y_true_dim = y_true[:, dims[i]]
+IndexError: index 4 is out of bounds for axis 1 with size 4
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 414, in <module>
+    global_model, history = fit(
+  File "/home/saber/Federated-Time-Series-Forecasting/main.py", line 308, in fit
+    model_params, history = server.fit(args.fl_rounds, args.fraction, use_carbontracker=use_carbontracker)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/server/server.py", line 85, in fit
+    self.evaluate_round(fl_round=0, history=history)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/server/server.py", line 218, in evaluate_round
+    num_train_instances, train_loss, train_eval_metrics = client_proxy.evaluate(model=self.global_model,
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/client_proxy.py", line 43, in evaluate
+    return self.client.evaluate(data, model, params, method, verbose)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/fl/torch_client.py", line 144, in evaluate
+    loss, mse, rmse, mae, r2, nrmse = test(self.net, data, params["criterion"], device=self.device)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 171, in test
+    mse, rmse, mae, r2, nrmse = accumulate_metric(y_true.cpu(), y_pred.cpu())
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/utils/helpers.py", line 95, in accumulate_metric
+    y_true_dim = y_true[:, dims[i]]
+IndexError: index 4 is out of bounds for axis 1 with size 4

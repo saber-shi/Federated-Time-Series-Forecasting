@@ -68,7 +68,7 @@ def log_metrics(y_true: np.ndarray,
 def accumulate_metric(y_true: Union[np.ndarray, torch.tensor],
                       y_pred: Union[np.ndarray, torch.tensor],
                       log_per_output: bool = False,
-                      dims: List[int] = [3, 4],
+                      dims: List[int] = [3],
                       return_all=False) -> Union[
     Tuple[float, float, float, float, float],
     Tuple[float, float, float, float, float, Union[None, Dict[int, List[float]]]]]:

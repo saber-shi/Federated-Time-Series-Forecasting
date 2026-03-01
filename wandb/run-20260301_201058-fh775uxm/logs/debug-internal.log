@@ -1,0 +1,11 @@
+{"time":"2026-03-01T20:10:58.962197681+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-03-01T20:10:59.289331905+08:00","level":"INFO","msg":"stream: created new stream","id":"fh775uxm"}
+{"time":"2026-03-01T20:10:59.289435929+08:00","level":"INFO","msg":"handler: started","stream_id":"fh775uxm"}
+{"time":"2026-03-01T20:10:59.289563054+08:00","level":"INFO","msg":"stream: started","id":"fh775uxm"}
+{"time":"2026-03-01T20:10:59.289594365+08:00","level":"INFO","msg":"writer: started","stream_id":"fh775uxm"}
+{"time":"2026-03-01T20:10:59.289627216+08:00","level":"INFO","msg":"sender: started","stream_id":"fh775uxm"}
+{"time":"2026-03-01T20:11:01.388404931+08:00","level":"INFO","msg":"stream: closing","id":"fh775uxm"}
+{"time":"2026-03-01T20:11:02.663759056+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-03-01T20:11:03.09703775+08:00","level":"INFO","msg":"handler: closed","stream_id":"fh775uxm"}
+{"time":"2026-03-01T20:11:03.097204207+08:00","level":"INFO","msg":"sender: closed","stream_id":"fh775uxm"}
+{"time":"2026-03-01T20:11:03.097221028+08:00","level":"INFO","msg":"stream: closed","id":"fh775uxm"}

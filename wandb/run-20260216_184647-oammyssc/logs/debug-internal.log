@@ -1,0 +1,6 @@
+{"time":"2026-02-16T18:46:47.734879661+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-02-16T18:46:48.046020895+08:00","level":"INFO","msg":"stream: created new stream","id":"oammyssc"}
+{"time":"2026-02-16T18:46:48.04613291+08:00","level":"INFO","msg":"handler: started","stream_id":"oammyssc"}
+{"time":"2026-02-16T18:46:48.046386349+08:00","level":"INFO","msg":"stream: started","id":"oammyssc"}
+{"time":"2026-02-16T18:46:48.046446902+08:00","level":"INFO","msg":"writer: started","stream_id":"oammyssc"}
+{"time":"2026-02-16T18:46:48.046483573+08:00","level":"INFO","msg":"sender: started","stream_id":"oammyssc"}
