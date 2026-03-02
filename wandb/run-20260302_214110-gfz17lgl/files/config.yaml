@@ -1,0 +1,51 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            qdkgyse8pb7t91n10ubn29z9n2m41bip:
+                args:
+                    - --wandb
+                codePath: client.py
+                codePathLocal: client.py
+                cpu_count: 8
+                cpu_count_logical: 8
+                disk:
+                    /:
+                        total: "60725108736"
+                        used: "31086006272"
+                email: shisiping1992@gmail.com
+                executable: /home/hkuiot/miniconda3/envs/fed/bin/python
+                git:
+                    commit: 2366b5b171f2abc2a2310457a16cb6afbd5332d7
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                host: hkuiot-orin-2
+                memory:
+                    total: "65853116416"
+                os: Linux-5.10.120-tegra-aarch64-with-glibc2.26
+                program: client.py
+                python: CPython 3.8.20
+                root: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting
+                startedAt: "2026-03-02T13:41:10.707686Z"
+                writerId: qdkgyse8pb7t91n10ubn29z9n2m41bip
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 13
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-aarch64
+cid:
+    value: 12167-0
+model_name:
+    value: lstm

@@ -5,11 +5,9 @@ from typing import Tuple, List
 import flwr as fl
 import numpy as np
 import torch
+import time
+import wandb  # optional
 
-try:
-    import wandb  # optional
-except Exception:  # pragma: no cover
-    wandb = None
 
 from ml.utils.data_utils import (
     read_data,
@@ -210,6 +208,7 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
     def fit(self, parameters, config):  # type: ignore[override]
         if parameters is not None:
             self._set_parameters(parameters)
+        start_time = time.time()
 
         self.model = train(
             model=self.model,
@@ -230,6 +229,11 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
             log_per=1,
             use_carbontracker=self.args.use_carbontracker,
         )
+
+        round_train_time = time.time() - start_time
+        # print(f"[Client {self.cid}] Round training time: {round_train_time:.2f} seconds")
+        # if wandb is not None and getattr(self.args, "wandb", False):
+        #     wandb.log({"client/round_train_time_seconds": float(round_train_time)})
 
         loss, mse, rmse, mae, r2, nrmse = test(
             self.model,
@@ -257,6 +261,7 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
                     "client/train_mae": float(mae),
                     "client/train_r2": float(r2),
                     "client/train_nrmse": float(nrmse),
+                    "client/round_train_time_seconds": float(round_train_time)
                 }
             )
 
@@ -306,7 +311,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--server_address",
         type=str,
-        default="127.0.0.1:8080",
+        default="192.168.3.17:8080",
         help="Flower server address, e.g. '127.0.0.1:8080'",
     )
 
