@@ -1,13 +1,18 @@
 import argparse
 import random
-from typing import Tuple, List
+import time
+from pathlib import Path
+from typing import Tuple, List, Dict, Any
 
 import flwr as fl
 import numpy as np
+import pandas as pd
 import torch
-import time
-import wandb  # optional
 
+try:
+    import wandb  # optional
+except Exception:  # pragma: no cover
+    wandb = None
 
 from ml.utils.data_utils import (
     read_data,
@@ -91,7 +96,9 @@ def get_model(
     )
 
 
-def prepare_client_data(args: argparse.Namespace) -> Tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader, int, int]:
+def prepare_client_data(
+    args: argparse.Namespace,
+) -> Tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader, int, int, Dict[str, Any]]:
     # Load only the data for this client (District)
     df = read_data(args.data_path, filter_data=args.cid)
 
@@ -126,7 +133,7 @@ def prepare_client_data(args: argparse.Namespace) -> Tuple[torch.utils.data.Data
         per_area=True,
         identifier=args.identifier,
     )
-    y_train, y_val, _ = scale_features(
+    y_train, y_val, y_scalers = scale_features(
         train_data=y_train,
         val_data=y_val,
         scaler=args.y_scaler,
@@ -177,7 +184,20 @@ def prepare_client_data(args: argparse.Namespace) -> Tuple[torch.utils.data.Data
         shuffle=False,
     )
 
-    return train_loader, val_loader, num_features, y_train_np.shape[1]
+    y_scaler = None
+    if isinstance(y_scalers, dict) and len(y_scalers) > 0:
+        y_scaler = next(iter(y_scalers.values()))
+
+    prediction_artifacts: Dict[str, Any] = {
+        "X_val_ts": X_val_ts,
+        "y_val_np": y_val_np,
+        "y_val_index": y_val.index,
+        "num_features": num_features,
+        "target_names": list(y_val.columns),
+        "y_scaler": y_scaler,
+    }
+
+    return train_loader, val_loader, num_features, y_train_np.shape[1], prediction_artifacts
 
 
 class FlowerTimeSeriesClient(fl.client.NumPyClient):
@@ -208,8 +228,8 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
     def fit(self, parameters, config):  # type: ignore[override]
         if parameters is not None:
             self._set_parameters(parameters)
-        start_time = time.time()
 
+        start_time = time.time()
         self.model = train(
             model=self.model,
             train_loader=self.train_loader,
@@ -229,11 +249,7 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
             log_per=1,
             use_carbontracker=self.args.use_carbontracker,
         )
-
         round_train_time = time.time() - start_time
-        # print(f"[Client {self.cid}] Round training time: {round_train_time:.2f} seconds")
-        # if wandb is not None and getattr(self.args, "wandb", False):
-        #     wandb.log({"client/round_train_time_seconds": float(round_train_time)})
 
         loss, mse, rmse, mae, r2, nrmse = test(
             self.model,
@@ -261,7 +277,7 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
                     "client/train_mae": float(mae),
                     "client/train_r2": float(r2),
                     "client/train_nrmse": float(nrmse),
-                    "client/round_train_time_seconds": float(round_train_time)
+                    "client/round_train_time_seconds": float(round_train_time),
                 }
             )
 
@@ -296,11 +312,101 @@ class FlowerTimeSeriesClient(fl.client.NumPyClient):
                     "client/val_rmse": float(rmse),
                     "client/val_mae": float(mae),
                     "client/val_r2": float(r2),
-                    "client/val_nrmse": float(nrmse),
+                    "client/val_nrmse": float(nrmse)
                 }
             )
 
         return float(loss), len(self.val_loader.dataset), metrics
+
+
+def save_client_model(model: torch.nn.Module, args: argparse.Namespace) -> Path:
+    save_path = Path(args.model_save_path.format(cid=args.cid, model_name=args.model_name)).expanduser()
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+
+    cpu_state_dict = {name: tensor.detach().cpu() for name, tensor in model.state_dict().items()}
+    checkpoint = {
+        "cid": args.cid,
+        "model_name": args.model_name,
+        "num_lags": args.num_lags,
+        "targets": args.targets,
+        "state_dict": cpu_state_dict,
+    }
+    torch.save(checkpoint, save_path)
+    return save_path
+
+
+def save_last_lags_predictions(
+    model: torch.nn.Module,
+    device: str,
+    args: argparse.Namespace,
+    prediction_artifacts: Dict[str, Any],
+) -> Path:
+    X_val_ts = prediction_artifacts["X_val_ts"]
+    y_val_np = prediction_artifacts["y_val_np"]
+    y_val_index = prediction_artifacts["y_val_index"]
+    num_features = prediction_artifacts["num_features"]
+    target_names = prediction_artifacts["target_names"]
+    y_scaler = prediction_artifacts["y_scaler"]
+
+    if len(X_val_ts) == 0:
+        raise ValueError("Validation data is empty. Cannot produce final predictions.")
+
+    horizon = min(args.num_lags, len(y_val_np))
+    if horizon <= 0:
+        raise ValueError("Not enough validation samples to produce recursive forecasts.")
+
+    # Seed input window: the last available lag-window before the forecasted sequence.
+    current_window = np.array(X_val_ts[0], dtype=np.float32)  # (num_lags, num_features, 1)
+    current_window = current_window[:, :, 0]  # (num_lags, num_features)
+
+    y_pred_seq = []
+    model.eval()
+    with torch.no_grad():
+        for _ in range(horizon):
+            x_tensor = torch.tensor(current_window, dtype=torch.float32).unsqueeze(0).unsqueeze(-1).to(device)
+
+            y_hist_np = np.zeros((args.num_lags, len(args.idxs)), dtype=np.float32)
+            if args.num_lags > 1:
+                y_hist_np[1:, :] = current_window[:-1, args.idxs]
+            y_hist_tensor = torch.tensor(y_hist_np, dtype=torch.float32).unsqueeze(0).to(device)
+
+            pred = model(x_tensor, None, device, y_hist_tensor)
+            pred_np = pred.detach().cpu().numpy().reshape(-1)
+            y_pred_seq.append(pred_np)
+
+            # Autoregressive roll-forward: keep non-target features persistent,
+            # inject predicted targets into the newest step.
+            next_row = current_window[-1].copy()
+            for target_pos, feature_idx in enumerate(args.idxs):
+                if target_pos < pred_np.shape[0]:
+                    next_row[feature_idx] = pred_np[target_pos]
+            current_window = np.vstack([current_window[1:], next_row])
+
+    y_pred = np.vstack(y_pred_seq)
+    y_true = y_val_np[:horizon]
+    idx_last = y_val_index[:horizon]
+
+    if y_scaler is not None:
+        y_pred = y_scaler.inverse_transform(y_pred)
+        y_true = y_scaler.inverse_transform(y_true)
+
+    records = {"time": idx_last}
+    for col_idx, target_name in enumerate(target_names):
+        records[f"true_{target_name}"] = y_true[:, col_idx]
+        records[f"pred_{target_name}"] = y_pred[:, col_idx]
+
+    predictions_df = pd.DataFrame(records)
+
+    save_path = Path(
+        args.prediction_save_path.format(
+            cid=args.cid,
+            model_name=args.model_name,
+            num_lags=horizon,
+        )
+    ).expanduser()
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    predictions_df.to_csv(save_path, index=False)
+    return save_path
 
 
 def parse_args() -> argparse.Namespace:
@@ -311,7 +417,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--server_address",
         type=str,
-        default="192.168.3.17:8080",
+        default="127.0.0.1:8080",
         help="Flower server address, e.g. '127.0.0.1:8080'",
     )
 
@@ -366,6 +472,18 @@ def parse_args() -> argparse.Namespace:
         default="slife2026-university-of-hong-kong",
         help="Weights & Biases entity (team/user)",
     )
+    parser.add_argument(
+        "--model_save_path",
+        type=str,
+        default="./saved_models/{cid}_{model_name}_final.pt",
+        help="Output path template for saving final client model after FL ends.",
+    )
+    parser.add_argument(
+        "--prediction_save_path",
+        type=str,
+        default="./saved_predictions/{cid}_{model_name}_last_{num_lags}.csv",
+        help="Output path template for final predictions CSV.",
+    )
 
     args = parser.parse_args()
 
@@ -396,7 +514,7 @@ def main() -> None:
         )
         wandb.config.update({"cid": args.cid, "model_name": args.model_name}, allow_val_change=True)
 
-    train_loader, val_loader, num_features, out_dim = prepare_client_data(args)
+    train_loader, val_loader, num_features, out_dim, prediction_artifacts = prepare_client_data(args)
 
     # Determine model input dimension
     if args.model_name == "mlp":
@@ -421,6 +539,12 @@ def main() -> None:
     )
 
     fl.client.start_numpy_client(server_address=args.server_address, client=client)
+
+    saved_path = save_client_model(client.model, args)
+    print(f"Saved final client model to: {saved_path}")
+
+    prediction_path = save_last_lags_predictions(client.model, client.device, args, prediction_artifacts)
+    print(f"Saved final predictions CSV to: {prediction_path}")
 
     if wb_run is not None:
         wandb.finish()

@@ -64,5 +64,50 @@ $ pip install -r requirements.txt
 ### Examples
 Refer to [notebooks](notebooks) for usage examples.
 
+### Battery Optimization (Gurobi)
+The repository includes a battery scheduling optimizer in `batterycase.py` that solves a mixed-integer linear program (MILP) to minimize electricity purchase cost by charging at low-price slots and discharging at high-price slots.
+
+Install Gurobi Python bindings (and ensure a valid Gurobi license):
+```
+pip install gurobipy
+```
+
+Run with synthetic demo data:
+```
+python batterycase.py --demo
+```
+
+Run with your own data:
+```
+python batterycase.py --loads_csv path/to/loads.csv --prices_csv path/to/prices.csv --price_col price
+```
+
+Expected input format:
+- `loads.csv`: one row per time slot, one column per base station (load values).
+- `prices.csv`: one row per time slot with the electricity price column.
+
+### Renewable + Battery Optimization (Gurobi)
+The repository includes a renewable-aware optimizer in `renewablecase.py` that schedules:
+- renewable used for direct load supply,
+- renewable used for battery charging,
+- grid purchase,
+- battery charge/discharge,
+to minimize total cost (grid energy cost + curtailed renewable penalty).
+
+Run with synthetic demo data:
+```
+python renewablecase.py --demo
+```
+
+Run with your own data:
+```
+python renewablecase.py --loads_csv path/to/loads.csv --renewables_csv path/to/renewables.csv --prices_csv path/to/prices.csv --price_col price --curtailment_cost 0.05
+```
+
+Expected input format:
+- `loads.csv`: one row per time slot, one column per base station.
+- `renewables.csv`: same shape/columns as `loads.csv` (available renewable energy).
+- `prices.csv`: one row per time slot with electricity price.
+
 ### Dataset
 For an extensive overview of the data collection and processing procedure please refer to [datataset](dataset).
