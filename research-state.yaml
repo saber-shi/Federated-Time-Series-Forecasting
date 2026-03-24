@@ -1,0 +1,73 @@
+# Research State — Central Project Tracking
+
+project:
+  title: "Federated Time-Series Forecasting for Cellular Traffic"
+  question: "How can federated time-series forecasting for 5G base-station traffic improve the accuracy-energy tradeoff under non-IID client distributions?"
+  status: active
+  started: "2026-03-24"
+  domain: "federated time-series forecasting"
+
+literature:
+  key_papers:
+    - id: "perifanis2023fl5g"
+      title: "Federated Learning for 5G Base Station Traffic Forecasting"
+      authors: "Perifanis et al."
+      year: 2023
+      relevance: "Core benchmark and baseline federated forecasting setup used by this repository."
+    - id: "perifanis2023energyaware"
+      title: "Towards Energy-Aware Federated Traffic Prediction for Cellular Networks"
+      authors: "Perifanis et al."
+      year: 2023
+      relevance: "Extends the forecasting setup with energy-consumption analysis."
+    - id: "perifanis2024bioinspired"
+      title: "Evaluation of Bio-Inspired Models under Different Learning Settings For Energy Efficiency in Network Traffic Prediction"
+      authors: "Perifanis et al."
+      year: 2024
+      relevance: "Introduces bio-inspired models and reframes the problem around energy efficiency."
+  open_problems:
+    - "Whether bio-inspired models retain forecasting quality under harsher temporal, quantity, and distribution skew."
+    - "How aggregation choice changes the accuracy-energy tradeoff across heterogeneous clients."
+    - "Which evaluation protocol best captures realistic deployment cost, not only predictive accuracy."
+  evidence_gaps:
+    - "A unified comparison of architectures and federated optimizers under a single energy-aware score is not yet documented in this workspace."
+    - "The current repository cites prior work but does not yet maintain a reusable literature survey or experiment ledger."
+
+hypotheses:
+  - id: H1
+    statement: "Energy-efficient architectures such as SNN or reservoir-style models can match recurrent baselines within an acceptable forecasting margin while reducing compute cost."
+    status: pending
+    motivation: "The repository already includes bio-inspired extensions, making this an immediately testable direction."
+    parent: null
+    priority: high
+  - id: H2
+    statement: "Adaptive federated optimizers outperform plain averaging on non-IID cellular traffic while incurring different energy costs per round."
+    status: pending
+    motivation: "The codebase already supports multiple aggregation algorithms, so the comparison can be run with limited code changes."
+    parent: null
+    priority: high
+  - id: H3
+    statement: "Exogenous signals or battery/renewable-aware post-processing improve system-level cost metrics more than model-only forecasting gains."
+    status: pending
+    motivation: "This repository contains renewable and battery optimization modules that can extend forecasting results into operational impact."
+    parent: null
+    priority: medium
+
+experiments:
+  proxy_metric: "Joint score over forecasting error and energy cost, initialized from existing repository baselines."
+  baseline_value: null
+  best_value: null
+  total_runs: 0
+  trajectory: []
+
+outer_loop:
+  cycle: 0
+  last_direction: "bootstrap"
+  last_reflection: "Initialized autoresearch workspace from repository context and seeded first-round hypotheses."
+
+workspace:
+  findings: "findings.md"
+  log: "research-log.md"
+  literature_dir: "literature/"
+  experiments_dir: "experiments/"
+  to_human_dir: "to_human/"
+  paper_dir: "paper/"
