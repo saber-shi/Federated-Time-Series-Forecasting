@@ -29,14 +29,6 @@ class BatterySpec:
 	e0: float
 
 
-def _ensure_gurobi() -> None:
-	if gp is None:
-		raise ImportError(
-			"gurobipy is required for renewable-aware battery optimization. Install with 'pip install gurobipy' "
-			"and make sure a valid Gurobi license is available."
-		) from _GUROBI_IMPORT_ERROR
-
-
 def _as_2d_values(values: pd.DataFrame | np.ndarray | Sequence[Sequence[float]], name: str) -> tuple[np.ndarray, list[str]]:
 	if isinstance(values, pd.DataFrame):
 		station_ids = [str(col) for col in values.columns]
@@ -55,6 +47,138 @@ def _as_1d(values: pd.Series | np.ndarray | Sequence[float], n_slots: int, name:
 	if arr.shape[0] != n_slots:
 		raise ValueError(f"`{name}` length ({arr.shape[0]}) must match number of time slots ({n_slots}).")
 	return arr
+
+
+def _extract_price_series(
+	prices_df: pd.DataFrame,
+	price_col: str | None,
+	price_day: str | None = None,
+	datetime_col: str = "Datetime (Local)",
+) -> np.ndarray:
+	filtered_df = prices_df
+	if price_day is not None:
+		if datetime_col not in prices_df.columns:
+			raise ValueError(f"--price_day requires '{datetime_col}' column in prices CSV.")
+
+		local_ts = pd.to_datetime(prices_df[datetime_col], errors="coerce")
+		if local_ts.isna().all():
+			raise ValueError(f"Could not parse timestamps from '{datetime_col}' column.")
+
+		try:
+			selected_day = pd.to_datetime(price_day).date()
+		except Exception as exc:
+			raise ValueError(f"Invalid --price_day '{price_day}'. Use YYYY-MM-DD.") from exc
+
+		mask = local_ts.dt.date == selected_day
+		filtered_df = prices_df.loc[mask]
+		if filtered_df.empty:
+			raise ValueError(f"No price rows found for local day {selected_day} in '{datetime_col}'.")
+
+	if price_col is not None:
+		if price_col not in filtered_df.columns:
+			raise ValueError(f"Price column '{price_col}' not found in prices CSV.")
+		return filtered_df[price_col].to_numpy(dtype=float)
+
+	if filtered_df.shape[1] == 1:
+		return filtered_df.iloc[:, 0].to_numpy(dtype=float)
+
+	if "Price (EUR/MWhe)" in filtered_df.columns:
+		return filtered_df["Price (EUR/MWhe)"].to_numpy(dtype=float)
+
+	price_like_cols = [col for col in filtered_df.columns if "price" in str(col).lower()]
+	if len(price_like_cols) == 1:
+		return filtered_df[price_like_cols[0]].to_numpy(dtype=float)
+
+	raise ValueError(
+		"prices_csv has multiple columns. Specify --price_col, or provide a file with a single price column."
+	)
+
+
+def _prepare_prices_for_slots(prices: np.ndarray, n_slots: int, slot_hours: float) -> np.ndarray:
+	prices = np.asarray(prices, dtype=float).reshape(-1)
+	if prices.shape[0] == n_slots:
+		return prices
+
+	if slot_hours <= 0:
+		raise ValueError("`slot_hours` must be positive.")
+
+	slots_per_hour_float = 1.0 / slot_hours
+	slots_per_hour = int(round(slots_per_hour_float))
+	if not np.isclose(slots_per_hour_float, slots_per_hour):
+		raise ValueError(
+			"Unsupported slot_hours for hourly-price expansion. Use a divisor of 1 hour (e.g., 1.0, 0.5, 0.25)."
+		)
+
+	if prices.shape[0] * slots_per_hour == n_slots:
+		return np.repeat(prices, slots_per_hour)
+
+	raise ValueError(
+		f"Unable to align price series length ({prices.shape[0]}) to load slots ({n_slots}) with slot_hours={slot_hours}. "
+		"Provide prices already matching load slots, or hourly prices compatible with the selected slot_hours."
+	)
+
+
+def _filter_df_by_local_day(
+	df: pd.DataFrame,
+	day: str | None,
+	datetime_col: str,
+	arg_name: str,
+) -> pd.DataFrame:
+	if day is None:
+		if datetime_col in df.columns:
+			ts = pd.to_datetime(df[datetime_col], errors="coerce")
+			unique_days = ts.dt.date.dropna().nunique()
+			if unique_days > 1:
+				raise ValueError(
+					f"Input has multiple days in '{datetime_col}'. Specify --{arg_name} YYYY-MM-DD."
+				)
+		return df
+
+	if datetime_col not in df.columns:
+		raise ValueError(f"--{arg_name} requires '{datetime_col}' column in CSV.")
+
+	ts = pd.to_datetime(df[datetime_col], errors="coerce")
+	if ts.isna().all():
+		raise ValueError(f"Could not parse timestamps from '{datetime_col}' column.")
+
+	try:
+		selected_day = pd.to_datetime(day).date()
+	except Exception as exc:
+		raise ValueError(f"Invalid --{arg_name} '{day}'. Use YYYY-MM-DD.") from exc
+
+	filtered = df.loc[ts.dt.date == selected_day].copy()
+	if filtered.empty:
+		raise ValueError(f"No rows found for local day {selected_day} in '{datetime_col}'.")
+
+	return filtered
+
+
+def _prepare_renewables_for_loads(
+	renewables_df: pd.DataFrame,
+	load_columns: Sequence[str],
+	n_slots: int,
+	slot_hours: float,
+	renewable_col: str,
+	renewable_day: str | None,
+	renewable_time_col: str,
+) -> pd.DataFrame:
+	filtered_df = _filter_df_by_local_day(
+		df=renewables_df,
+		day=renewable_day,
+		datetime_col=renewable_time_col,
+		arg_name="renewable_day",
+	)
+
+	if renewable_col not in filtered_df.columns:
+		raise ValueError(
+			f"Renewable column '{renewable_col}' not found in renewables_csv."
+		)
+
+	raw_renewables = filtered_df[renewable_col].to_numpy(dtype=float)
+	ren_series = _prepare_prices_for_slots(raw_renewables, n_slots=n_slots, slot_hours=slot_hours)
+
+	# Same renewable availability is used for every station at each time step.
+	return pd.DataFrame({col: ren_series for col in load_columns})
 
 
 def _align_specs(
@@ -90,7 +214,7 @@ def optimize_renewable_battery_schedule(
 	prices: pd.Series | np.ndarray | Sequence[float],
 	specs: Sequence[BatterySpec] | Mapping[str, BatterySpec],
 	curtailment_cost: float,
-	slot_hours: float = 1.0,
+	slot_hours: float = 0.5,
 	mip_gap: float | None = None,
 	time_limit_sec: float | None = None,
 	verbose: bool = False,
@@ -108,7 +232,6 @@ def optimize_renewable_battery_schedule(
 	- u[i,t]: binary mode (1=charging mode, 0=discharging mode)
 	- s[i,t]: curtailed renewable (linearization for max(0, R-r_u-r_c))
 	"""
-	_ensure_gurobi()
 
 	if slot_hours <= 0:
 		raise ValueError("`slot_hours` must be positive.")
@@ -254,7 +377,7 @@ def optimize_renewable_battery_schedule(
 	}
 
 
-def _demo_data(n_stations: int = 3, n_slots: int = 24) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray, list[BatterySpec]]:
+def _demo_data(n_stations: int = 3, n_slots: int = 48) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray, list[BatterySpec]]:
 	rng = np.random.default_rng(11)
 
 	base_load = 15 + 4.5 * np.sin(np.linspace(0, 2 * np.pi, n_slots, endpoint=False) - 0.3)
@@ -269,7 +392,10 @@ def _demo_data(n_stations: int = 3, n_slots: int = 24) -> tuple[pd.DataFrame, pd
 		renewables.append(np.maximum(0.0, 8.0 * solar_shape + rng.normal(0, 0.5, size=n_slots) + 0.5 * i))
 	renewables_df = pd.DataFrame(np.vstack(renewables).T, columns=[f"bs_{i}" for i in range(n_stations)])
 
-	prices = np.array([0.11] * 7 + [0.20] * 5 + [0.34] * 6 + [0.17] * 6, dtype=float)
+	hourly_prices = np.array([0.11] * 7 + [0.20] * 5 + [0.34] * 6 + [0.17] * 6, dtype=float)
+	if n_slots % hourly_prices.shape[0] != 0:
+		raise ValueError("Demo `n_slots` must be a multiple of 24.")
+	prices = np.repeat(hourly_prices, n_slots // hourly_prices.shape[0])
 
 	specs = [
 		BatterySpec(e_max=45.0, e_min=8.0, p_ch_max=10.0, p_dis_max=10.0, eta_ch=0.95, eta_dis=0.95, e0=20.0)
@@ -285,18 +411,52 @@ def main(argv: Iterable[str] | None = None) -> None:
 	parser.add_argument(
 		"--renewables_csv",
 		type=str,
+		default="./merged_predicted_loads.csv",
+		help="CSV with renewable energy time series (shared across all stations).",
+	)
+	parser.add_argument(
+		"--renewable_col",
+		type=str,
+		default="electricity",
+		help="Renewable energy column name (default: electricity).",
+	)
+	parser.add_argument(
+		"--renewable_day",
+		type=str,
 		default=None,
-		help="CSV with available renewable energy (columns=stations, same as loads_csv).",
+		help="Local day to select from renewables_csv (format: YYYY-MM-DD).",
+	)
+	parser.add_argument(
+		"--renewable_time_col",
+		type=str,
+		default="local_time",
+		help="Datetime column used for renewable day filtering (default: local_time).",
 	)
 	parser.add_argument(
 		"--prices_csv",
 		type=str,
 		default=None,
-		help="CSV with electricity prices (single column or use --price_col).",
+		help="CSV containing price data. Supports direct slot-level prices or hourly prices (auto-expanded).",
 	)
-	parser.add_argument("--price_col", type=str, default=None, help="Price column name when prices_csv has multiple columns.")
+	parser.add_argument(
+		"--price_col",
+		type=str,
+		default=None,
+		help="Price column name when using --prices_csv (optional for common formats like 'Price (EUR/MWhe)').",
+	)
+	parser.add_argument(
+		"--price_day",
+		type=str,
+		default=None,
+		help="Local day to select from multi-day price CSV, using 'Datetime (Local)' (format: YYYY-MM-DD).",
+	)
 	parser.add_argument("--curtailment_cost", type=float, default=0.05, help="Penalty per unit of curtailed renewable energy.")
-	parser.add_argument("--slot_hours", type=float, default=1.0)
+	parser.add_argument(
+		"--slot_hours",
+		type=float,
+		default=0.5,
+		help="Duration of each prediction/load slot in hours (default: 0.5 for half-hour granularity).",
+	)
 	parser.add_argument("--verbose", action="store_true")
 	args = parser.parse_args(list(argv) if argv is not None else None)
 
@@ -307,20 +467,19 @@ def main(argv: Iterable[str] | None = None) -> None:
 			raise ValueError("Provide --demo or all of --loads_csv, --renewables_csv and --prices_csv.")
 
 		loads_df = pd.read_csv(args.loads_csv)
-		renewables_df = pd.read_csv(args.renewables_csv)
+		renewables_raw_df = pd.read_csv(args.renewables_csv)
 		prices_df = pd.read_csv(args.prices_csv)
-
-		if args.price_col is not None:
-			if args.price_col not in prices_df.columns:
-				raise ValueError(f"Price column '{args.price_col}' not found in {args.prices_csv}.")
-			prices_arr = prices_df[args.price_col].to_numpy(dtype=float)
-		elif prices_df.shape[1] == 1:
-			prices_arr = prices_df.iloc[:, 0].to_numpy(dtype=float)
-		else:
-			raise ValueError("prices_csv has multiple columns. Specify --price_col.")
-
-		if list(loads_df.columns) != list(renewables_df.columns):
-			raise ValueError("loads_csv and renewables_csv must have identical station columns in the same order.")
+		raw_prices = _extract_price_series(prices_df, args.price_col, price_day=args.price_day)
+		prices_arr = _prepare_prices_for_slots(raw_prices, n_slots=len(loads_df), slot_hours=args.slot_hours)
+		renewables_df = _prepare_renewables_for_loads(
+			renewables_df=renewables_raw_df,
+			load_columns=list(loads_df.columns),
+			n_slots=len(loads_df),
+			slot_hours=args.slot_hours,
+			renewable_col=args.renewable_col,
+			renewable_day=args.renewable_day,
+			renewable_time_col=args.renewable_time_col,
+		)
 
 		specs_arr = [
 			BatterySpec(e_max=45.0, e_min=8.0, p_ch_max=10.0, p_dis_max=10.0, eta_ch=0.95, eta_dis=0.95, e0=20.0)
