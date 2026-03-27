@@ -119,7 +119,7 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         if self.use_wandb and metrics:
             log_data = {f"server/train_{key}": float(value) for key, value in metrics.items()}
             log_data["round"] = rnd
-            wandb.log(log_data, step=rnd)
+            wandb.log(log_data, step=rnd, commit=False)
 
         return ndarrays_to_parameters(aggregated), metrics
 
@@ -131,7 +131,7 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
                 numeric_metrics = {k: float(v) for k, v in metrics.items() if isinstance(v, Number)}
                 log_data.update({f"server/val_{k}": v for k, v in numeric_metrics.items()})
             log_data["round"] = rnd
-            wandb.log(log_data, step=rnd)
+            wandb.log(log_data, step=rnd, commit=True)
         return aggregated_loss, metrics
 
 
@@ -147,13 +147,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--min_fit_clients",
         type=int,
-        default=1,
+        default=2,
         help="Minimum number of clients used for training in each round",
     )
     parser.add_argument(
         "--min_available_clients",
         type=int,
-        default=1,
+        default=2,
         help="Minimum number of clients that need to be connected to start training",
     )
     parser.add_argument("--wandb", action="store_true", default=False, help="Enable wandb logging on the server")

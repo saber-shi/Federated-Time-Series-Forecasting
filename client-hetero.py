@@ -152,6 +152,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.args = args
         self.device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
         self.criterion = get_criterion(args.criterion)
+        self.wandb_round = 0
 
     def get_parameters(self, config):  # type: ignore[override]
         return self.adapter.export_parameters_with_masks()
@@ -163,6 +164,8 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
     def fit(self, parameters, config):  # type: ignore[override]
         if parameters is not None:
             self._set_parameters(parameters)
+
+        self.wandb_round += 1
 
         start_time = time.time()
         self.model = train(
@@ -215,7 +218,10 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                     "client/train_nrmse": float(nrmse),
                     "client/round_train_time_seconds": float(round_train_time),
                     "client/local_num_layers": int(self.args.local_num_layers),
-                }
+                    "round": int(self.wandb_round),
+                },
+                step=int(self.wandb_round),
+                commit=False,
             )
 
         return self.get_parameters(config), len(self.train_loader.dataset), metrics
@@ -250,7 +256,10 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                     "client/val_r2": float(r2),
                     "client/val_nrmse": float(nrmse),
                     "client/local_num_layers": int(self.args.local_num_layers),
-                }
+                    "round": int(self.wandb_round),
+                },
+                step=int(self.wandb_round),
+                commit=True,
             )
 
         return float(loss), len(self.val_loader.dataset), metrics

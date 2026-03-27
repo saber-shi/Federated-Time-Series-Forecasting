@@ -1,0 +1,39 @@
+{
+  "os": "Linux-5.10.120-tegra-aarch64-with-glibc2.26",
+  "python": "CPython 3.8.20",
+  "startedAt": "2026-03-24T13:47:44.425819Z",
+  "args": [
+    "--cid",
+    "12167-0",
+    "--model_name",
+    "lstm",
+    "--local_num_layers",
+    "1",
+    "--global_num_layers",
+    "2",
+    "--wandb"
+  ],
+  "program": "client-hetero.py",
+  "codePath": "client-hetero.py",
+  "codePathLocal": "client-hetero.py",
+  "git": {
+    "remote": "https://github.com/saber-shi/Federated-Time-Series-Forecasting.git",
+    "commit": "6d35467218d82de38c9e196ea0c50d4a66c302e4"
+  },
+  "email": "shisiping1992@gmail.com",
+  "root": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting",
+  "host": "hkuiot-orin-1",
+  "executable": "/home/hkuiot/miniconda3/envs/fed/bin/python3",
+  "cpu_count": 12,
+  "cpu_count_logical": 12,
+  "disk": {
+    "/": {
+      "total": "60725108736",
+      "used": "33835757568"
+    }
+  },
+  "memory": {
+    "total": "65853030400"
+  },
+  "writerId": "2jcqtsx1qpowv57wjv1dkte5ulyuz6bd"
+}
