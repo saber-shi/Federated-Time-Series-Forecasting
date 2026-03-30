@@ -19,6 +19,13 @@ from ml.models.lstm import LSTM
 from ml.models.rnn import RNN
 from ml.utils.helpers import get_criterion
 from ml.utils.train_utils import test, train
+from src.spa_hfl import (
+    AlignmentProjector,
+    evaluate_spa,
+    load_state_dict_from_ndarrays,
+    pack_state_dict,
+    train_spa_hfl,
+)
 
 
 def seed_all(seed: int) -> None:
@@ -153,13 +160,47 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
         self.criterion = get_criterion(args.criterion)
         self.wandb_round = 0
+        self.projector = AlignmentProjector(input_dim=self.model.hidden_dim, align_dim=args.align_dim)
 
     def get_parameters(self, config):  # type: ignore[override]
+        if getattr(self.args, "spa_hfl", False):
+            return self._get_spa_parameters()
         return self.adapter.export_parameters_with_masks()
 
     def _set_parameters(self, parameters: List[np.ndarray]) -> None:
+        if getattr(self.args, "spa_hfl", False):
+            self._set_spa_parameters(parameters)
+            return
         self.adapter.load_global_parameters(parameters)
         self.model = self.adapter.local_model
+
+    def _get_spa_parameters(self) -> List[np.ndarray]:
+        centroid = getattr(self, "current_global_centroid", np.zeros(self.args.align_dim, dtype=np.float32))
+        return self.adapter.export_parameters_with_masks() + pack_state_dict(self.projector) + [centroid]
+
+    def _set_spa_parameters(self, parameters: List[np.ndarray]) -> None:
+        model_param_count = len(self.adapter.reference_keys)
+        projector_param_count = len(list(self.projector.state_dict().keys()))
+        min_total = model_param_count + projector_param_count + 1
+        raw_total = 2 * model_param_count + projector_param_count + 1
+        if len(parameters) < min_total:
+            raise ValueError(
+                f"Expected at least {min_total} tensors for SPA-HFL state, got {len(parameters)}"
+            )
+        if len(parameters) >= raw_total:
+            model_parameters = parameters[:model_param_count]
+            projector_start = 2 * model_param_count
+            projector_parameters = parameters[projector_start : projector_start + projector_param_count]
+            centroid = parameters[projector_start + projector_param_count]
+        else:
+            model_parameters = parameters[:model_param_count]
+            projector_parameters = parameters[model_param_count : model_param_count + projector_param_count]
+            centroid = parameters[model_param_count + projector_param_count]
+
+        self.adapter.load_global_parameters(model_parameters)
+        self.model = self.adapter.local_model
+        load_state_dict_from_ndarrays(self.projector, projector_parameters)
+        self.current_global_centroid = centroid
 
     def fit(self, parameters, config):  # type: ignore[override]
         if parameters is not None:
@@ -168,34 +209,67 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.wandb_round += 1
 
         start_time = time.time()
-        self.model = train(
-            model=self.model,
-            train_loader=self.train_loader,
-            test_loader=self.val_loader,
-            epochs=self.args.epochs,
-            optimizer=self.args.optimizer,
-            lr=self.args.lr,
-            reg1=self.args.reg1,
-            reg2=self.args.reg2,
-            max_grad_norm=self.args.max_grad_norm,
-            criterion=self.args.criterion,
-            early_stopping=self.args.local_early_stopping,
-            patience=self.args.local_patience,
-            plot_history=False,
-            device=self.device,
-            fedprox_mu=0.0,
-            log_per=1,
-            use_carbontracker=self.args.use_carbontracker,
-        )
+        if getattr(self.args, "spa_hfl", False):
+            centroid = getattr(self, "current_global_centroid", None)
+            self.model, self.projector, alignment_stats, alignment_metrics = train_spa_hfl(
+                model=self.model,
+                projector=self.projector,
+                train_loader=self.train_loader,
+                val_loader=self.val_loader,
+                epochs=self.args.epochs,
+                optimizer_name=self.args.optimizer,
+                lr=self.args.lr,
+                criterion_name=self.args.criterion,
+                device=self.device,
+                lambda_align=self.args.lambda_align,
+                lambda_cons=self.args.lambda_cons,
+                global_centroid=centroid,
+                acf_lags=self.args.acf_lags,
+                fft_bins=self.args.fft_bins,
+                early_stopping=self.args.local_early_stopping,
+                patience=self.args.local_patience,
+                max_grad_norm=self.args.max_grad_norm,
+            )
+        else:
+            alignment_stats = None
+            alignment_metrics = None
+            self.model = train(
+                model=self.model,
+                train_loader=self.train_loader,
+                test_loader=self.val_loader,
+                epochs=self.args.epochs,
+                optimizer=self.args.optimizer,
+                lr=self.args.lr,
+                reg1=self.args.reg1,
+                reg2=self.args.reg2,
+                max_grad_norm=self.args.max_grad_norm,
+                criterion=self.args.criterion,
+                early_stopping=self.args.local_early_stopping,
+                patience=self.args.local_patience,
+                plot_history=False,
+                device=self.device,
+                fedprox_mu=0.0,
+                log_per=1,
+                use_carbontracker=self.args.use_carbontracker,
+            )
         self.adapter.local_model = self.model
         round_train_time = time.time() - start_time
 
-        loss, mse, rmse, mae, r2, nrmse = test(
-            self.model,
-            self.train_loader,
-            self.criterion,
-            device=self.device,
-        )
+        if getattr(self.args, "spa_hfl", False):
+            loss, mse, rmse, mae, r2, nrmse = evaluate_spa(
+                self.model,
+                self.projector,
+                self.train_loader,
+                self.criterion,
+                device=self.device,
+            )
+        else:
+            loss, mse, rmse, mae, r2, nrmse = test(
+                self.model,
+                self.train_loader,
+                self.criterion,
+                device=self.device,
+            )
 
         metrics = {
             "mse": float(mse),
@@ -205,37 +279,58 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "nrmse": float(nrmse),
             "local_num_layers": int(self.args.local_num_layers),
             "global_num_layers": int(self.args.global_num_layers),
+            "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
         }
+        if alignment_metrics is not None:
+            metrics["align_train_loss"] = float(alignment_metrics["train_loss"])
+            metrics["align_train_rmse"] = float(alignment_metrics["train_rmse"])
+            metrics["latent_mean_norm"] = float(np.linalg.norm(alignment_stats["latent_mean"]))
 
         if wandb is not None and getattr(self.args, "wandb", False):
-            wandb.log(
-                {
-                    "client/train_loss": float(loss),
-                    "client/train_mse": float(mse),
-                    "client/train_rmse": float(rmse),
-                    "client/train_mae": float(mae),
-                    "client/train_r2": float(r2),
-                    "client/train_nrmse": float(nrmse),
-                    "client/round_train_time_seconds": float(round_train_time),
-                    "client/local_num_layers": int(self.args.local_num_layers),
-                    "round": int(self.wandb_round),
-                },
-                step=int(self.wandb_round),
-                commit=False,
-            )
+            log_data = {
+                "client/train_loss": float(loss),
+                "client/train_mse": float(mse),
+                "client/train_rmse": float(rmse),
+                "client/train_mae": float(mae),
+                "client/train_r2": float(r2),
+                "client/train_nrmse": float(nrmse),
+                "client/round_train_time_seconds": float(round_train_time),
+                "client/local_num_layers": int(self.args.local_num_layers),
+                "client/spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+                "round": int(self.wandb_round),
+            }
+            if alignment_metrics is not None:
+                log_data["client/align_train_loss"] = float(alignment_metrics["train_loss"])
+                log_data["client/align_train_rmse"] = float(alignment_metrics["train_rmse"])
+            wandb.log(log_data, step=int(self.wandb_round), commit=False)
 
-        return self.get_parameters(config), len(self.train_loader.dataset), metrics
+        if getattr(self.args, "spa_hfl", False):
+            payload = self.adapter.export_parameters_with_masks() + pack_state_dict(self.projector) + [
+                alignment_stats["latent_mean"].astype(np.float32, copy=False)
+            ]
+        else:
+            payload = self.get_parameters(config)
+        return payload, len(self.train_loader.dataset), metrics
 
     def evaluate(self, parameters, config):  # type: ignore[override]
         if parameters is not None:
             self._set_parameters(parameters)
 
-        loss, mse, rmse, mae, r2, nrmse = test(
-            self.model,
-            self.val_loader,
-            self.criterion,
-            device=self.device,
-        )
+        if getattr(self.args, "spa_hfl", False):
+            loss, mse, rmse, mae, r2, nrmse = evaluate_spa(
+                self.model,
+                self.projector,
+                self.val_loader,
+                self.criterion,
+                device=self.device,
+            )
+        else:
+            loss, mse, rmse, mae, r2, nrmse = test(
+                self.model,
+                self.val_loader,
+                self.criterion,
+                device=self.device,
+            )
 
         metrics = {
             "mse": float(mse),
@@ -244,6 +339,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "r2": float(r2),
             "nrmse": float(nrmse),
             "local_num_layers": int(self.args.local_num_layers),
+            "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
         }
 
         if wandb is not None and getattr(self.args, "wandb", False):
@@ -256,6 +352,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                     "client/val_r2": float(r2),
                     "client/val_nrmse": float(nrmse),
                     "client/local_num_layers": int(self.args.local_num_layers),
+                    "client/spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
                     "round": int(self.wandb_round),
                 },
                 step=int(self.wandb_round),
@@ -312,6 +409,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cuda", action="store_true", default=True)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--use_carbontracker", action="store_true", default=False)
+    parser.add_argument("--spa_hfl", action="store_true", default=False, help="Enable SPA-HFL alignment training")
+    parser.add_argument("--align_dim", type=int, default=32)
+    parser.add_argument("--lambda_align", type=float, default=0.1)
+    parser.add_argument("--lambda_cons", type=float, default=0.1)
+    parser.add_argument("--acf_lags", type=int, default=8)
+    parser.add_argument("--fft_bins", type=int, default=8)
 
     parser.add_argument("--wandb", action="store_true", default=False, help="Enable wandb logging for this client")
     parser.add_argument(
@@ -367,7 +470,7 @@ def main() -> None:
         wb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
-            name=f"flwr-hetero-client-{args.cid}-{args.model_name}-L{args.local_num_layers}",
+            name=f"flwr-hetero-client-{args.cid}-{args.model_name}-L{args.local_num_layers}{'-spa' if args.spa_hfl else ''}",
             mode="online",
         )
         wandb.config.update(
@@ -376,6 +479,7 @@ def main() -> None:
                 "model_name": args.model_name,
                 "local_num_layers": args.local_num_layers,
                 "global_num_layers": args.global_num_layers,
+                "spa_hfl": args.spa_hfl,
             },
             allow_val_change=True,
         )

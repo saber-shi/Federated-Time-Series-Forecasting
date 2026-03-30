@@ -32,7 +32,7 @@ class GRU(torch.nn.Module):
         if init_weights:
             self.MLP_layers.apply(self._init_weights)
 
-    def forward(self, x, exogenous_data=None, device="cpu", y_hist=None):
+    def forward(self, x, exogenous_data=None, device="cpu", y_hist=None, return_features: bool = False):
         if not self.is_matrix:
             x = x.view([x.size(0), -1, x.size(1)])
         else:
@@ -40,14 +40,21 @@ class GRU(torch.nn.Module):
 
         h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_().to(device)
 
-        out, _ = self.gru(x, (h0.detach()))
-        out = out[:, -1, :]
+        seq_out, _ = self.gru(x, (h0.detach()))
+        last_hidden = seq_out[:, -1, :]
+        out = last_hidden
 
         if exogenous_data is not None and self.is_matrix:
             out = torch.cat((out, exogenous_data), dim=1)
 
-        out = self.MLP_layers(out)
-        return out
+        prediction = self.MLP_layers(out)
+        if return_features:
+            return {
+                "prediction": prediction,
+                "last_hidden": last_hidden,
+                "sequence_hidden": seq_out,
+            }
+        return prediction
 
     def _init_weights(self, module):
         if isinstance(module, torch.nn.Linear):

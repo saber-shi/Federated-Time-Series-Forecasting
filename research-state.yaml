@@ -28,9 +28,11 @@ literature:
     - "Whether bio-inspired models retain forecasting quality under harsher temporal, quantity, and distribution skew."
     - "How aggregation choice changes the accuracy-energy tradeoff across heterogeneous clients."
     - "Which evaluation protocol best captures realistic deployment cost, not only predictive accuracy."
+    - "Whether model-heterogeneous FL methods designed for generic tasks can transfer to time-series forecasting without clustering or personalization."
   evidence_gaps:
     - "A unified comparison of architectures and federated optimizers under a single energy-aware score is not yet documented in this workspace."
     - "The current repository cites prior work but does not yet maintain a reusable literature survey or experiment ledger."
+    - "The repository now has a HeteroFL-style implementation, but there is no empirical evidence yet showing whether masked heterogeneous aggregation is stable for forecasting clients with different temporal dynamics."
 
 hypotheses:
   - id: H1
@@ -51,6 +53,12 @@ hypotheses:
     motivation: "This repository contains renewable and battery optimization modules that can extend forecasting results into operational impact."
     parent: null
     priority: medium
+  - id: H4
+    statement: "Aligning sequence-level temporal patterns in a shared latent space before masked heterogeneous aggregation will improve forecasting stability and accuracy over plain HeteroFL."
+    status: active
+    motivation: "Literature suggests temporal semantic mismatch, not only parameter mismatch, is the main failure mode for model-heterogeneous time-series FL."
+    parent: null
+    priority: high
 
 experiments:
   proxy_metric: "Joint score over forecasting error and energy cost, initialized from existing repository baselines."
@@ -61,8 +69,8 @@ experiments:
 
 outer_loop:
   cycle: 0
-  last_direction: "bootstrap"
-  last_reflection: "Initialized autoresearch workspace from repository context and seeded first-round hypotheses."
+  last_direction: "deepen"
+  last_reflection: "Designed H4 as a concrete next-step algorithm: sequence-pattern alignment before heterogeneous aggregation."
 
 workspace:
   findings: "findings.md"
