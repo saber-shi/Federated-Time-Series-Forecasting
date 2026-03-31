@@ -251,7 +251,7 @@ def main() -> None:
         wb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
-            name="flwr-hetero-server",
+            name=f"flwr-hetero-server{'-spa' if args.spa_hfl else 'hfl'}",
             mode="online",
         )
         wandb.config.update(

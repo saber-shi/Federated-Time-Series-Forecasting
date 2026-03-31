@@ -470,7 +470,7 @@ def main() -> None:
         wb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
-            name=f"flwr-hetero-client-{args.cid}-{args.model_name}-L{args.local_num_layers}{'-spa' if args.spa_hfl else ''}",
+            name=f"flwr-hetclient-{args.cid}-{args.model_name}-L{args.local_num_layers}{'-spa' if args.spa_hfl else 'hfl'}",
             mode="online",
         )
         wandb.config.update(
