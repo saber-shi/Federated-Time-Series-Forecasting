@@ -1,4 +1,5 @@
 import argparse
+import csv
 import random
 import time
 from pathlib import Path
@@ -26,6 +27,25 @@ from src.spa_hfl import (
     pack_state_dict,
     train_spa_hfl,
 )
+
+CLIENT_METRIC_FIELDNAMES = [
+    "round",
+    "split",
+    "cid",
+    "local_num_layers",
+    "global_num_layers",
+    "spa_hfl",
+    "loss",
+    "mse",
+    "rmse",
+    "mae",
+    "r2",
+    "nrmse",
+    "round_train_time_seconds",
+    "align_train_loss",
+    "align_train_rmse",
+    "latent_mean_norm",
+]
 
 
 def seed_all(seed: int) -> None:
@@ -162,6 +182,53 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.wandb_round = 0
         self.projector = AlignmentProjector(input_dim=self.model.hidden_dim, align_dim=args.align_dim)
 
+    def _append_metric_row(
+        self,
+        split: str,
+        loss: float,
+        metrics: Dict[str, float],
+        round_train_time_seconds: float = None,
+        alignment_metrics: Dict[str, float] = None,
+        alignment_stats: Dict[str, np.ndarray] = None,
+    ) -> None:
+        if not getattr(self.args, "metrics_log_path", ""):
+            return
+
+        path = Path(self.args.metrics_log_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        needs_header = not path.exists()
+
+        row: Dict[str, Any] = {key: "" for key in CLIENT_METRIC_FIELDNAMES}
+        row.update(
+            {
+                "round": int(self.wandb_round),
+                "split": split,
+                "cid": self.cid,
+                "local_num_layers": int(self.args.local_num_layers),
+                "global_num_layers": int(self.args.global_num_layers),
+                "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+                "loss": float(loss),
+                "mse": float(metrics["mse"]),
+                "rmse": float(metrics["rmse"]),
+                "mae": float(metrics["mae"]),
+                "r2": float(metrics["r2"]),
+                "nrmse": float(metrics["nrmse"]),
+            }
+        )
+        if round_train_time_seconds is not None:
+            row["round_train_time_seconds"] = float(round_train_time_seconds)
+        if alignment_metrics is not None:
+            row["align_train_loss"] = float(alignment_metrics["train_loss"])
+            row["align_train_rmse"] = float(alignment_metrics["train_rmse"])
+        if alignment_stats is not None:
+            row["latent_mean_norm"] = float(np.linalg.norm(alignment_stats["latent_mean"]))
+
+        with path.open("a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=CLIENT_METRIC_FIELDNAMES)
+            if needs_header:
+                writer.writeheader()
+            writer.writerow(row)
+
     def get_parameters(self, config):  # type: ignore[override]
         if getattr(self.args, "spa_hfl", False):
             return self._get_spa_parameters()
@@ -286,6 +353,15 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             metrics["align_train_rmse"] = float(alignment_metrics["train_rmse"])
             metrics["latent_mean_norm"] = float(np.linalg.norm(alignment_stats["latent_mean"]))
 
+        self._append_metric_row(
+            split="train",
+            loss=float(loss),
+            metrics=metrics,
+            round_train_time_seconds=float(round_train_time),
+            alignment_metrics=alignment_metrics,
+            alignment_stats=alignment_stats,
+        )
+
         if wandb is not None and getattr(self.args, "wandb", False):
             log_data = {
                 "client/train_loss": float(loss),
@@ -341,6 +417,8 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "local_num_layers": int(self.args.local_num_layers),
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
         }
+
+        self._append_metric_row(split="val", loss=float(loss), metrics=metrics)
 
         if wandb is not None and getattr(self.args, "wandb", False):
             wandb.log(
@@ -417,6 +495,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fft_bins", type=int, default=8)
 
     parser.add_argument("--wandb", action="store_true", default=False, help="Enable wandb logging for this client")
+    parser.add_argument(
+        "--metrics_log_path",
+        type=str,
+        default="",
+        help="Optional CSV path for stable per-round client metrics logging.",
+    )
     parser.add_argument(
         "--wandb_project",
         type=str,

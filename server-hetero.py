@@ -16,6 +16,23 @@ except Exception:  # pragma: no cover
 
 from src.spa_hfl import AlignmentProjector, aggregate_ndarrays, update_centroid
 
+SERVER_METRIC_FIELDNAMES = [
+    "round",
+    "split",
+    "loss",
+    "global_num_layers",
+    "local_num_layers",
+    "spa_hfl",
+    "mse",
+    "rmse",
+    "mae",
+    "r2",
+    "nrmse",
+    "align_train_loss",
+    "align_train_rmse",
+    "latent_mean_norm",
+]
+
 
 def _weighted_numeric_metrics(metrics: List[Tuple[int, Dict[str, Scalar]]]) -> Dict[str, float]:
     if not metrics:
@@ -56,14 +73,15 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             return
         path = Path(self.metrics_log_path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        row = {"round": rnd, "split": split}
+        row = {key: "" for key in SERVER_METRIC_FIELDNAMES}
+        row["round"] = rnd
+        row["split"] = split
         for key, value in metrics.items():
-            if isinstance(value, Number):
+            if key in row and isinstance(value, Number):
                 row[key] = float(value)
         needs_header = not path.exists()
-        fieldnames = list(row.keys())
         with path.open("a", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=SERVER_METRIC_FIELDNAMES)
             if needs_header:
                 writer.writeheader()
             writer.writerow(row)
