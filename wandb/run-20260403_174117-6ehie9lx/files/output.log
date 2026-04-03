@@ -1,0 +1,54 @@
+INFO logger 2026-04-03 17:41:19,481 | data_utils.py:28 | Reading 12163-0's data...
+INFO logger 2026-04-03 17:41:19,577 | data_utils.py:396 | 	Total number of samples:  8736
+INFO logger 2026-04-03 17:41:19,579 | data_utils.py:397 | 	Number of samples for training: 6989
+INFO logger 2026-04-03 17:41:19,581 | data_utils.py:398 | 	Number of samples for validation:  1747
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 0a5afd30-4d4a-41cc-ab32-6c74045e0534
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message dc1ee57f-c9ae-4e8d-a3cf-75a7ac9d601e
+INFO logger 2026-04-03 17:46:22,365 | train_utils.py:97 | Epoch 1 [Train]: loss 0.019657245708988347, mse: 0.013292648829519749, rmse: 0.11529375017545292, mae 0.08146745711565018, r2: 0.5940629235802141, nrmse: 0.1112330029777944
+INFO logger 2026-04-03 17:46:22,367 | train_utils.py:99 | Epoch 1 [Test]: loss 0.00019730385360014726, mse: 0.012465458363294601, rmse: 0.11164881711551897, mae 0.08064068108797073, r2: 0.49884775299962086, nrmse: 0.15232165090415778
+INFO logger 2026-04-03 17:46:46,330 | train_utils.py:97 | Epoch 2 [Train]: loss 0.011351431365372665, mse: 0.00949509721249342, rmse: 0.09744278943304846, mae 0.06790012866258621, r2: 0.6997368211852977, nrmse: 0.10333592877203608
+INFO logger 2026-04-03 17:46:46,330 | train_utils.py:99 | Epoch 2 [Test]: loss 0.00014827066945847237, mse: 0.009345214813947678, rmse: 0.09667065125438888, mae 0.0679553672671318, r2: 0.6264790743007796, nrmse: 0.1312394535310663
+[91mERROR [0m:     Client raised an exception.
+Traceback (most recent call last):
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py", line 303, in fit
+    self.model = train(
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 92, in train
+    _, train_mse, train_rmse, train_mae, train_r2, train_nrmse = test(model, train_loader,
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 161, in test
+    out = model(x, exogenous, device, y_hist)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/models/lstm.py", line 42, in forward
+    c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_().to(device)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 767, in signal_handler
+    raise StopIteration from None
+StopIteration
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12163-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12163-0_lstm_last_48.csv

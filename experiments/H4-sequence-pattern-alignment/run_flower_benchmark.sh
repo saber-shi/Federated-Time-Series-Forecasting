@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -37,13 +37,14 @@ python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:8090 \
   --rounds 30 \
   --min_fit_clients 10 \
+  --min_evaluate_clients 10 \
   --min_available_clients 10 \
   --metrics_log_path "$LOG_DIR/plain_heterofl_server_metrics.csv" &
 SERVER_PID=$!
 sleep 3
 
 CLIENT_PIDS=()
-for idx in {1..10}; do
+for idx in "${!CLIENT_CIDS[@]}"; do
   cid="${CLIENT_CIDS[$idx]}"
   layers="${CLIENT_LAYERS[$idx]}"
   python3 "$ROOT_DIR/client-hetero.py" \
@@ -70,6 +71,7 @@ python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:8091 \
   --rounds 30 \
   --min_fit_clients 10 \
+  --min_evaluate_clients 10 \
   --min_available_clients 10 \
   --spa_hfl \
   --align_dim 32 \
@@ -79,7 +81,7 @@ SERVER_PID=$!
 sleep 3
 
 CLIENT_PIDS=()
-for idx in {1..10}; do
+for idx in "${!CLIENT_CIDS[@]}"; do
   cid="${CLIENT_CIDS[$idx]}"
   layers="${CLIENT_LAYERS[$idx]}"
   python3 "$ROOT_DIR/client-hetero.py" \

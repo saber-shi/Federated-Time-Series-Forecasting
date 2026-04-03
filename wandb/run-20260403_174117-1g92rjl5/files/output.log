@@ -1,0 +1,42 @@
+INFO logger 2026-04-03 17:41:19,994 | data_utils.py:28 | Reading 12170-0's data...
+INFO logger 2026-04-03 17:41:20,179 | data_utils.py:396 | 	Total number of samples:  35040
+INFO logger 2026-04-03 17:41:20,181 | data_utils.py:397 | 	Number of samples for training: 28032
+INFO logger 2026-04-03 17:41:20,185 | data_utils.py:398 | 	Number of samples for validation:  7008
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 9b7d9715-3591-4792-badf-05baa30ffdb9
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message bb60f701-9acd-4939-9603-0338ebd2a2b0
+Exception ignored in: <function WeakSet.__init__.<locals>._remove at 0xffff5dc48940>
+Traceback (most recent call last):
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/_weakrefset.py", line 38, in _remove
+    def _remove(item, selfref=ref(self)):
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 767, in signal_handler
+    raise StopIteration from None
+StopIteration:
+INFO logger 2026-04-03 17:47:34,406 | train_utils.py:97 | Epoch 1 [Train]: loss 0.006848963460731894, mse: 0.003983004949986935, rmse: 0.06311105251845302, mae 0.04276035353541374, r2: 0.8855340104183156, nrmse: 0.08605943526226682
+INFO logger 2026-04-03 17:47:34,406 | train_utils.py:99 | Epoch 1 [Test]: loss 6.105259673712754e-05, mse: 0.0038995910435914993, rmse: 0.06244670562640994, mae 0.042296912521123886, r2: 0.8768055005139226, nrmse: 0.09352424697027784
+INFO logger 2026-04-03 17:48:42,016 | train_utils.py:97 | Epoch 2 [Train]: loss 0.003634109823341528, mse: 0.003242755774408579, rmse: 0.05694519974860549, mae 0.04017990827560425, r2: 0.9019067353593113, nrmse: 0.08728236284738371
+INFO logger 2026-04-03 17:48:42,017 | train_utils.py:99 | Epoch 2 [Test]: loss 4.890647147455649e-05, mse: 0.003123207250609994, rmse: 0.05588566229910847, mae 0.03916662558913231, r2: 0.8958425557948502, nrmse: 0.09284011469531754
+INFO logger 2026-04-03 17:49:39,314 | train_utils.py:97 | Epoch 3 [Train]: loss 0.0030132135855816477, mse: 0.002889997325837612, rmse: 0.05375869535096264, mae 0.03915223851799965, r2: 0.9083136655533711, nrmse: 0.09236118266786138
+INFO logger 2026-04-03 17:49:39,315 | train_utils.py:99 | Epoch 3 [Test]: loss 4.244200291845348e-05, mse: 0.0027106082998216152, rmse: 0.05206350256966597, mae 0.037426482886075974, r2: 0.9053435582177176, nrmse: 0.0949057515455128
+INFO logger 2026-04-03 17:50:26,492 | train_utils.py:97 | Epoch 4 [Train]: loss 0.0022520171924915217, mse: 0.0017983003053814173, rmse: 0.04240637104706576, mae 0.029559284448623657, r2: 0.9388358516526086, nrmse: 0.082228443433351
+INFO logger 2026-04-03 17:50:26,493 | train_utils.py:99 | Epoch 4 [Test]: loss 2.7924335037154713e-05, mse: 0.0017844557296484709, rmse: 0.04224281867546804, mae 0.029239023104310036, r2: 0.9299288762647243, nrmse: 0.091683924857999
+INFO logger 2026-04-03 17:51:01,403 | train_utils.py:97 | Epoch 5 [Train]: loss 0.001565542107274688, mse: 0.001263285055756569, rmse: 0.03554272155809919, mae 0.023694897070527077, r2: 0.9556892991817941, nrmse: 0.07224047533768457
+INFO logger 2026-04-03 17:51:01,404 | train_utils.py:99 | Epoch 5 [Test]: loss 1.9134306685059686e-05, mse: 0.0012229831190779805, rmse: 0.034971175546126276, mae 0.022988639771938324, r2: 0.9508132763022545, nrmse: 0.07823173477652595
+INFO logger 2026-04-03 17:51:01,407 | train_utils.py:142 | Best Loss: 1.9134306685059686e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12170-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12170-0_lstm_last_48.csv

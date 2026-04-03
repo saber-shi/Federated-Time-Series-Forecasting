@@ -1,0 +1,35 @@
+INFO logger 2026-04-03 17:41:19,023 | data_utils.py:28 | Reading 12165-0's data...
+INFO logger 2026-04-03 17:41:19,123 | data_utils.py:396 | 	Total number of samples:  17520
+INFO logger 2026-04-03 17:41:19,126 | data_utils.py:397 | 	Number of samples for training: 14016
+INFO logger 2026-04-03 17:41:19,127 | data_utils.py:398 | 	Number of samples for validation:  3504
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 480b8f41-3eb5-42e2-a066-07b3923a68ec
+INFO logger 2026-04-03 17:41:59,931 | train_utils.py:97 | Epoch 1 [Train]: loss 0.011257182183722247, mse: 0.007139909081161022, rmse: 0.08449798270468369, mae 0.053753092885017395, r2: 0.6018237477954129, nrmse: 0.2971480241422669
+INFO logger 2026-04-03 17:41:59,932 | train_utils.py:99 | Epoch 1 [Test]: loss 0.00012155158900121158, mse: 0.007779296021908522, rmse: 0.08820031758394366, mae 0.05573318898677826, r2: 0.575412852656563, nrmse: 0.20705738597757284
+INFO logger 2026-04-03 17:42:25,457 | train_utils.py:97 | Epoch 2 [Train]: loss 0.006101214939294612, mse: 0.005194717086851597, rmse: 0.07207438578893056, mae 0.04552825540304184, r2: 0.7025734407741057, nrmse: 0.2604462276720231
+INFO logger 2026-04-03 17:42:25,457 | train_utils.py:99 | Epoch 2 [Test]: loss 8.535694029921649e-05, mse: 0.005462844856083393, rmse: 0.0739110604448576, mae 0.0463884100317955, r2: 0.6897445695228455, nrmse: 0.18443766643641182
+INFO logger 2026-04-03 17:42:52,269 | train_utils.py:97 | Epoch 3 [Train]: loss 0.0046311370894465955, mse: 0.003986462950706482, rmse: 0.06313844273266868, mae 0.039863377809524536, r2: 0.7678368590656869, nrmse: 0.23289518007997484
+INFO logger 2026-04-03 17:42:52,270 | train_utils.py:99 | Epoch 3 [Test]: loss 6.940678799259735e-05, mse: 0.004442034289240837, rmse: 0.06664858805136713, mae 0.04251307621598244, r2: 0.7454886799329694, nrmse: 0.16413879255095362
+INFO logger 2026-04-03 17:43:19,268 | train_utils.py:97 | Epoch 4 [Train]: loss 0.0037387693205159413, mse: 0.003282375866547227, rmse: 0.05729202271300279, mae 0.03551974892616272, r2: 0.8080771468311774, nrmse: 0.21566733049744033
+INFO logger 2026-04-03 17:43:19,269 | train_utils.py:99 | Epoch 4 [Test]: loss 5.542731294015e-05, mse: 0.0035473452880978584, rmse: 0.05955959442522975, mae 0.037310317158699036, r2: 0.7943301175366919, nrmse: 0.15427469300961694
+INFO logger 2026-04-03 17:43:41,535 | train_utils.py:97 | Epoch 5 [Train]: loss 0.003108633095270967, mse: 0.0025501628406345844, rmse: 0.05049913702861252, mae 0.03084380179643631, r2: 0.8485687437006755, nrmse: 0.2031546787806843
+INFO logger 2026-04-03 17:43:41,536 | train_utils.py:99 | Epoch 5 [Test]: loss 4.336993993934744e-05, mse: 0.0027756732888519764, rmse: 0.05268465895165286, mae 0.032708439975976944, r2: 0.8369701239218204, nrmse: 0.14014788374506895
+INFO logger 2026-04-03 17:43:41,540 | train_utils.py:142 | Best Loss: 4.336993993934744e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message c9250d22-60a0-41e4-8e09-06e5ab6a7aca
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12165-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12165-0_lstm_last_48.csv

@@ -236,6 +236,12 @@ def parse_args() -> argparse.Namespace:
         default=2,
         help="Minimum number of clients that need to be connected to start training",
     )
+    parser.add_argument(
+        "--min_evaluate_clients",
+        type=int,
+        default=None,
+        help="Minimum number of clients used for evaluation in each round. Defaults to min_fit_clients.",
+    )
     parser.add_argument("--wandb", action="store_true", default=False, help="Enable wandb logging on the server")
     parser.add_argument(
         "--wandb_project",
@@ -263,6 +269,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    min_evaluate_clients = args.min_fit_clients if args.min_evaluate_clients is None else args.min_evaluate_clients
 
     wb_run = None
     if wandb is not None and getattr(args, "wandb", False):
@@ -276,9 +283,11 @@ def main() -> None:
             {
                 "rounds": args.rounds,
                 "min_fit_clients": args.min_fit_clients,
+                "min_evaluate_clients": min_evaluate_clients,
                 "min_available_clients": args.min_available_clients,
                 "aggregation": "spa_hfl_masked_fedavg" if args.spa_hfl else "heterofl_masked_fedavg",
                 "spa_hfl": args.spa_hfl,
+                "strict_synchronous": True,
             },
             allow_val_change=True,
         )
@@ -289,8 +298,12 @@ def main() -> None:
         align_dim=args.align_dim,
         centroid_momentum=args.centroid_momentum,
         metrics_log_path=args.metrics_log_path,
+        fraction_fit=1.0,
+        fraction_evaluate=1.0,
+        min_evaluate_clients=min_evaluate_clients,
         min_fit_clients=args.min_fit_clients,
         min_available_clients=args.min_available_clients,
+        accept_failures=False,
         fit_metrics_aggregation_fn=_weighted_numeric_metrics,
         evaluate_metrics_aggregation_fn=_weighted_numeric_metrics,
     )

@@ -1,0 +1,50 @@
+INFO logger 2026-04-03 17:41:20,645 | data_utils.py:28 | Reading 12171-0's data...
+INFO logger 2026-04-03 17:41:20,801 | data_utils.py:396 | 	Total number of samples:  35040
+INFO logger 2026-04-03 17:41:20,806 | data_utils.py:397 | 	Number of samples for training: 28032
+INFO logger 2026-04-03 17:41:20,811 | data_utils.py:398 | 	Number of samples for validation:  7008
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message f8d118c8-d3dd-4203-8df6-ef2382db24ae
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message bd0c25c9-43bc-49a2-9475-7120ff345551
+[91mERROR [0m:     Client raised an exception.
+Traceback (most recent call last):
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py", line 303, in fit
+    self.model = train(
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 92, in train
+    _, train_mse, train_rmse, train_mae, train_r2, train_nrmse = test(model, train_loader,
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 161, in test
+    out = model(x, exogenous, device, y_hist)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/models/lstm.py", line 42, in forward
+    c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_().to(device)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 767, in signal_handler
+    raise StopIteration from None
+StopIteration
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12171-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12171-0_lstm_last_48.csv

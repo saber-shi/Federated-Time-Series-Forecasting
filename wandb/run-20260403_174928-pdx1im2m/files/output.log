@@ -1,0 +1,61 @@
+INFO logger 2026-04-03 17:49:31,174 | data_utils.py:28 | Reading 12164-0's data...
+INFO logger 2026-04-03 17:49:31,314 | data_utils.py:396 | 	Total number of samples:  17520
+INFO logger 2026-04-03 17:49:31,316 | data_utils.py:397 | 	Number of samples for training: 14016
+INFO logger 2026-04-03 17:49:31,318 | data_utils.py:398 | 	Number of samples for validation:  3504
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 5b39190e-3c13-4179-98d4-d50d47cf9148
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 798e978f-ce2f-4185-b36b-7160b7a8aebe
+INFO logger 2026-04-03 17:52:12,415 | train_utils.py:97 | Epoch 1 [Train]: loss 0.012793841099868353, mse: 0.008060415275394917, rmse: 0.08977981552328405, mae 0.05484476312994957, r2: 0.7390675124228386, nrmse: 0.07842845382753448
+INFO logger 2026-04-03 17:52:12,416 | train_utils.py:99 | Epoch 1 [Test]: loss 0.00012260673139718602, mse: 0.007846824824810028, rmse: 0.08858230537082463, mae 0.05451740697026253, r2: 0.7080096036025852, nrmse: 0.13709060822409427
+INFO logger 2026-04-03 17:52:53,486 | train_utils.py:97 | Epoch 2 [Train]: loss 0.006088474209390615, mse: 0.004892177879810333, rmse: 0.06994410539716935, mae 0.04537896439433098, r2: 0.8415768605398275, nrmse: 0.0799786557317079
+INFO logger 2026-04-03 17:52:53,487 | train_utils.py:99 | Epoch 2 [Test]: loss 7.33385376305604e-05, mse: 0.004693665541708469, rmse: 0.06851033164208498, mae 0.04464507848024368, r2: 0.8191402968363706, nrmse: 0.13406979633578664
+INFO logger 2026-04-03 17:53:38,355 | train_utils.py:97 | Epoch 3 [Train]: loss 0.004079992921180921, mse: 0.003737266641110182, rmse: 0.061133187722465294, mae 0.03911580145359039, r2: 0.8780578176179483, nrmse: 0.07070161043316552
+INFO logger 2026-04-03 17:53:38,356 | train_utils.py:99 | Epoch 3 [Test]: loss 5.6541097230230526e-05, mse: 0.003618626855313778, rmse: 0.06015502352517018, mae 0.03855045884847641, r2: 0.8588856814321403, nrmse: 0.12003734640808585
+INFO logger 2026-04-03 17:54:28,270 | train_utils.py:97 | Epoch 4 [Train]: loss 0.003127288062669779, mse: 0.0027301572263240814, rmse: 0.05225090646413784, mae 0.03471992164850235, r2: 0.9105982878532376, nrmse: 0.07009575282892402
+INFO logger 2026-04-03 17:54:28,271 | train_utils.py:99 | Epoch 4 [Test]: loss 4.412714689452615e-05, mse: 0.0028241374529898167, rmse: 0.053142614284487515, mae 0.03585546836256981, r2: 0.8841608104476566, nrmse: 0.12858631831764603
+INFO logger 2026-04-03 17:55:10,031 | train_utils.py:97 | Epoch 5 [Train]: loss 0.0025078592275494718, mse: 0.0024259474594146013, rmse: 0.049253908062351776, mae 0.03310834616422653, r2: 0.9207242165184352, nrmse: 0.06648181087287737
+INFO logger 2026-04-03 17:55:10,032 | train_utils.py:99 | Epoch 5 [Test]: loss 3.6316087432539835e-05, mse: 0.0023242298047989607, rmse: 0.048210266591245485, mae 0.032566845417022705, r2: 0.9047586410091202, nrmse: 0.117034369581033
+INFO logger 2026-04-03 17:55:10,035 | train_utils.py:142 | Best Loss: 3.6316087432539835e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 1d789571-f60d-4e24-b4a0-8f87a3e8f2f9
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 61d99e76-c26e-41a8-9725-c6ef52a9ce42
+[91mERROR [0m:     Client raised an exception.
+Traceback (most recent call last):
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py", line 303, in fit
+    self.model = train(
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 90, in train
+    epoch_loss.append(loss.item())
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 767, in signal_handler
+    raise StopIteration from None
+StopIteration
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12164-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12164-0_lstm_last_48.csv
