@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
-DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-short-mixed.csv"
+DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
 mkdir -p "$LOG_DIR"
 
 CLIENT_CIDS=(
