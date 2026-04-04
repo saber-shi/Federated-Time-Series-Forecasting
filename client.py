@@ -142,10 +142,32 @@ def prepare_client_data(
     )
 
     # Time lags
-    X_train = generate_time_lags(X_train, args.num_lags, identifier=args.identifier)
-    X_val = generate_time_lags(X_val, args.num_lags, identifier=args.identifier)
-    y_train = generate_time_lags(y_train, args.num_lags, identifier=args.identifier, is_y=True)
-    y_val = generate_time_lags(y_val, args.num_lags, identifier=args.identifier, is_y=True)
+    X_train = generate_time_lags(
+        X_train,
+        args.num_lags,
+        identifier=args.identifier,
+        prediction_steps=args.prediction_steps,
+    )
+    X_val = generate_time_lags(
+        X_val,
+        args.num_lags,
+        identifier=args.identifier,
+        prediction_steps=args.prediction_steps,
+    )
+    y_train = generate_time_lags(
+        y_train,
+        args.num_lags,
+        identifier=args.identifier,
+        is_y=True,
+        prediction_steps=args.prediction_steps,
+    )
+    y_val = generate_time_lags(
+        y_val,
+        args.num_lags,
+        identifier=args.identifier,
+        is_y=True,
+        prediction_steps=args.prediction_steps,
+    )
 
     # Remove identifier column and convert to time-series representation
     X_train, y_train, X_val, y_val = remove_identifiers(
@@ -194,6 +216,8 @@ def prepare_client_data(
         "y_val_index": y_val.index,
         "num_features": num_features,
         "target_names": list(y_val.columns),
+        "base_target_names": list(args.targets),
+        "prediction_steps": args.prediction_steps,
         "y_scaler": y_scaler,
     }
 
@@ -346,6 +370,8 @@ def save_last_lags_predictions(
     y_val_index = prediction_artifacts["y_val_index"]
     num_features = prediction_artifacts["num_features"]
     target_names = prediction_artifacts["target_names"]
+    base_target_names = prediction_artifacts.get("base_target_names", target_names)
+    prediction_steps = prediction_artifacts.get("prediction_steps", 1)
     y_scaler = prediction_artifacts["y_scaler"]
 
     if len(X_val_ts) == 0:
@@ -353,34 +379,23 @@ def save_last_lags_predictions(
 
     horizon = min(args.num_lags, len(y_val_np))
     if horizon <= 0:
-        raise ValueError("Not enough validation samples to produce recursive forecasts.")
-
-    # Seed input window: the last available lag-window before the forecasted sequence.
-    current_window = np.array(X_val_ts[0], dtype=np.float32)  # (num_lags, num_features, 1)
-    current_window = current_window[:, :, 0]  # (num_lags, num_features)
+        raise ValueError("Not enough validation samples to produce forecasts.")
 
     y_pred_seq = []
     model.eval()
     with torch.no_grad():
-        for _ in range(horizon):
-            x_tensor = torch.tensor(current_window, dtype=torch.float32).unsqueeze(0).unsqueeze(-1).to(device)
+        for sample_idx in range(horizon):
+            current_window = np.array(X_val_ts[sample_idx], dtype=np.float32)
+            x_tensor = torch.tensor(current_window, dtype=torch.float32).unsqueeze(0).to(device)
 
             y_hist_np = np.zeros((args.num_lags, len(args.idxs)), dtype=np.float32)
-            if args.num_lags > 1:
-                y_hist_np[1:, :] = current_window[:-1, args.idxs]
+            if args.num_lags > 1 and len(args.idxs) > 0:
+                y_hist_np[1:, :] = current_window[:-1, args.idxs, 0]
             y_hist_tensor = torch.tensor(y_hist_np, dtype=torch.float32).unsqueeze(0).to(device)
 
             pred = model(x_tensor, None, device, y_hist_tensor)
             pred_np = pred.detach().cpu().numpy().reshape(-1)
             y_pred_seq.append(pred_np)
-
-            # Autoregressive roll-forward: keep non-target features persistent,
-            # inject predicted targets into the newest step.
-            next_row = current_window[-1].copy()
-            for target_pos, feature_idx in enumerate(args.idxs):
-                if target_pos < pred_np.shape[0]:
-                    next_row[feature_idx] = pred_np[target_pos]
-            current_window = np.vstack([current_window[1:], next_row])
 
     y_pred = np.vstack(y_pred_seq)
     y_true = y_val_np[:horizon]
@@ -391,9 +406,24 @@ def save_last_lags_predictions(
         y_true = y_scaler.inverse_transform(y_true)
 
     records = {"time": idx_last}
-    for col_idx, target_name in enumerate(target_names):
-        records[f"true_{target_name}"] = y_true[:, col_idx]
-        records[f"pred_{target_name}"] = y_pred[:, col_idx]
+    if prediction_steps <= 1:
+        for col_idx, target_name in enumerate(target_names):
+            records[f"true_{target_name}"] = y_true[:, col_idx]
+            records[f"pred_{target_name}"] = y_pred[:, col_idx]
+    else:
+        num_base_targets = len(base_target_names)
+        expected_width = num_base_targets * prediction_steps
+        if y_true.shape[1] != expected_width or y_pred.shape[1] != expected_width:
+            raise ValueError(
+                f"Expected {expected_width} forecast outputs for {num_base_targets} targets and "
+                f"{prediction_steps} steps, got y_true={y_true.shape[1]} and y_pred={y_pred.shape[1]}."
+            )
+        for step in range(prediction_steps):
+            offset = step * num_base_targets
+            for target_idx, target_name in enumerate(base_target_names):
+                col_idx = offset + target_idx
+                records[f"true_{target_name}_step+{step + 1}"] = y_true[:, col_idx]
+                records[f"pred_{target_name}_step+{step + 1}"] = y_pred[:, col_idx]
 
     predictions_df = pd.DataFrame(records)
 
@@ -436,6 +466,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--idxs", nargs="+", type=int, default=[2, 3, 4, 5])
     parser.add_argument("--num_lags", type=int, default=48)
+    parser.add_argument("--prediction_steps", type=int, default=4)
     parser.add_argument("--identifier", type=str, default="District")
     parser.add_argument("--nan_constant", type=float, default=0.0)
     parser.add_argument("--x_scaler", type=str, default="minmax")

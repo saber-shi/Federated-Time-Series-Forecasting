@@ -141,7 +141,8 @@ def handle_outliers(df: pd.DataFrame,
 def generate_time_lags(df: pd.DataFrame,
                        n_lags: int = 10,
                        identifier: str = "District",
-                       is_y: bool = False) -> pd.DataFrame:
+                       is_y: bool = False,
+                       prediction_steps: int = 1) -> pd.DataFrame:
     """Transforms a dataframe to time lags using the shift method.
     If the shifting operation concerns the targets, then lags removal is applied, i.e., only the measurements that
     we try to predict are kept in the dataframe. If the shifting operation concerns the previous time steps (our actual
@@ -154,18 +155,38 @@ def generate_time_lags(df: pd.DataFrame,
         df_area = df.loc[df[identifier] == area]
         df_n = df_area.copy()
 
-        for n in range(1, n_lags + 1):
-            for col in columns:
-                if col == "time" or col == identifier:
-                    continue
-                df_n[f"{col}_lag-{n}"] = df_n[col].shift(n).replace(np.NaN, 0).astype("float64")
-        df_n = df_n.iloc[n_lags:]
+        if is_y:
+            for step in range(prediction_steps):
+                for col in columns:
+                    if col == "time" or col == identifier:
+                        continue
+                    df_n[f"{col}_step+{step + 1}"] = df_n[col].shift(-step).astype("float64")
+            df_n = df_n.iloc[n_lags:]
+            if prediction_steps > 1:
+                df_n = df_n.iloc[: -(prediction_steps - 1)]
+        else:
+            for n in range(1, n_lags + 1):
+                for col in columns:
+                    if col == "time" or col == identifier:
+                        continue
+                    df_n[f"{col}_lag-{n}"] = df_n[col].shift(n).replace(np.NaN, 0).astype("float64")
+            df_n = df_n.iloc[n_lags:]
+            if prediction_steps > 1:
+                df_n = df_n.iloc[: -(prediction_steps - 1)]
 
         dfs.append(df_n)
     df = pd.concat(dfs, ignore_index=False)
 
     if is_y:
-        df = df[columns]
+        target_columns = []
+        for step in range(prediction_steps):
+            for col in columns:
+                if col == identifier:
+                    continue
+                target_columns.append(f"{col}_step+{step + 1}")
+        if identifier in columns:
+            target_columns.append(identifier)
+        df = df[target_columns]
     else:
         if identifier in columns:
             columns.remove(identifier)

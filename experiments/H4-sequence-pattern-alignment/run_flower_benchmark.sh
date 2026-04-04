@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
 DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
+PREDICTION_STEPS=4
 mkdir -p "$LOG_DIR"
 
 CLIENT_CIDS=(
@@ -44,6 +45,7 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --cid "$cid" \
     --data_path "$DATA_PATH" \
     --model_name lstm \
+    --prediction_steps "$PREDICTION_STEPS" \
     --local_num_layers "$layers" \
     --global_num_layers 3 \
     --epochs 5 \
@@ -81,6 +83,7 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --cid "$cid" \
     --data_path "$DATA_PATH" \
     --model_name lstm \
+    --prediction_steps "$PREDICTION_STEPS" \
     --local_num_layers "$layers" \
     --global_num_layers 3 \
     --epochs 5 \
