@@ -402,8 +402,26 @@ def save_last_lags_predictions(
     idx_last = y_val_index[:horizon]
 
     if y_scaler is not None:
-        y_pred = y_scaler.inverse_transform(y_pred)
-        y_true = y_scaler.inverse_transform(y_true)
+        if prediction_steps <= 1:
+            y_pred = y_scaler.inverse_transform(y_pred)
+            y_true = y_scaler.inverse_transform(y_true)
+        else:
+            num_base_targets = len(base_target_names)
+            expected_width = num_base_targets * prediction_steps
+            if y_pred.shape[1] != expected_width or y_true.shape[1] != expected_width:
+                raise ValueError(
+                    f"Expected {expected_width} outputs before inverse scaling, "
+                    f"got y_true={y_true.shape[1]} and y_pred={y_pred.shape[1]}."
+                )
+
+            # The scaler is fit on base targets only (e.g., 4 cols). For multi-step outputs
+            # (e.g., 16 cols), inverse-transform per step by flattening to base-target width.
+            y_pred = y_scaler.inverse_transform(y_pred.reshape(-1, num_base_targets)).reshape(
+                -1, expected_width
+            )
+            y_true = y_scaler.inverse_transform(y_true.reshape(-1, num_base_targets)).reshape(
+                -1, expected_width
+            )
 
     records = {"time": idx_last}
     if prediction_steps <= 1:

@@ -566,6 +566,7 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
         self.num_features = num_features
         self.num_lags = num_lags
         self.indices = indices
+        self.target_hist_width = len(indices)
         self.exogenous = exogenous
 
     def __len__(self):
@@ -594,7 +595,8 @@ class TimeSeriesDataset(torch.utils.data.Dataset):
                 y_hist.append(last_obs[i][self.indices].reshape(1, -1))
             y_hist = torch.cat(y_hist)
         else:
-            y_hist = self.y[index - self.num_lags - 1: index - 1]
+            # Keep history width consistent across all samples, including multi-step targets.
+            y_hist = self.y[index - self.num_lags - 1: index - 1, :self.target_hist_width]
 
         if self.exogenous is None:
             return self.X[index], [], y_hist, self.y[index]
