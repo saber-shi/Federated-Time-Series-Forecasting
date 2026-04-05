@@ -114,6 +114,94 @@ def update_centroid(
     return (momentum * previous_centroid + (1.0 - momentum) * weighted).astype(np.float32, copy=False)
 
 
+def _normalize_np_rows(x: np.ndarray) -> np.ndarray:
+    norms = np.linalg.norm(x, axis=1, keepdims=True)
+    return x / np.clip(norms, a_min=1e-8, a_max=None)
+
+
+def _normalize_np_vector(x: np.ndarray) -> np.ndarray:
+    norm = np.linalg.norm(x)
+    if norm <= 1e-8:
+        return x.astype(np.float32, copy=False)
+    return (x / norm).astype(np.float32, copy=False)
+
+
+def cluster_pattern_descriptors(
+    client_ids: List[str],
+    pattern_descriptors: List[np.ndarray],
+    num_clusters: int,
+    num_iters: int = 10,
+    previous_centers: Optional[List[np.ndarray]] = None,
+) -> Tuple[Dict[str, int], List[np.ndarray]]:
+    if not client_ids or not pattern_descriptors:
+        return {}, []
+
+    patterns = np.stack([_normalize_np_vector(np.asarray(p, dtype=np.float32)) for p in pattern_descriptors], axis=0)
+    num_clients = patterns.shape[0]
+    k = max(1, min(num_clusters, num_clients))
+
+    if previous_centers is not None and len(previous_centers) >= k:
+        centers = np.stack(
+            [_normalize_np_vector(np.asarray(center, dtype=np.float32)) for center in previous_centers[:k]],
+            axis=0,
+        )
+    else:
+        selected = [0]
+        while len(selected) < k:
+            similarity = patterns @ patterns[selected].T
+            min_similarity = similarity.max(axis=1)
+            next_idx = int(np.argmin(min_similarity))
+            if next_idx in selected:
+                break
+            selected.append(next_idx)
+        while len(selected) < k:
+            selected.append(len(selected))
+        centers = patterns[selected].copy()
+
+    assignments = np.zeros(num_clients, dtype=np.int64)
+    for _ in range(max(1, num_iters)):
+        similarity = patterns @ centers.T
+        new_assignments = similarity.argmax(axis=1)
+        if np.array_equal(assignments, new_assignments):
+            break
+        assignments = new_assignments
+
+        new_centers = []
+        for cluster_idx in range(k):
+            members = patterns[assignments == cluster_idx]
+            if len(members) == 0:
+                new_centers.append(centers[cluster_idx])
+            else:
+                new_centers.append(_normalize_np_vector(members.mean(axis=0)))
+        centers = np.stack(new_centers, axis=0)
+
+    assignment_map = {cid: int(cluster_idx) for cid, cluster_idx in zip(client_ids, assignments)}
+    center_list = [centers[idx].astype(np.float32, copy=False) for idx in range(k)]
+    return assignment_map, center_list
+
+
+def update_cluster_centroids(
+    clustered_stats: Dict[int, List[Tuple[np.ndarray, int]]],
+    previous_centroids: Optional[Dict[int, np.ndarray]],
+    momentum: float,
+) -> Dict[int, np.ndarray]:
+    updated: Dict[int, np.ndarray] = {}
+    for cluster_idx, entries in clustered_stats.items():
+        if not entries:
+            continue
+        total_examples = sum(num_examples for _, num_examples in entries)
+        weighted = sum(num_examples * latent_mean for latent_mean, num_examples in entries) / max(total_examples, 1)
+        weighted = weighted.astype(np.float32, copy=False)
+        previous = None if previous_centroids is None else previous_centroids.get(cluster_idx)
+        if previous is None:
+            updated[cluster_idx] = weighted
+        else:
+            updated[cluster_idx] = (
+                momentum * previous + (1.0 - momentum) * weighted
+            ).astype(np.float32, copy=False)
+    return updated
+
+
 def evaluate_spa(model, projector, data_loader, criterion, device="cuda"):
     model.to(device)
     projector.to(device)

@@ -382,7 +382,8 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
 
         if getattr(self.args, "spa_hfl", False):
             payload = self.adapter.export_parameters_with_masks() + pack_state_dict(self.projector) + [
-                alignment_stats["latent_mean"].astype(np.float32, copy=False)
+                alignment_stats["latent_mean"].astype(np.float32, copy=False),
+                alignment_stats["pattern_mean"].astype(np.float32, copy=False),
             ]
         else:
             payload = self.get_parameters(config)

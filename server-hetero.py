@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple
 
 import flwr as fl
 import numpy as np
-from flwr.common import FitRes, NDArrays, Parameters, Scalar, ndarrays_to_parameters, parameters_to_ndarrays
+from flwr.common import FitIns, FitRes, NDArrays, Parameters, Scalar, ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.server.client_proxy import ClientProxy
 
 try:
@@ -14,7 +14,13 @@ try:
 except Exception:  # pragma: no cover
     wandb = None
 
-from src.spa_hfl import AlignmentProjector, aggregate_ndarrays, update_centroid
+from src.spa_hfl import (
+    AlignmentProjector,
+    aggregate_ndarrays,
+    cluster_pattern_descriptors,
+    update_centroid,
+    update_cluster_centroids,
+)
 
 SERVER_METRIC_FIELDNAMES = [
     "round",
@@ -59,12 +65,17 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         self.spa_hfl = kwargs.pop("spa_hfl", False)
         self.align_dim = kwargs.pop("align_dim", 32)
         self.centroid_momentum = kwargs.pop("centroid_momentum", 0.9)
+        self.pattern_cluster_count = kwargs.pop("pattern_cluster_count", 1)
+        self.pattern_cluster_iters = kwargs.pop("pattern_cluster_iters", 10)
         self.metrics_log_path = kwargs.pop("metrics_log_path", "")
         super().__init__(*args, **kwargs)
         self.use_wandb = use_wandb and wandb is not None
         self.latest_parameters: Optional[NDArrays] = None
         self.latest_projector: Optional[NDArrays] = None
         self.latest_centroid: Optional[np.ndarray] = None
+        self.latest_cluster_centroids: Dict[int, np.ndarray] = {}
+        self.latest_pattern_cluster_centers: List[np.ndarray] = []
+        self.client_cluster_assignments: Dict[str, int] = {}
         self.projector_template = AlignmentProjector(input_dim=128, align_dim=self.align_dim)
         self.projector_param_count = len(list(self.projector_template.state_dict().keys()))
 
@@ -103,6 +114,23 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             return ndarrays_to_parameters(payload)
         return None
 
+    def _build_spa_payload_for_client(self, client_proxy: ClientProxy) -> Parameters:
+        payload = list(self.latest_parameters or [])
+        projector = self.latest_projector or [
+            value.detach().cpu().numpy() for _, value in self.projector_template.state_dict().items()
+        ]
+        payload.extend(projector)
+
+        centroid = self.latest_centroid
+        if self.client_cluster_assignments and self.latest_cluster_centroids:
+            cluster_idx = self.client_cluster_assignments.get(client_proxy.cid)
+            if cluster_idx is not None:
+                centroid = self.latest_cluster_centroids.get(cluster_idx, centroid)
+        if centroid is None:
+            centroid = np.zeros(self.align_dim, dtype=np.float32)
+        payload.append(centroid.astype(np.float32, copy=False))
+        return ndarrays_to_parameters(payload)
+
     @staticmethod
     def _strip_masks_if_present(arrays: NDArrays) -> NDArrays:
         if len(arrays) % 2 != 0:
@@ -113,6 +141,26 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         if all(mask.dtype.kind in {"f", "i", "u", "b"} for mask in masks):
             return arrays[:half]
         return arrays
+
+    def configure_fit(
+        self,
+        server_round: int,
+        parameters: Parameters,
+        client_manager: fl.server.client_manager.ClientManager,
+    ):
+        if not self.spa_hfl or self.pattern_cluster_count <= 1:
+            return super().configure_fit(server_round, parameters, client_manager)
+
+        config = {} if self.on_fit_config_fn is None else self.on_fit_config_fn(server_round)
+        fit_ins_by_client: List[Tuple[ClientProxy, FitIns]] = []
+
+        sample_size, min_num_clients = self.num_fit_clients(client_manager.num_available())
+        clients = client_manager.sample(num_clients=sample_size, min_num_clients=min_num_clients)
+
+        for client in clients:
+            fit_ins = FitIns(self._build_spa_payload_for_client(client), config)
+            fit_ins_by_client.append((client, fit_ins))
+        return fit_ins_by_client
 
     def aggregate_fit(
         self,
@@ -131,14 +179,16 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         denominators: Optional[List[np.ndarray]] = None
         projector_results: List[Tuple[List[np.ndarray], int]] = []
         centroid_results: List[Tuple[Dict[str, np.ndarray], int]] = []
+        pattern_results: List[Tuple[str, np.ndarray, np.ndarray, int]] = []
 
-        for _, fit_res in results:
+        for client_proxy, fit_res in results:
             arrays = parameters_to_ndarrays(fit_res.parameters)
             if split_index is None:
                 if self.latest_parameters is not None:
                     split_index = len(self.latest_parameters)
                 elif self.spa_hfl:
-                    split_index = (len(arrays) - self.projector_param_count - 1) // 2
+                    extra_stats = 2 if len(arrays) >= self.projector_param_count + 2 else 1
+                    split_index = (len(arrays) - self.projector_param_count - extra_stats) // 2
                 else:
                     split_index = len(arrays) // 2
                 numerators = [np.zeros_like(arr) for arr in arrays[:split_index]]
@@ -157,6 +207,15 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
                 projector_end = projector_start + self.projector_param_count
                 projector_results.append((arrays[projector_start:projector_end], num_examples))
                 centroid_results.append(({"latent_mean": arrays[projector_end]}, num_examples))
+                if len(arrays) > projector_end + 1:
+                    pattern_results.append(
+                        (
+                            client_proxy.cid,
+                            arrays[projector_end].astype(np.float32, copy=False),
+                            arrays[projector_end + 1].astype(np.float32, copy=False),
+                            num_examples,
+                        )
+                    )
 
             weighted_metrics.append((num_examples, fit_res.metrics))
 
@@ -180,11 +239,51 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         payload = list(aggregated)
         if self.spa_hfl:
             self.latest_projector = aggregate_ndarrays(projector_results, previous=self.latest_projector)
-            self.latest_centroid = update_centroid(
-                centroid_results,
-                previous_centroid=self.latest_centroid,
-                momentum=self.centroid_momentum,
-            )
+            if self.pattern_cluster_count > 1 and pattern_results:
+                client_ids = [cid for cid, _, _, _ in pattern_results]
+                latent_means = [latent_mean for _, latent_mean, _, _ in pattern_results]
+                pattern_means = [pattern_mean for _, _, pattern_mean, _ in pattern_results]
+                assignment_map, pattern_centers = cluster_pattern_descriptors(
+                    client_ids=client_ids,
+                    pattern_descriptors=pattern_means,
+                    num_clusters=self.pattern_cluster_count,
+                    num_iters=self.pattern_cluster_iters,
+                    previous_centers=self.latest_pattern_cluster_centers,
+                )
+                self.client_cluster_assignments = assignment_map
+                self.latest_pattern_cluster_centers = pattern_centers
+
+                clustered_stats: Dict[int, List[Tuple[np.ndarray, int]]] = {}
+                for cid, latent_mean, _, num_examples in pattern_results:
+                    cluster_idx = assignment_map.get(cid, 0)
+                    clustered_stats.setdefault(cluster_idx, []).append((latent_mean, num_examples))
+                self.latest_cluster_centroids = update_cluster_centroids(
+                    clustered_stats,
+                    previous_centroids=self.latest_cluster_centroids,
+                    momentum=self.centroid_momentum,
+                )
+
+                global_cluster_results = []
+                for entries in clustered_stats.values():
+                    total_examples = sum(num_examples for _, num_examples in entries)
+                    weighted_latent = sum(num_examples * latent_mean for latent_mean, num_examples in entries)
+                    global_cluster_results.append(
+                        ({"latent_mean": (weighted_latent / max(total_examples, 1)).astype(np.float32, copy=False)}, total_examples)
+                    )
+                self.latest_centroid = update_centroid(
+                    global_cluster_results,
+                    previous_centroid=self.latest_centroid,
+                    momentum=self.centroid_momentum,
+                )
+            else:
+                self.client_cluster_assignments = {}
+                self.latest_pattern_cluster_centers = []
+                self.latest_cluster_centroids = {}
+                self.latest_centroid = update_centroid(
+                    centroid_results,
+                    previous_centroid=self.latest_centroid,
+                    momentum=self.centroid_momentum,
+                )
             payload = payload + self.latest_projector + [self.latest_centroid]
         metrics = _weighted_numeric_metrics(weighted_metrics)
 
@@ -259,6 +358,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--align_dim", type=int, default=32)
     parser.add_argument("--centroid_momentum", type=float, default=0.9)
     parser.add_argument(
+        "--pattern_cluster_count",
+        type=int,
+        default=1,
+        help="Number of pattern clusters for cluster-aware SPA aggregation. Use 1 to keep the original global centroid.",
+    )
+    parser.add_argument(
+        "--pattern_cluster_iters",
+        type=int,
+        default=10,
+        help="Maximum clustering iterations for pattern-aware SPA aggregation.",
+    )
+    parser.add_argument(
         "--metrics_log_path",
         type=str,
         default="./benchmark_logs/server_hetero_metrics.csv",
@@ -287,6 +398,7 @@ def main() -> None:
                 "min_available_clients": args.min_available_clients,
                 "aggregation": "spa_hfl_masked_fedavg" if args.spa_hfl else "heterofl_masked_fedavg",
                 "spa_hfl": args.spa_hfl,
+                "pattern_cluster_count": args.pattern_cluster_count,
                 "strict_synchronous": True,
             },
             allow_val_change=True,
@@ -297,6 +409,8 @@ def main() -> None:
         spa_hfl=args.spa_hfl,
         align_dim=args.align_dim,
         centroid_momentum=args.centroid_momentum,
+        pattern_cluster_count=args.pattern_cluster_count,
+        pattern_cluster_iters=args.pattern_cluster_iters,
         metrics_log_path=args.metrics_log_path,
         fraction_fit=1.0,
         fraction_evaluate=1.0,

@@ -69,6 +69,8 @@ python3 "$ROOT_DIR/server-hetero.py" \
   --min_available_clients 6 \
   --spa_hfl \
   --align_dim 32 \
+  --pattern_cluster_count 2 \
+  --pattern_cluster_iters 10 \
   --wandb \
   --metrics_log_path "$LOG_DIR/spa_hfl_server_metrics.csv" &
 SERVER_PID=$!
