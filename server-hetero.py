@@ -199,8 +199,14 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             return arrays
 
         half = len(arrays) // 2
+        parameters = arrays[:half]
         masks = arrays[half:]
-        if all(mask.dtype.kind in {"f", "i", "u", "b"} for mask in masks):
+        has_mask_shapes = all(param.shape == mask.shape for param, mask in zip(parameters, masks))
+        has_binary_masks = all(
+            mask.dtype.kind in {"f", "i", "u", "b"} and np.all((mask == 0) | (mask == 1))
+            for mask in masks
+        )
+        if has_mask_shapes and has_binary_masks:
             return arrays[:half]
         return arrays
 
