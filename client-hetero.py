@@ -458,13 +458,10 @@ def parse_args() -> argparse.Namespace:
         "--targets",
         nargs="+",
         default=[
-            "PRB Usage Ratio (%)",
-            "Traffic Volume (KByte)",
-            "Number of Users",
             "BBU Energy (W)",
         ],
     )
-    parser.add_argument("--idxs", nargs="+", type=int, default=[2, 3, 4, 5])
+    parser.add_argument("--idxs", nargs="+", type=int, default=[4])
     parser.add_argument("--num_lags", type=int, default=48)
     parser.add_argument("--prediction_steps", type=int, default=4)
     parser.add_argument("--identifier", type=str, default="District")
