@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Tuple
 
 import flwr as fl
 import numpy as np
+import torch
 from flwr.common import FitIns, FitRes, NDArrays, Parameters, Scalar, ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.server.client_proxy import ClientProxy
 
@@ -21,6 +22,9 @@ from src.spa_hfl import (
     update_centroid,
     update_cluster_centroids,
 )
+from ml.models.gru import GRU
+from ml.models.lstm import LSTM
+from ml.models.rnn import RNN
 
 SERVER_METRIC_FIELDNAMES = [
     "round",
@@ -56,6 +60,64 @@ def _weighted_numeric_metrics(metrics: List[Tuple[int, Dict[str, Scalar]]]) -> D
         for key in aggregated:
             aggregated[key] /= total_examples
     return aggregated
+
+
+def build_recurrent_model(
+    model_name: str,
+    input_dim: int,
+    out_dim: int,
+    num_layers: int,
+) -> torch.nn.Module:
+    if model_name == "rnn":
+        return RNN(
+            input_dim=input_dim,
+            rnn_hidden_size=128,
+            num_rnn_layers=num_layers,
+            rnn_dropout=0.0,
+            layer_units=[128],
+            num_outputs=out_dim,
+            matrix_rep=True,
+            exogenous_dim=0,
+        )
+    if model_name == "lstm":
+        return LSTM(
+            input_dim=input_dim,
+            lstm_hidden_size=128,
+            num_lstm_layers=num_layers,
+            lstm_dropout=0.0,
+            layer_units=[128],
+            num_outputs=out_dim,
+            matrix_rep=True,
+            exogenous_dim=0,
+        )
+    if model_name == "gru":
+        return GRU(
+            input_dim=input_dim,
+            gru_hidden_size=128,
+            num_gru_layers=num_layers,
+            gru_dropout=0.0,
+            layer_units=[128],
+            num_outputs=out_dim,
+            matrix_rep=True,
+            exogenous_dim=0,
+        )
+    raise NotImplementedError("Heterogeneous FL is currently implemented for ['rnn', 'lstm', 'gru'].")
+
+
+def build_initial_parameters(
+    model_name: str,
+    input_dim: int,
+    out_dim: int,
+    global_num_layers: int,
+) -> Parameters:
+    model = build_recurrent_model(
+        model_name=model_name,
+        input_dim=input_dim,
+        out_dim=out_dim,
+        num_layers=global_num_layers,
+    )
+    arrays = [value.detach().cpu().numpy() for _, value in model.state_dict().items()]
+    return ndarrays_to_parameters(arrays)
 
 
 class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
@@ -148,7 +210,7 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         parameters: Parameters,
         client_manager: fl.server.client_manager.ClientManager,
     ):
-        if not self.spa_hfl or self.pattern_cluster_count <= 1:
+        if not self.spa_hfl or self.pattern_cluster_count <= 1 or self.latest_parameters is None:
             return super().configure_fit(server_round, parameters, client_manager)
 
         config = {} if self.on_fit_config_fn is None else self.on_fit_config_fn(server_round)
@@ -342,6 +404,10 @@ def parse_args() -> argparse.Namespace:
         help="Minimum number of clients used for evaluation in each round. Defaults to min_fit_clients.",
     )
     parser.add_argument("--wandb", action="store_true", default=False, help="Enable wandb logging on the server")
+    parser.add_argument("--model_name", type=str, default="lstm", choices=["rnn", "lstm", "gru"])
+    parser.add_argument("--input_dim", type=int, default=9, help="Number of input features used by each client model")
+    parser.add_argument("--out_dim", type=int, default=4, help="Number of forecast outputs")
+    parser.add_argument("--global_num_layers", type=int, default=3, help="Number of layers in the global supernet")
     parser.add_argument(
         "--wandb_project",
         type=str,
@@ -381,6 +447,12 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     min_evaluate_clients = args.min_fit_clients if args.min_evaluate_clients is None else args.min_evaluate_clients
+    initial_parameters = build_initial_parameters(
+        model_name=args.model_name,
+        input_dim=args.input_dim,
+        out_dim=args.out_dim,
+        global_num_layers=args.global_num_layers,
+    )
 
     wb_run = None
     if wandb is not None and getattr(args, "wandb", False):
@@ -414,6 +486,7 @@ def main() -> None:
         metrics_log_path=args.metrics_log_path,
         fraction_fit=1.0,
         fraction_evaluate=1.0,
+        initial_parameters=initial_parameters,
         min_evaluate_clients=min_evaluate_clients,
         min_fit_clients=args.min_fit_clients,
         min_available_clients=args.min_available_clients,
