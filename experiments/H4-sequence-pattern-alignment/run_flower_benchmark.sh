@@ -94,8 +94,8 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --align_dim 32 \
     --wandb \
     --metrics_log_path "$LOG_DIR/spa_hfl_client_${cid}_L${layers}_metrics.csv" \
-    --lambda_align 0.1 \
-    --lambda_cons 0.1 &
+    --lambda_align 0.01 \
+    --lambda_cons 0.01 &
   CLIENT_PIDS+=($!)
 done
 
