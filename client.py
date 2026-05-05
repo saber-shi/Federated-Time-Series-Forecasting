@@ -382,6 +382,7 @@ def save_last_lags_predictions(
         raise ValueError("Not enough validation samples to produce forecasts.")
 
     y_pred_seq = []
+    model.to(device)
     model.eval()
     with torch.no_grad():
         for sample_idx in range(horizon):

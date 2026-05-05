@@ -43,10 +43,13 @@ def compute_autocorr_summary(x: torch.Tensor, max_lag: int) -> torch.Tensor:
 def compute_fft_summary(x: torch.Tensor, num_bins: int) -> torch.Tensor:
     seq = _squeeze_sequence(x).mean(dim=-1)
     seq = seq - seq.mean(dim=1, keepdim=True)
-    spec = torch.fft.rfft(seq, dim=1).abs()
+    device = seq.device
+    # Small batched FFTs can hit cuFFT internal errors on some CUDA/PyTorch builds.
+    # Computing this descriptor on CPU keeps SPA pattern summaries stable.
+    spec = torch.fft.rfft(seq.detach().cpu(), dim=1).abs().to(device)
     spec = spec[:, 1 : 1 + num_bins]
     if spec.size(1) < num_bins:
-        pad = torch.zeros(spec.size(0), num_bins - spec.size(1), device=seq.device)
+        pad = torch.zeros(spec.size(0), num_bins - spec.size(1), device=device)
         spec = torch.cat([spec, pad], dim=1)
     return spec
 
