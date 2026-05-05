@@ -1,0 +1,12 @@
+{"time":"2026-05-05T14:56:01.381063569+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-05-05T14:56:01.729879668+08:00","level":"INFO","msg":"stream: created new stream","id":"rilczsha"}
+{"time":"2026-05-05T14:56:01.729975682+08:00","level":"INFO","msg":"handler: started","stream_id":"rilczsha"}
+{"time":"2026-05-05T14:56:01.730034704+08:00","level":"INFO","msg":"stream: started","id":"rilczsha"}
+{"time":"2026-05-05T14:56:01.730065265+08:00","level":"INFO","msg":"writer: started","stream_id":"rilczsha"}
+{"time":"2026-05-05T14:56:01.730062095+08:00","level":"INFO","msg":"sender: started","stream_id":"rilczsha"}
+{"time":"2026-05-05T15:13:29.659705846+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-05-05T15:13:29.983280826+08:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2026-05-05T15:13:29.986924395+08:00","level":"INFO","msg":"stream: closing","id":"rilczsha"}
+{"time":"2026-05-05T15:13:29.986938185+08:00","level":"INFO","msg":"handler: closed","stream_id":"rilczsha"}
+{"time":"2026-05-05T15:13:29.987015268+08:00","level":"INFO","msg":"sender: closed","stream_id":"rilczsha"}
+{"time":"2026-05-05T15:13:29.987032508+08:00","level":"INFO","msg":"stream: closed","id":"rilczsha"}

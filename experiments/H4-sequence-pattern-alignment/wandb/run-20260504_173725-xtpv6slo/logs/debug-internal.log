@@ -1,0 +1,11 @@
+{"time":"2026-05-04T17:37:25.537492429+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-05-04T17:37:25.888586771+08:00","level":"INFO","msg":"stream: created new stream","id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:25.888681545+08:00","level":"INFO","msg":"handler: started","stream_id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:25.888803909+08:00","level":"INFO","msg":"stream: started","id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:25.888818+08:00","level":"INFO","msg":"writer: started","stream_id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:25.88882439+08:00","level":"INFO","msg":"sender: started","stream_id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:27.511940638+08:00","level":"INFO","msg":"stream: closing","id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:29.027018311+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-05-04T17:37:29.388940394+08:00","level":"INFO","msg":"handler: closed","stream_id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:29.389024207+08:00","level":"INFO","msg":"sender: closed","stream_id":"xtpv6slo"}
+{"time":"2026-05-04T17:37:29.389032827+08:00","level":"INFO","msg":"stream: closed","id":"xtpv6slo"}

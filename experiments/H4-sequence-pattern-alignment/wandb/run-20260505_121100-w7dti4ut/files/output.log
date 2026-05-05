@@ -1,0 +1,59 @@
+INFO logger 2026-05-05 12:11:01,879 | data_utils.py:28 | Reading 12164-0's data...
+INFO logger 2026-05-05 12:11:01,892 | data_utils.py:417 | 	Total number of samples:  4320
+INFO logger 2026-05-05 12:11:01,892 | data_utils.py:418 | 	Number of samples for training: 3456
+INFO logger 2026-05-05 12:11:01,892 | data_utils.py:419 | 	Number of samples for validation:  864
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 588, in main
+    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 683, in start_numpy_client
+    start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 405, in start_client_internal
+    message = receive()
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/grpc_client/connection.py", line 150, in receive
+    proto = next(server_message_iterator)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/grpc/_channel.py", line 543, in __next__
+    return self._next()
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/grpc/_channel.py", line 952, in _next
+    raise self
+grpc._channel._MultiThreadedRendezvous: <_MultiThreadedRendezvous of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "Failed parsing HTTP/2"
+	debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"Failed parsing HTTP/2", grpc_status:14, created_time:"2026-05-05T12:11:02.771994672+08:00"}"
+>
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 588, in main
+    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 683, in start_numpy_client
+    start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 405, in start_client_internal
+    message = receive()
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/grpc_client/connection.py", line 150, in receive
+    proto = next(server_message_iterator)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/grpc/_channel.py", line 543, in __next__
+    return self._next()
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/grpc/_channel.py", line 952, in _next
+    raise self
+grpc._channel._MultiThreadedRendezvous: <_MultiThreadedRendezvous of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "Failed parsing HTTP/2"
+	debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"Failed parsing HTTP/2", grpc_status:14, created_time:"2026-05-05T12:11:02.771994672+08:00"}"
+>

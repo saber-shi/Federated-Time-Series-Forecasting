@@ -1,0 +1,108 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            8mi4ctv09ons0pi1t1dp3o5e9dkcsth4:
+                args:
+                    - --server_address
+                    - 127.0.0.1:8091
+                    - --cid
+                    - 12162-0
+                    - --data_path
+                    - /home/saber/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed.csv
+                    - --model_name
+                    - lstm
+                    - --prediction_steps
+                    - "4"
+                    - --local_num_layers
+                    - "1"
+                    - --global_num_layers
+                    - "3"
+                    - --epochs
+                    - "5"
+                    - --batch_size
+                    - "64"
+                    - --spa_hfl
+                    - --align_dim
+                    - "32"
+                    - --wandb
+                    - --metrics_log_path
+                    - /home/saber/Federated-Time-Series-Forecasting/benchmark_logs/spa_hfl_client_12162-0_L1_metrics.csv
+                    - --lambda_align
+                    - "0.1"
+                    - --lambda_cons
+                    - "0.1"
+                codePath: client-hetero.py
+                cpu_count: 32
+                cpu_count_logical: 64
+                cudaVersion: "12.9"
+                disk:
+                    /:
+                        total: "1888559353856"
+                        used: "563539652608"
+                email: shisiping1992@gmail.com
+                executable: /home/saber/miniconda3/envs/time/bin/python3
+                git:
+                    commit: 06f2a39b4c9e9d0ff9de5b3e7306c1cf4d4c297d
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                gpu: NVIDIA GeForce RTX 4090
+                gpu_count: 4
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "25757220864"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-56fae8fe-4a6e-9d62-692c-25743d7e61ad
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "25757220864"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-7008ea9a-4f44-7161-dcfe-2f53c864120a
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "25757220864"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-f9024888-a0b4-2d15-34a5-b5e78da2dee1
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "25757220864"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-eb0d01b3-fa66-43fa-25d4-f1b4f8e8c278
+                host: hku00245537gpu
+                memory:
+                    total: "270278557696"
+                os: Linux-6.8.0-107-generic-x86_64-with-glibc2.17
+                program: /home/saber/Federated-Time-Series-Forecasting/client-hetero.py
+                python: CPython 3.8.20
+                root: /home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment
+                startedAt: "2026-05-05T06:29:47.608927Z"
+                writerId: 8mi4ctv09ons0pi1t1dp3o5e9dkcsth4
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 13
+                - 61
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-x86_64
+cid:
+    value: 12162-0
+global_num_layers:
+    value: 3
+local_num_layers:
+    value: 1
+model_name:
+    value: lstm
+spa_hfl:
+    value: true

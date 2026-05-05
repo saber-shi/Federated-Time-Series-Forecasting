@@ -1,0 +1,104 @@
+INFO logger 2026-05-05 12:23:02,843 | data_utils.py:28 | Reading 12167-0's data...
+INFO logger 2026-05-05 12:23:02,861 | data_utils.py:417 | 	Total number of samples:  17520
+INFO logger 2026-05-05 12:23:02,861 | data_utils.py:418 | 	Number of samples for training: 14016
+INFO logger 2026-05-05 12:23:02,861 | data_utils.py:419 | 	Number of samples for validation:  3504
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 1587bcb4-db20-497d-ada6-a0454e58bba3
+[91mERROR [0m:     Client raised an exception.
+Traceback (most recent call last):
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 281, in fit
+    self.model, self.projector, alignment_stats, alignment_metrics = train_spa_hfl(
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 286, in train_spa_hfl
+    pattern = compute_pattern_summary(x, acf_lags=acf_lags, fft_bins=fft_bins)
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 56, in compute_pattern_summary
+    fft = compute_fft_summary(x, fft_bins)
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 46, in compute_fft_summary
+    spec = torch.fft.rfft(seq, dim=1).abs()
+RuntimeError: cuFFT error: CUFFT_INTERNAL_ERROR
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 588, in main
+    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 683, in start_numpy_client
+    start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 533, in start_client_internal
+    raise ex
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 281, in fit
+    self.model, self.projector, alignment_stats, alignment_metrics = train_spa_hfl(
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 286, in train_spa_hfl
+    pattern = compute_pattern_summary(x, acf_lags=acf_lags, fft_bins=fft_bins)
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 56, in compute_pattern_summary
+    fft = compute_fft_summary(x, fft_bins)
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 46, in compute_fft_summary
+    spec = torch.fft.rfft(seq, dim=1).abs()
+RuntimeError: cuFFT error: CUFFT_INTERNAL_ERROR
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 588, in main
+    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 683, in start_numpy_client
+    start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 533, in start_client_internal
+    raise ex
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 281, in fit
+    self.model, self.projector, alignment_stats, alignment_metrics = train_spa_hfl(
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 286, in train_spa_hfl
+    pattern = compute_pattern_summary(x, acf_lags=acf_lags, fft_bins=fft_bins)
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 56, in compute_pattern_summary
+    fft = compute_fft_summary(x, fft_bins)
+  File "/home/saber/Federated-Time-Series-Forecasting/src/spa_hfl.py", line 46, in compute_fft_summary
+    spec = torch.fft.rfft(seq, dim=1).abs()
+RuntimeError: cuFFT error: CUFFT_INTERNAL_ERROR

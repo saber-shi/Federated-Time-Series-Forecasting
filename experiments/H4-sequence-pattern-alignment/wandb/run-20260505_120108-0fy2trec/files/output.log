@@ -1,0 +1,49 @@
+INFO logger 2026-05-05 12:01:09,923 | data_utils.py:28 | Reading 12162-0's data...
+INFO logger 2026-05-05 12:01:09,935 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-05-05 12:01:09,935 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-05-05 12:01:09,935 | data_utils.py:419 | 	Number of samples for validation:  288
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12162-0_lstm_final.pt
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 593, in main
+    prediction_path = save_last_lags_predictions(client.model, client.device, args, prediction_artifacts)
+  File "/home/saber/Federated-Time-Series-Forecasting/client.py", line 396, in save_last_lags_predictions
+    pred = model(x_tensor, None, device, y_hist_tensor)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/models/lstm.py", line 44, in forward
+    seq_out, (_, _) = self.lstm(x, (h0.detach(), c0.detach()))
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/rnn.py", line 812, in forward
+    result = _VF.lstm(input, hx, self._flat_weights, self.bias, self.num_layers,
+RuntimeError: Input and parameter tensors are not at the same device, found input tensor at cuda:0 and parameter tensor at cpu
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 593, in main
+    prediction_path = save_last_lags_predictions(client.model, client.device, args, prediction_artifacts)
+  File "/home/saber/Federated-Time-Series-Forecasting/client.py", line 396, in save_last_lags_predictions
+    pred = model(x_tensor, None, device, y_hist_tensor)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/saber/Federated-Time-Series-Forecasting/ml/models/lstm.py", line 44, in forward
+    seq_out, (_, _) = self.lstm(x, (h0.detach(), c0.detach()))
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/rnn.py", line 812, in forward
+    result = _VF.lstm(input, hx, self._flat_weights, self.bias, self.num_layers,
+RuntimeError: Input and parameter tensors are not at the same device, found input tensor at cuda:0 and parameter tensor at cpu

@@ -28,7 +28,7 @@ CLIENT_LAYERS=(
 echo "Starting plain HeteroFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:8090 \
-  --rounds 30 \
+  --rounds 50 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
@@ -63,7 +63,7 @@ wait $SERVER_PID
 echo "Starting SPA-HFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:8091 \
-  --rounds 30 \
+  --rounds 50 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \

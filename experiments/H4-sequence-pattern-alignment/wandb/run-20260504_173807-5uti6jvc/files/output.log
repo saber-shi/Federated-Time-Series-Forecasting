@@ -1,0 +1,98 @@
+INFO logger 2026-05-04 17:38:08,641 | data_utils.py:28 | Reading 12163-0's data...
+INFO logger 2026-05-04 17:38:08,653 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-05-04 17:38:08,653 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-05-04 17:38:08,653 | data_utils.py:419 | 	Number of samples for validation:  288
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 24371822-9f16-4aa4-a59e-13ba2bdd98e2
+[91mERROR [0m:     Client raised an exception.
+Traceback (most recent call last):
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 274, in fit
+    self._set_parameters(parameters)
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 241, in _set_parameters
+    self.adapter.load_global_parameters(parameters)
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 149, in load_global_parameters
+    raise ValueError(
+ValueError: Expected 14 global tensors or 28 padded tensors+masks, got 7
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 588, in main
+    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 683, in start_numpy_client
+    start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 533, in start_client_internal
+    raise ex
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 274, in fit
+    self._set_parameters(parameters)
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 241, in _set_parameters
+    self.adapter.load_global_parameters(parameters)
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 149, in load_global_parameters
+    raise ValueError(
+ValueError: Expected 14 global tensors or 28 padded tensors+masks, got 7
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 601, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 588, in main
+    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 683, in start_numpy_client
+    start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 533, in start_client_internal
+    raise ex
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 274, in fit
+    self._set_parameters(parameters)
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 241, in _set_parameters
+    self.adapter.load_global_parameters(parameters)
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 149, in load_global_parameters
+    raise ValueError(
+ValueError: Expected 14 global tensors or 28 padded tensors+masks, got 7
