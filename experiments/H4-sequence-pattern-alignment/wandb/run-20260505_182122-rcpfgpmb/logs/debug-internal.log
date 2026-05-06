@@ -1,0 +1,12 @@
+{"time":"2026-05-05T18:21:22.581110181+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-05-05T18:21:22.928940002+08:00","level":"INFO","msg":"stream: created new stream","id":"rcpfgpmb"}
+{"time":"2026-05-05T18:21:22.929040696+08:00","level":"INFO","msg":"handler: started","stream_id":"rcpfgpmb"}
+{"time":"2026-05-05T18:21:22.929243274+08:00","level":"INFO","msg":"stream: started","id":"rcpfgpmb"}
+{"time":"2026-05-05T18:21:22.929314407+08:00","level":"INFO","msg":"writer: started","stream_id":"rcpfgpmb"}
+{"time":"2026-05-05T18:21:22.929342208+08:00","level":"INFO","msg":"sender: started","stream_id":"rcpfgpmb"}
+{"time":"2026-05-05T18:24:37.66060516+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-05-05T18:24:38.050636014+08:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2026-05-05T18:24:38.055156405+08:00","level":"INFO","msg":"stream: closing","id":"rcpfgpmb"}
+{"time":"2026-05-05T18:24:38.055168155+08:00","level":"INFO","msg":"handler: closed","stream_id":"rcpfgpmb"}
+{"time":"2026-05-05T18:24:38.055245139+08:00","level":"INFO","msg":"sender: closed","stream_id":"rcpfgpmb"}
+{"time":"2026-05-05T18:24:38.055259279+08:00","level":"INFO","msg":"stream: closed","id":"rcpfgpmb"}

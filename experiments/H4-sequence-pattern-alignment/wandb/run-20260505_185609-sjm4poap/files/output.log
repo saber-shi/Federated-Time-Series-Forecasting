@@ -1,0 +1,320 @@
+INFO logger 2026-05-05 18:56:10,930 | data_utils.py:28 | Reading 12164-0's data...
+INFO logger 2026-05-05 18:56:10,948 | data_utils.py:417 | 	Total number of samples:  4320
+INFO logger 2026-05-05 18:56:10,949 | data_utils.py:418 | 	Number of samples for training: 3456
+INFO logger 2026-05-05 18:56:10,949 | data_utils.py:419 | 	Number of samples for validation:  864
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 589f9686-d938-4343-8fde-0fee7039482d
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 8c2b720c-a9d9-4119-88d5-8055a1f7c6a2
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 4e6cc934-2cad-4332-a30d-fb9cbc945bad
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 76ea29ab-24b7-47d2-831a-cfd6eba314f6
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message a383c7ce-e9f5-47c2-84df-29f32a0af28c
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message b7242ad1-340c-472f-af8a-7e71a24059e6
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message bdf677cb-bad1-4368-a19e-5179831f79e4
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 95cac9d0-16dc-4a8d-a209-e3af6cb37b82
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message d9c1d07e-e4c9-4b52-8bea-215d7762bd47
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message b944e6ca-e229-42e9-a070-2bb034f25c1a
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message c83ef584-cda7-4c96-b3e1-914e2d79078e
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 1ef32ed1-97d3-4091-87a0-4e25b27ed9d2
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 3c54525d-5f7b-42e5-9519-7bbe4468ac63
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 7770d1d1-0b55-4267-8c75-3c25cc16e64c
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 602515c8-23b8-4711-98db-49d0686e0eff
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 0b73d3b7-3c47-4545-8b55-05b3e846bac2
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 5a66d5e6-e75e-4f53-8f05-46adad7f4200
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 4c4d6145-9117-4c74-b03d-519a1ddd6cfe
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message e2622384-b5a4-4d03-89a1-1612a5fd03c4
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 514d100c-66c0-4fa0-be4e-1955533ba4bf
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message c278f9bb-5660-4f17-8f39-cdf934f232a5
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 1a690c75-dd4a-4bd5-af25-2dad83207790
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 4fc82c8f-11b6-408b-92c3-28887a122c06
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message d1b06ab1-b6bb-4234-9b0a-f36ee74e1894
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message b6b1d1bf-4ad2-4307-89ec-aa32755a4e31
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message c9a6fee2-25da-4930-8794-b7ccd59e1563
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 382e9ca5-709a-4641-bfd6-2973f940be32
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 8b7888ee-3eaf-44c6-bcd5-827f7abbd7e9
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message ed5ce0e0-439b-4149-bef7-73eaad6a9271
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 79ac7718-ba21-4815-bd93-8a6bad86cc50
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 700e6539-23bf-4578-be3a-2f08044529e6
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message ff9ad06b-0777-4b0d-a39f-d6f87ca7986d
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 83235847-c70f-4db8-b340-e51b21aaa049
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 01005c1c-2cc5-4336-b857-d7b44d30bd17
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 6afb28d5-35b1-4ba9-8346-9803a5a6137d
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message a2217628-cb14-4e90-9fa5-91e361572e26
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message d57939fa-09be-4a7b-822b-fbcff7fd62d1
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 39f43c1e-7147-4cf1-87cc-101adea69299
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message a92fc320-fe7b-4f54-8846-7aeaaa927e72
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message e0f210f0-4367-405b-a957-db3ef5fcd0d0
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 4b9921f8-04e1-480b-8e54-8b98e1cc85f0
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 65f7a7d7-76e7-466e-9cdb-545334bc89b4
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 3e11ea58-a7d3-49aa-ba9f-da3259984cff
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 20fdc97d-4000-4024-a628-10e426f288e7
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 0c9d85af-9239-4051-b921-b5c409590567
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message bd692f03-f557-4841-bd53-feac5f2910ef
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message c1e6b3b9-bcc1-43e4-805e-eb68af266f98
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 75a5edea-b525-410b-b24d-72e58eee9e8f
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message b59f0a5a-e292-4d76-b1d7-1a0faa591ad3
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message baec7530-dead-4035-ac3b-6928c570f1b1
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 29d4e960-7eea-401a-a723-fddb9d066d22
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 4319c803-b770-46a9-8fe6-7eff53d70b06
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 17c0510a-6ac3-4484-a8f8-b0f6b5fb0f2a
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 09434036-a2b2-478b-a477-a57a510d7b7b
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message ea7216a2-e7ce-4e47-aa44-a23eec6c3e42
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 220e16a1-773e-4274-bb7f-eb34690448e7
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 15bd5ef6-78df-44c3-ad5f-2f3c55ecb333
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 7e6a57c0-84e6-4421-b3cf-a1322b32b96d
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message ebda0f49-4368-4f4d-9b44-12968991c1f6
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 990be288-dc73-4aeb-8a41-1dacbae37c90
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 2255fd65-ef10-49d5-8b1a-2553487be5d8
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message f6eeb0c1-7987-43a9-af66-6259bf48ea36
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 8d2e8cd9-ffcd-4243-b2da-0fc94cce8687
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message d37eec6a-180c-4c7a-bccb-95855c27438d
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 719c125b-4914-4f1d-aa8a-d9a1c916eeb4
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 6131b293-0976-409c-ae31-7b4068275401
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 0f88bfe0-e363-41f8-b15a-5fe5ad822c44
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 126ff6d4-855a-49e4-b408-593eeb82a3f8
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message ac40d2e4-5161-4c59-b2ec-82f50d8b359f
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message c9b1936b-9708-4ce4-9063-479b77430344
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 82d0f42c-e7d1-4fe4-9525-ca9ca8453051
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 1efbe141-a09c-47ae-9a09-1de3deac4853
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 72f1f36a-5eb1-4ae2-a81f-c05bc79425b2
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 4679da7d-7e04-4b75-aac8-de62af046a11
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message d134cc22-7950-4c00-a232-78eaac350996
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message b83b34cf-233f-4a42-a511-b45473639b47
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 3fe1658f-b977-4f56-aea9-59abcae6a5c7
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 3568eb93-0afa-4b02-b4f9-0ef93e47ee4f
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 7fca4a24-274e-498d-b010-0f48c120e8bb
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message d7496d5a-22c7-487f-9e52-2dfcb0d5d947
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 7bf2360b-205c-4dd7-8e7b-6f1efe6e2674
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 13382177-4b24-4fa0-81bd-867721d63f7c
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message a7e5f575-40db-4040-9b74-b1142f8e2524
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 816b9546-72f5-42bd-b9b9-1ec819d7c8b7
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 434d5822-62aa-4a8b-9c64-49eeacc8cd00
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 15f7af78-21b6-43a1-9dc9-b96bf4a99c5a
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message a4693bff-c974-4fe2-a980-deb66ecc1e2a
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 75f5fd3f-4bc0-4fe8-85ec-2466654f0ccc
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 8d284283-26a2-4380-bb9a-45b003d98c4b
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 6930862e-9aa3-475a-b4e5-b6e0ef20f977
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 1ed1b3c6-3298-4d6f-922f-028d33a0ac30
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message ff8677d2-4534-4961-823b-c408e84635d3
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message b4bf8f36-d8f4-41ff-b38f-5070f5bdf99e
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 8d546b0f-74ca-4a70-ac5a-8e8209450aa8
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 0498c499-5e6c-4417-aba1-37e2618fbe59
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 91c8bcf5-daba-4d96-9bd2-fe4b1fb721b5
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 0094f4eb-fc3a-4be6-9e61-1ec5c9e41e11
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 2cac7425-f2f9-4652-8f4e-5cf930ccdbdb
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 3dd6bc90-2d93-4edf-a58b-f469b1ea828e
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 32f46346-7612-4c1c-85ee-160542b38417
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: reconnect message 45cf1385-5dcf-42ce-a75a-03a83f2d395e
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12164-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12164-0_lstm_last_48.csv

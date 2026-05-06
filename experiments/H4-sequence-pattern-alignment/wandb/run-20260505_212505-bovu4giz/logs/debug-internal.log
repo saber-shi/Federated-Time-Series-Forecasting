@@ -1,0 +1,6 @@
+{"time":"2026-05-05T21:25:05.898440152+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-05-05T21:25:06.240472281+08:00","level":"INFO","msg":"stream: created new stream","id":"bovu4giz"}
+{"time":"2026-05-05T21:25:06.240649487+08:00","level":"INFO","msg":"handler: started","stream_id":"bovu4giz"}
+{"time":"2026-05-05T21:25:06.240884246+08:00","level":"INFO","msg":"stream: started","id":"bovu4giz"}
+{"time":"2026-05-05T21:25:06.240899647+08:00","level":"INFO","msg":"writer: started","stream_id":"bovu4giz"}
+{"time":"2026-05-05T21:25:06.240931988+08:00","level":"INFO","msg":"sender: started","stream_id":"bovu4giz"}

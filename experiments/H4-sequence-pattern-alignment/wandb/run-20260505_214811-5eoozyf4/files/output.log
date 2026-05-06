@@ -1,0 +1,10 @@
+INFO logger 2026-05-05 21:48:12,776 | data_utils.py:28 | Reading 12163-0's data...
+INFO logger 2026-05-05 21:48:12,788 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-05-05 21:48:12,788 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-05-05 21:48:12,789 | data_utils.py:419 | 	Number of samples for validation:  288
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 284f6870-5142-4d86-ada8-f88e097ae057
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12163-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12163-0_lstm_last_48.csv

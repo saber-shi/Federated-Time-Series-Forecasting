@@ -1,0 +1,67 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            j9phdavuuc7v5z6fztlnl09ssea74rpt:
+                args:
+                    - --server_address
+                    - 127.0.0.1:8090
+                    - --cid
+                    - 12166-0
+                    - --data_path
+                    - /home/saber/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed.csv
+                    - --model_name
+                    - lstm
+                    - --prediction_steps
+                    - "4"
+                    - --local_num_layers
+                    - "3"
+                    - --global_num_layers
+                    - "3"
+                    - --epochs
+                    - "5"
+                    - --wandb
+                    - --metrics_log_path
+                    - /home/saber/Federated-Time-Series-Forecasting/benchmark_logs/plain_heterofl_client_12166-0_L3_metrics.csv
+                    - --batch_size
+                    - "64"
+                codePath: client-hetero.py
+                email: shisiping1992@gmail.com
+                executable: /home/saber/miniconda3/envs/time/bin/python3
+                git:
+                    commit: 472a1ffa28f25f5c4ee40cadd1a2beb5f765efdb
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                host: hku00245537gpu
+                os: Linux-6.8.0-107-generic-x86_64-with-glibc2.17
+                program: /home/saber/Federated-Time-Series-Forecasting/client-hetero.py
+                python: CPython 3.8.20
+                root: /home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment
+                startedAt: "2026-05-05T10:25:38.095996Z"
+                writerId: j9phdavuuc7v5z6fztlnl09ssea74rpt
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 13
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-x86_64
+cid:
+    value: 12166-0
+global_num_layers:
+    value: 3
+local_num_layers:
+    value: 3
+model_name:
+    value: lstm
+spa_hfl:
+    value: false
