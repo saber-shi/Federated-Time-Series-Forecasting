@@ -25,6 +25,12 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Optional number of sorted districts to include before assigning durations. 0 means all districts.",
     )
+    parser.add_argument(
+        "--district_order",
+        type=str,
+        default="",
+        help="Optional comma-separated district order. If set, districts are assigned durations in this exact order.",
+    )
     return parser.parse_args()
 
 
@@ -43,6 +49,17 @@ def parse_duration_spec(spec: str) -> List[int]:
             raise ValueError(f"Invalid non-positive duration chunk '{chunk}'.")
         durations.extend([days] * count)
     return durations
+
+
+def parse_district_order(spec: str) -> List[str]:
+    districts: List[str] = []
+    for chunk in spec.split(","):
+        district = chunk.strip()
+        if district:
+            districts.append(district)
+    if not districts:
+        raise ValueError("District order must contain at least one district id.")
+    return districts
 
 
 def build_duration_map(districts: List[str], duration_days: List[int]) -> Dict[str, int]:
@@ -69,9 +86,16 @@ def main() -> None:
         for row in reader:
             rows_by_district[row["District"]].append(row)
 
-    districts = sorted(rows_by_district)
-    if args.district_limit > 0:
-        districts = districts[: args.district_limit]
+    if args.district_order:
+        districts = parse_district_order(args.district_order)
+    else:
+        districts = sorted(rows_by_district)
+        if args.district_limit > 0:
+            districts = districts[: args.district_limit]
+
+    missing_districts = [district for district in districts if district not in rows_by_district]
+    if missing_districts:
+        raise ValueError(f"Missing districts in input CSV: {', '.join(missing_districts)}")
 
     duration_days_list = parse_duration_spec(args.duration_spec)
     duration_days = build_duration_map(districts, duration_days_list)
