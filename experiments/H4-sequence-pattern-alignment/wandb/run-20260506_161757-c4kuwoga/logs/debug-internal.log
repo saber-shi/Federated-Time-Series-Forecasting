@@ -1,0 +1,12 @@
+{"time":"2026-05-06T16:17:58.194082991+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-05-06T16:17:58.520091725+08:00","level":"INFO","msg":"stream: created new stream","id":"c4kuwoga"}
+{"time":"2026-05-06T16:17:58.520167838+08:00","level":"INFO","msg":"handler: started","stream_id":"c4kuwoga"}
+{"time":"2026-05-06T16:17:58.520320283+08:00","level":"INFO","msg":"stream: started","id":"c4kuwoga"}
+{"time":"2026-05-06T16:17:58.520369775+08:00","level":"INFO","msg":"writer: started","stream_id":"c4kuwoga"}
+{"time":"2026-05-06T16:17:58.520400126+08:00","level":"INFO","msg":"sender: started","stream_id":"c4kuwoga"}
+{"time":"2026-05-06T16:24:22.859677399+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-05-06T16:24:23.149558535+08:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2026-05-06T16:24:23.155746138+08:00","level":"INFO","msg":"stream: closing","id":"c4kuwoga"}
+{"time":"2026-05-06T16:24:23.155767799+08:00","level":"INFO","msg":"handler: closed","stream_id":"c4kuwoga"}
+{"time":"2026-05-06T16:24:23.155877363+08:00","level":"INFO","msg":"sender: closed","stream_id":"c4kuwoga"}
+{"time":"2026-05-06T16:24:23.155895684+08:00","level":"INFO","msg":"stream: closed","id":"c4kuwoga"}
