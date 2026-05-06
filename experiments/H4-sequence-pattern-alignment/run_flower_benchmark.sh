@@ -27,44 +27,44 @@ CLIENT_LAYERS=(
   3
 )
 
-# echo "Starting plain HeteroFL benchmark server..."
-# python3 "$ROOT_DIR/server-hetero.py" \
-#   --server_address 127.0.0.1:"$PLAIN_PORT" \
-#   --rounds 50 \
-#   --min_fit_clients 6 \
-#   --min_evaluate_clients 6 \
-#   --min_available_clients 6 \
-#   --model_name lstm \
-#   --input_dim 9 \
-#   --out_dim 4 \
-#   --global_num_layers 3 \
-#   --metrics_log_path "$LOG_DIR/plain_heterofl_server_metrics.csv" &
-# SERVER_PID=$!
-# sleep 3
+echo "Starting plain HeteroFL benchmark server..."
+python3 "$ROOT_DIR/server-hetero.py" \
+  --server_address 127.0.0.1:"$PLAIN_PORT" \
+  --rounds 50 \
+  --min_fit_clients 6 \
+  --min_evaluate_clients 6 \
+  --min_available_clients 6 \
+  --model_name lstm \
+  --input_dim 9 \
+  --out_dim 4 \
+  --global_num_layers 3 \
+  --metrics_log_path "$LOG_DIR/plain_heterofl_server_metrics.csv" &
+SERVER_PID=$!
+sleep 3
 
-# CLIENT_PIDS=()
-# for idx in "${!CLIENT_CIDS[@]}"; do
-#   cid="${CLIENT_CIDS[$idx]}"
-#   layers="${CLIENT_LAYERS[$idx]}"
-#   python3 "$ROOT_DIR/client-hetero.py" \
-#     --server_address 127.0.0.1:"$PLAIN_PORT" \
-#     --cid "$cid" \
-#     --data_path "$DATA_PATH" \
-#     --model_name lstm \
-#     --prediction_steps "$PREDICTION_STEPS" \
-#     --local_num_layers "$layers" \
-#     --global_num_layers 3 \
-#     --epochs 5 \
-#     --wandb \
-#     --metrics_log_path "$LOG_DIR/plain_heterofl_client_${cid}_L${layers}_metrics.csv" \
-#     --batch_size 64 &
-#   CLIENT_PIDS+=($!)
-# done
+CLIENT_PIDS=()
+for idx in "${!CLIENT_CIDS[@]}"; do
+  cid="${CLIENT_CIDS[$idx]}"
+  layers="${CLIENT_LAYERS[$idx]}"
+  python3 "$ROOT_DIR/client-hetero.py" \
+    --server_address 127.0.0.1:"$PLAIN_PORT" \
+    --cid "$cid" \
+    --data_path "$DATA_PATH" \
+    --model_name lstm \
+    --prediction_steps "$PREDICTION_STEPS" \
+    --local_num_layers "$layers" \
+    --global_num_layers 3 \
+    --epochs 5 \
+    --wandb \
+    --metrics_log_path "$LOG_DIR/plain_heterofl_client_${cid}_L${layers}_metrics.csv" \
+    --batch_size 64 &
+  CLIENT_PIDS+=($!)
+done
 
-# for pid in "${CLIENT_PIDS[@]}"; do
-#   wait "$pid"
-# done
-# wait $SERVER_PID
+for pid in "${CLIENT_PIDS[@]}"; do
+  wait "$pid"
+done
+wait $SERVER_PID
 
 echo "Starting SPA-HFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
