@@ -180,7 +180,8 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
         self.criterion = get_criterion(args.criterion)
         self.wandb_round = 0
-        self.projector = AlignmentProjector(input_dim=self.model.hidden_dim, align_dim=args.align_dim)
+        self.model = self.adapter.local_model.to(self.device)
+        self.projector = AlignmentProjector(input_dim=self.model.hidden_dim, align_dim=args.align_dim).to(self.device)
 
     def _append_metric_row(
         self,
@@ -239,7 +240,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             self._set_spa_parameters(parameters)
             return
         self.adapter.load_global_parameters(parameters)
-        self.model = self.adapter.local_model
+        self.model = self.adapter.local_model.to(self.device)
 
     def _get_spa_parameters(self) -> List[np.ndarray]:
         centroid = getattr(self, "current_global_centroid", np.zeros(self.args.align_dim, dtype=np.float32))
@@ -265,7 +266,8 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             centroid = parameters[model_param_count + projector_param_count]
 
         self.adapter.load_global_parameters(model_parameters)
-        self.model = self.adapter.local_model
+        self.model = self.adapter.local_model.to(self.device)
+        self.projector = self.projector.to(self.device)
         load_state_dict_from_ndarrays(self.projector, projector_parameters)
         self.current_global_centroid = centroid
 
@@ -585,7 +587,10 @@ def main() -> None:
         args=args,
     )
 
-    fl.client.start_numpy_client(server_address=args.server_address, client=client)
+    fl.client.start_client(
+    server_address=args.server_address,
+    client=client.to_client(),
+    )
 
     saved_path = save_client_model(client.model, args)
     print(f"Saved final client model to: {saved_path}")

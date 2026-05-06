@@ -1,0 +1,15 @@
+INFO logger 2026-05-05 21:12:29,315 | data_utils.py:28 | Reading 12162-0's data...
+INFO logger 2026-05-05 21:12:29,328 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-05-05 21:12:29,328 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-05-05 21:12:29,328 | data_utils.py:419 | 	Number of samples for validation:  288
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
