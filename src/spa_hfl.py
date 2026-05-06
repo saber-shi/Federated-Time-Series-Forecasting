@@ -61,6 +61,12 @@ def compute_pattern_summary(x: torch.Tensor, acf_lags: int, fft_bins: int) -> to
     return torch.nn.functional.normalize(summary, dim=1)
 
 
+def select_pattern_source(x: torch.Tensor, y_hist: torch.Tensor) -> torch.Tensor:
+    if y_hist is not None and y_hist.numel() > 0 and y_hist.size(-1) > 0:
+        return y_hist
+    return x
+
+
 def pairwise_cosine_matrix(x: torch.Tensor) -> torch.Tensor:
     x = torch.nn.functional.normalize(x, dim=1)
     return x @ x.transpose(0, 1)
@@ -286,7 +292,8 @@ def train_spa_hfl(
             out = model(x, exogenous, device, y_hist, return_features=True)
             pred = out["prediction"]
             z = projector(out["last_hidden"])
-            pattern = compute_pattern_summary(x, acf_lags=acf_lags, fft_bins=fft_bins)
+            pattern_source = select_pattern_source(x, y_hist)
+            pattern = compute_pattern_summary(pattern_source, acf_lags=acf_lags, fft_bins=fft_bins)
 
             forecast_loss = criterion(pred, y)
             align_reg = alignment_loss(z, centroid_tensor)
@@ -327,7 +334,8 @@ def train_spa_hfl(
                 exogenous = None
             out = model(x, exogenous, device, y_hist, return_features=True)
             z = projector(out["last_hidden"])
-            pattern = compute_pattern_summary(x, acf_lags=acf_lags, fft_bins=fft_bins)
+            pattern_source = select_pattern_source(x, y_hist)
+            pattern = compute_pattern_summary(pattern_source, acf_lags=acf_lags, fft_bins=fft_bins)
             latent_means.append(z.mean(dim=0))
             pattern_means.append(pattern.mean(dim=0))
 

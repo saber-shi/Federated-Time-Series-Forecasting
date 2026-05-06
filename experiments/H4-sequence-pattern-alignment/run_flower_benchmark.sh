@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
-DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-custom.csv"
+DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
 PREDICTION_STEPS=4
 PLAIN_PORT=8090
 SPA_PORT=8091
@@ -12,10 +12,10 @@ mkdir -p "$LOG_DIR"
 CLIENT_CIDS=(
   12162-0
   12163-0
-  12169-0
+  12164-0
   12165-0
   12166-0
-  12170-0
+  12167-0
 )
 
 CLIENT_LAYERS=(
