@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
 DATA_PATH="$ROOT_DIR/dataset/5G-1y-firstcell-6stations.csv"
-PREDICTION_STEPS=4
+PREDICTION_STEPS=12
 PLAIN_PORT=8090
 SPA_PORT=8091
 mkdir -p "$LOG_DIR"
@@ -104,8 +104,8 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --align_dim 32 \
     --wandb \
     --metrics_log_path "$LOG_DIR/spa_hfl_client_${cid}_L${layers}_metrics.csv" \
-    --lambda_align 0.005 \
-    --lambda_cons 0.001 &
+    --lambda_align 0.001 \
+    --lambda_cons 0.0005 &
   CLIENT_PIDS+=($!)
 done
 
