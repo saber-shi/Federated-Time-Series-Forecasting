@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
-DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
+DATA_PATH="$ROOT_DIR/dataset/5G-1y-firstcell-6stations.csv"
 PREDICTION_STEPS=4
 PLAIN_PORT=8090
 SPA_PORT=8091
@@ -79,7 +79,7 @@ python3 "$ROOT_DIR/server-hetero.py" \
   --global_num_layers 3 \
   --spa_hfl \
   --align_dim 32 \
-  --pattern_cluster_count 3 \
+  --pattern_cluster_count 2 \
   --pattern_cluster_iters 10 \
   --wandb \
   --metrics_log_path "$LOG_DIR/spa_hfl_server_metrics.csv" &
@@ -104,7 +104,7 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --align_dim 32 \
     --wandb \
     --metrics_log_path "$LOG_DIR/spa_hfl_client_${cid}_L${layers}_metrics.csv" \
-    --lambda_align 0.01 \
+    --lambda_align 0.005 \
     --lambda_cons 0.001 &
   CLIENT_PIDS+=($!)
 done
