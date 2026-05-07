@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
 DATA_PATH="$ROOT_DIR/dataset/5G-1y-firstcell-6stations.csv"
-PREDICTION_STEPS=12
+PREDICTION_STEPS=4
 PLAIN_PORT=8090
 SPA_PORT=8091
 mkdir -p "$LOG_DIR"
