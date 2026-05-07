@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
-DATA_PATH="$ROOT_DIR/dataset/5G-1y-firstcell-6stations.csv"
+DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
 PREDICTION_STEPS=4
 PLAIN_PORT=8090
 SPA_PORT=8091
@@ -79,7 +79,7 @@ python3 "$ROOT_DIR/server-hetero.py" \
   --global_num_layers 3 \
   --spa_hfl \
   --align_dim 32 \
-  --pattern_cluster_count 2 \
+  --pattern_cluster_count 3 \
   --pattern_cluster_iters 10 \
   --wandb \
   --metrics_log_path "$LOG_DIR/spa_hfl_server_metrics.csv" &
