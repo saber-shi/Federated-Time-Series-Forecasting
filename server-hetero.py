@@ -140,19 +140,7 @@ def get_model_parameter_arrays_and_keys(
 
 
 def infer_spc_head_keys(reference_keys: List[str]) -> List[str]:
-    mlp_indices = []
-    for key in reference_keys:
-        parts = key.split(".")
-        if len(parts) >= 3 and parts[0] == "MLP_layers" and parts[1].isdigit():
-            mlp_indices.append(int(parts[1]))
-    if not mlp_indices:
-        return []
-    final_mlp_index = max(mlp_indices)
-    return [
-        key
-        for key in reference_keys
-        if key.startswith(f"MLP_layers.{final_mlp_index}.")
-    ]
+    return [key for key in reference_keys if key.startswith("MLP_layers.")]
 
 
 class WandbHeteroFedAvg(fl.server.strategy.FedAvg):

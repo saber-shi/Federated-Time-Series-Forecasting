@@ -83,7 +83,8 @@ def compute_client_pattern_mean(
     if pattern_source not in {"y_hist", "x"}:
         raise ValueError(f"Unsupported pattern_source: {pattern_source}")
 
-    pattern_means = []
+    pattern_sum = None
+    total_samples = 0
     with torch.no_grad():
         for batch in data_loader:
             if len(batch) != 4:
@@ -96,11 +97,13 @@ def compute_client_pattern_mean(
             else:
                 source = x
             pattern = compute_pattern_summary(source, acf_lags=acf_lags, fft_bins=fft_bins)
-            pattern_means.append(pattern.mean(dim=0))
+            batch_sum = pattern.sum(dim=0)
+            pattern_sum = batch_sum if pattern_sum is None else pattern_sum + batch_sum
+            total_samples += pattern.size(0)
 
-    if not pattern_means:
+    if pattern_sum is None or total_samples == 0:
         return np.zeros(acf_lags + fft_bins, dtype=np.float32)
-    return torch.stack(pattern_means).mean(dim=0).detach().cpu().numpy().astype(np.float32, copy=False)
+    return (pattern_sum / total_samples).detach().cpu().numpy().astype(np.float32, copy=False)
 
 
 def pairwise_cosine_matrix(x: torch.Tensor) -> torch.Tensor:
@@ -203,7 +206,7 @@ def cluster_pattern_descriptors(
             selected.append(len(selected))
         centers = patterns[selected].copy()
 
-    assignments = np.zeros(num_clients, dtype=np.int64)
+    assignments = -np.ones(num_clients, dtype=np.int64)
     for _ in range(max(1, num_iters)):
         similarity = patterns @ centers.T
         new_assignments = similarity.argmax(axis=1)

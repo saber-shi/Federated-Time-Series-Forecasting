@@ -121,7 +121,6 @@ class HeteroModelAdapter:
         self.local_model = build_recurrent_model(model_name, input_dim, out_dim, local_num_layers)
         self.reference_model = build_recurrent_model(model_name, input_dim, out_dim, global_num_layers)
         self.reference_keys = list(self.reference_model.state_dict().keys())
-        self._final_head_mlp_index = self._infer_final_head_mlp_index()
         self.head_keys = self._infer_head_keys()
         self.backbone_keys = [key for key in self.reference_keys if key not in self.head_keys]
         if not self.head_keys:
@@ -132,26 +131,11 @@ class HeteroModelAdapter:
         self.backbone_param_count = len(self.backbone_keys)
         self.head_param_count = len(self.head_keys)
 
-    def _infer_final_head_mlp_index(self) -> int:
-        mlp_indices = []
-        for key in self.reference_keys:
-            parts = key.split(".")
-            if len(parts) >= 3 and parts[0] == "MLP_layers" and parts[1].isdigit():
-                mlp_indices.append(int(parts[1]))
-        if not mlp_indices:
-            return -1
-        return max(mlp_indices)
-
     def _infer_head_keys(self) -> List[str]:
         return [key for key in self.reference_keys if self.is_head_key(key)]
 
     def is_head_key(self, key: str) -> bool:
-        parts = key.split(".")
-        if len(parts) < 3 or parts[0] != "MLP_layers" or not parts[1].isdigit():
-            return False
-        if self._final_head_mlp_index < 0:
-            return False
-        return int(parts[1]) == self._final_head_mlp_index
+        return key.startswith("MLP_layers.")
 
     def export_parameters_with_masks(self) -> List[np.ndarray]:
         local_state = self.local_model.state_dict()
