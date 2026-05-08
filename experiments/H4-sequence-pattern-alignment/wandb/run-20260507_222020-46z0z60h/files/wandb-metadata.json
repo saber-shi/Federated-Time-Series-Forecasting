@@ -1,0 +1,90 @@
+{
+  "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.17",
+  "python": "CPython 3.8.20",
+  "startedAt": "2026-05-07T14:20:20.450418Z",
+  "args": [
+    "--server_address",
+    "127.0.0.1:8091",
+    "--rounds",
+    "50",
+    "--min_fit_clients",
+    "6",
+    "--min_evaluate_clients",
+    "6",
+    "--min_available_clients",
+    "6",
+    "--model_name",
+    "lstm",
+    "--input_dim",
+    "9",
+    "--out_dim",
+    "4",
+    "--global_num_layers",
+    "3",
+    "--spa_hfl",
+    "--align_dim",
+    "32",
+    "--pattern_cluster_count",
+    "3",
+    "--pattern_cluster_iters",
+    "10",
+    "--wandb",
+    "--metrics_log_path",
+    "/home/saber/Federated-Time-Series-Forecasting/benchmark_logs/spa_hfl_server_metrics.csv"
+  ],
+  "program": "/home/saber/Federated-Time-Series-Forecasting/server-hetero.py",
+  "codePath": "server-hetero.py",
+  "git": {
+    "remote": "https://github.com/saber-shi/Federated-Time-Series-Forecasting.git",
+    "commit": "f604999e9b1eafb7dc36403e51ed5d2b6d6ea9ca"
+  },
+  "email": "shisiping1992@gmail.com",
+  "root": "/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment",
+  "host": "hku00245537gpu",
+  "executable": "/home/saber/miniconda3/envs/time/bin/python3",
+  "cpu_count": 32,
+  "cpu_count_logical": 64,
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "gpu_count": 4,
+  "disk": {
+    "/": {
+      "total": "1888559353856",
+      "used": "602847121408"
+    }
+  },
+  "memory": {
+    "total": "270278557696"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-56fae8fe-4a6e-9d62-692c-25743d7e61ad"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-7008ea9a-4f44-7161-dcfe-2f53c864120a"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-f9024888-a0b4-2d15-34a5-b5e78da2dee1"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-eb0d01b3-fa66-43fa-25d4-f1b4f8e8c278"
+    }
+  ],
+  "cudaVersion": "12.9",
+  "writerId": "ac9qr72y1r121p9w0ivlswb73v3afjld"
+}
