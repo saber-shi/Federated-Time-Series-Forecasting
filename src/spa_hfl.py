@@ -67,6 +67,42 @@ def select_pattern_source(x: torch.Tensor, y_hist: torch.Tensor) -> torch.Tensor
     return x
 
 
+def compute_client_pattern_mean(
+    data_loader,
+    acf_lags: int,
+    fft_bins: int,
+    device: str,
+    pattern_source: str = "y_hist",
+) -> np.ndarray:
+    """Compute a client-level ACF+FFT descriptor from available history only.
+
+    SPC uses this descriptor for sequence-pattern clustering. It never uses the
+    forecast label ``y``. If ``pattern_source`` is ``"y_hist"`` but the loader
+    does not provide a usable history tensor, the descriptor falls back to ``x``.
+    """
+    if pattern_source not in {"y_hist", "x"}:
+        raise ValueError(f"Unsupported pattern_source: {pattern_source}")
+
+    pattern_means = []
+    with torch.no_grad():
+        for batch in data_loader:
+            if len(batch) != 4:
+                raise ValueError("Expected train loader batches of (x, exogenous, y_hist, y)")
+            x, _, y_hist, _ = batch
+            x = x.to(device)
+            y_hist = None if y_hist is None else y_hist.to(device)
+            if pattern_source == "y_hist":
+                source = select_pattern_source(x, y_hist)
+            else:
+                source = x
+            pattern = compute_pattern_summary(source, acf_lags=acf_lags, fft_bins=fft_bins)
+            pattern_means.append(pattern.mean(dim=0))
+
+    if not pattern_means:
+        return np.zeros(acf_lags + fft_bins, dtype=np.float32)
+    return torch.stack(pattern_means).mean(dim=0).detach().cpu().numpy().astype(np.float32, copy=False)
+
+
 def pairwise_cosine_matrix(x: torch.Tensor) -> torch.Tensor:
     x = torch.nn.functional.normalize(x, dim=1)
     return x @ x.transpose(0, 1)

@@ -22,6 +22,7 @@ from ml.utils.helpers import get_criterion
 from ml.utils.train_utils import test, train
 from src.spa_hfl import (
     AlignmentProjector,
+    compute_client_pattern_mean,
     evaluate_spa,
     load_state_dict_from_ndarrays,
     pack_state_dict,
@@ -35,6 +36,7 @@ CLIENT_METRIC_FIELDNAMES = [
     "local_num_layers",
     "global_num_layers",
     "spa_hfl",
+    "spc",
     "loss",
     "mse",
     "rmse",
@@ -119,6 +121,37 @@ class HeteroModelAdapter:
         self.local_model = build_recurrent_model(model_name, input_dim, out_dim, local_num_layers)
         self.reference_model = build_recurrent_model(model_name, input_dim, out_dim, global_num_layers)
         self.reference_keys = list(self.reference_model.state_dict().keys())
+        self._final_head_mlp_index = self._infer_final_head_mlp_index()
+        self.head_keys = self._infer_head_keys()
+        self.backbone_keys = [key for key in self.reference_keys if key not in self.head_keys]
+        if not self.head_keys:
+            raise ValueError("Could not identify prediction-head parameters in model state_dict.")
+        missing_local_heads = [key for key in self.head_keys if key not in self.local_model.state_dict()]
+        if missing_local_heads:
+            raise ValueError(f"Local model is missing SPC head keys: {missing_local_heads}")
+        self.backbone_param_count = len(self.backbone_keys)
+        self.head_param_count = len(self.head_keys)
+
+    def _infer_final_head_mlp_index(self) -> int:
+        mlp_indices = []
+        for key in self.reference_keys:
+            parts = key.split(".")
+            if len(parts) >= 3 and parts[0] == "MLP_layers" and parts[1].isdigit():
+                mlp_indices.append(int(parts[1]))
+        if not mlp_indices:
+            return -1
+        return max(mlp_indices)
+
+    def _infer_head_keys(self) -> List[str]:
+        return [key for key in self.reference_keys if self.is_head_key(key)]
+
+    def is_head_key(self, key: str) -> bool:
+        parts = key.split(".")
+        if len(parts) < 3 or parts[0] != "MLP_layers" or not parts[1].isdigit():
+            return False
+        if self._final_head_mlp_index < 0:
+            return False
+        return int(parts[1]) == self._final_head_mlp_index
 
     def export_parameters_with_masks(self) -> List[np.ndarray]:
         local_state = self.local_model.state_dict()
@@ -137,6 +170,35 @@ class HeteroModelAdapter:
                 full_masks.append(np.zeros_like(ref_tensor, dtype=np.float32))
 
         return full_parameters + full_masks
+
+    def export_spc_parameters_with_masks(self) -> List[np.ndarray]:
+        """Return SPC payload prefix: backbone params, backbone masks, local head params.
+
+        ``backbone_param_count`` and ``head_param_count`` define the parser:
+        [B backbone params, B masks, H head params].
+        """
+        local_state = self.local_model.state_dict()
+        reference_state = self.reference_model.state_dict()
+
+        backbone_parameters: List[np.ndarray] = []
+        backbone_masks: List[np.ndarray] = []
+        for key in self.backbone_keys:
+            ref_tensor = reference_state[key].detach().cpu().numpy()
+            if key in local_state:
+                value = local_state[key].detach().cpu().numpy()
+                backbone_parameters.append(value.astype(ref_tensor.dtype, copy=False))
+                backbone_masks.append(np.ones_like(ref_tensor, dtype=np.float32))
+            else:
+                backbone_parameters.append(np.zeros_like(ref_tensor))
+                backbone_masks.append(np.zeros_like(ref_tensor, dtype=np.float32))
+
+        head_parameters: List[np.ndarray] = []
+        for key in self.head_keys:
+            if key not in local_state:
+                raise ValueError(f"Local model is missing SPC head key: {key}")
+            head_parameters.append(local_state[key].detach().cpu().numpy())
+
+        return backbone_parameters + backbone_masks + head_parameters
 
     def load_global_parameters(self, parameters: List[np.ndarray]) -> None:
         if not parameters:
@@ -157,6 +219,28 @@ class HeteroModelAdapter:
             if key not in current_state:
                 continue
             updated_state[key] = torch.tensor(global_value, dtype=current_state[key].dtype)
+
+        current_state.update(updated_state)
+        self.local_model.load_state_dict(current_state, strict=True)
+
+    def load_spc_parameters(self, backbone_parameters: List[np.ndarray], head_parameters: List[np.ndarray]) -> None:
+        """Load global SPC backbone and cluster-specific prediction head."""
+        if len(backbone_parameters) != self.backbone_param_count:
+            raise ValueError(
+                f"Expected {self.backbone_param_count} SPC backbone tensors, got {len(backbone_parameters)}"
+            )
+        if len(head_parameters) != self.head_param_count:
+            raise ValueError(f"Expected {self.head_param_count} SPC head tensors, got {len(head_parameters)}")
+
+        current_state = self.local_model.state_dict()
+        updated_state = {}
+        for key, global_value in zip(self.backbone_keys, backbone_parameters):
+            if key in current_state:
+                updated_state[key] = torch.tensor(global_value, dtype=current_state[key].dtype)
+        for key, head_value in zip(self.head_keys, head_parameters):
+            if key not in current_state:
+                raise ValueError(f"Local model is missing SPC head key: {key}")
+            updated_state[key] = torch.tensor(head_value, dtype=current_state[key].dtype)
 
         current_state.update(updated_state)
         self.local_model.load_state_dict(current_state, strict=True)
@@ -208,6 +292,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 "local_num_layers": int(self.args.local_num_layers),
                 "global_num_layers": int(self.args.global_num_layers),
                 "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+                "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
                 "loss": float(loss),
                 "mse": float(metrics["mse"]),
                 "rmse": float(metrics["rmse"]),
@@ -233,13 +318,39 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
     def get_parameters(self, config):  # type: ignore[override]
         if getattr(self.args, "spa_hfl", False):
             return self._get_spa_parameters()
+        if getattr(self.args, "spc", False):
+            pattern_mean = compute_client_pattern_mean(
+                self.train_loader,
+                acf_lags=self.args.acf_lags,
+                fft_bins=self.args.fft_bins,
+                device=self.device,
+                pattern_source=self.args.spc_pattern_source,
+            )
+            return self.adapter.export_spc_parameters_with_masks() + [pattern_mean]
         return self.adapter.export_parameters_with_masks()
 
     def _set_parameters(self, parameters: List[np.ndarray]) -> None:
         if getattr(self.args, "spa_hfl", False):
             self._set_spa_parameters(parameters)
             return
+        if getattr(self.args, "spc", False):
+            self._set_spc_parameters(parameters)
+            return
         self.adapter.load_global_parameters(parameters)
+        self.model = self.adapter.local_model.to(self.device)
+
+    def _set_spc_parameters(self, parameters: List[np.ndarray]) -> None:
+        backbone_count = self.adapter.backbone_param_count
+        head_count = self.adapter.head_param_count
+        expected_total = backbone_count + head_count
+        if len(parameters) != expected_total:
+            raise ValueError(
+                f"Expected {expected_total} tensors for SPC server payload "
+                f"({backbone_count} backbone + {head_count} head), got {len(parameters)}"
+            )
+        backbone_parameters = parameters[:backbone_count]
+        head_parameters = parameters[backbone_count:]
+        self.adapter.load_spc_parameters(backbone_parameters, head_parameters)
         self.model = self.adapter.local_model.to(self.device)
 
     def _get_spa_parameters(self) -> List[np.ndarray]:
@@ -349,6 +460,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "local_num_layers": int(self.args.local_num_layers),
             "global_num_layers": int(self.args.global_num_layers),
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+            "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
         }
         if alignment_metrics is not None:
             metrics["align_train_loss"] = float(alignment_metrics["train_loss"])
@@ -387,6 +499,17 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 alignment_stats["latent_mean"].astype(np.float32, copy=False),
                 alignment_stats["pattern_mean"].astype(np.float32, copy=False),
             ]
+        elif getattr(self.args, "spc", False):
+            pattern_mean = compute_client_pattern_mean(
+                self.train_loader,
+                acf_lags=self.args.acf_lags,
+                fft_bins=self.args.fft_bins,
+                device=self.device,
+                pattern_source=self.args.spc_pattern_source,
+            )
+            payload = self.adapter.export_spc_parameters_with_masks() + [
+                pattern_mean.astype(np.float32, copy=False)
+            ]
         else:
             payload = self.get_parameters(config)
         return payload, len(self.train_loader.dataset), metrics
@@ -419,6 +542,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "nrmse": float(nrmse),
             "local_num_layers": int(self.args.local_num_layers),
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+            "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
         }
 
         self._append_metric_row(split="val", loss=float(loss), metrics=metrics)
@@ -489,6 +613,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--use_carbontracker", action="store_true", default=False)
     parser.add_argument("--spa_hfl", action="store_true", default=False, help="Enable SPA-HFL alignment training")
+    parser.add_argument("--spc", action="store_true", default=False, help="Enable SPC-HeteroFL clustered heads")
+    parser.add_argument("--spc_cluster_count", type=int, default=2)
+    parser.add_argument("--spc_pattern_source", type=str, default="y_hist", choices=["y_hist", "x"])
     parser.add_argument("--align_dim", type=int, default=32)
     parser.add_argument("--lambda_align", type=float, default=0.1)
     parser.add_argument("--lambda_cons", type=float, default=0.1)
@@ -538,6 +665,8 @@ def parse_args() -> argparse.Namespace:
 
     if args.model_name not in {"rnn", "lstm", "gru"}:
         raise ValueError("client-hetero.py currently supports heterogeneous recurrent models: ['rnn', 'lstm', 'gru']")
+    if args.spa_hfl and args.spc:
+        raise ValueError("--spa_hfl and --spc are mutually exclusive modes.")
     if args.local_num_layers <= 0 or args.global_num_layers <= 0:
         raise ValueError("Both local_num_layers and global_num_layers must be positive integers.")
     if args.local_num_layers > args.global_num_layers:
@@ -555,7 +684,7 @@ def main() -> None:
         wb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
-            name=f"flwr-hetclient-{args.cid}-{args.model_name}-L{args.local_num_layers}{'-spa' if args.spa_hfl else 'hfl'}",
+            name=f"flwr-hetclient-{args.cid}-{args.model_name}-L{args.local_num_layers}{'-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}",
             mode="online",
         )
         wandb.config.update(
@@ -565,6 +694,7 @@ def main() -> None:
                 "local_num_layers": args.local_num_layers,
                 "global_num_layers": args.global_num_layers,
                 "spa_hfl": args.spa_hfl,
+                "spc": args.spc,
             },
             allow_val_change=True,
         )
