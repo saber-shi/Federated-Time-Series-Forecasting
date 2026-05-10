@@ -436,6 +436,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             )
 
         metrics = {
+            "cid": str(self.cid),
             "mse": float(mse),
             "rmse": float(rmse),
             "mae": float(mae),

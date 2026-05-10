@@ -7,8 +7,8 @@ DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
 PREDICTION_STEPS=4
 PLAIN_PORT=8090
 SPA_PORT=8091
-SPC_PORT=8092
-SPC_CLUSTER_COUNT=3
+SPC_BASE_PORT=8092
+SPC_CLUSTER_COUNTS=(2 4)
 mkdir -p "$LOG_DIR"
 
 CLIENT_CIDS=(
@@ -116,55 +116,62 @@ wait $SERVER_PID
 # done
 # wait $SERVER_PID
 
-echo "Starting SPC-HeteroFL benchmark server..."
-python3 "$ROOT_DIR/server-hetero.py" \
-  --server_address 127.0.0.1:"$SPC_PORT" \
-  --rounds 50 \
-  --min_fit_clients 6 \
-  --min_evaluate_clients 6 \
-  --min_available_clients 6 \
-  --model_name lstm \
-  --input_dim 9 \
-  --out_dim 4 \
-  --global_num_layers 3 \
-  --spc \
-  --spc_cluster_count "$SPC_CLUSTER_COUNT" \
-  --spc_cluster_iters 10 \
-  --wandb \
-  --metrics_log_path "$LOG_DIR/spc_heterofl_server_metrics.csv" \
-  --spc_assignment_log_path "$LOG_DIR/spc_heterofl_assignments.csv" &
-SERVER_PID=$!
-sleep 3
+for cluster_idx in "${!SPC_CLUSTER_COUNTS[@]}"; do
+  SPC_CLUSTER_COUNT="${SPC_CLUSTER_COUNTS[$cluster_idx]}"
+  SPC_PORT=$((SPC_BASE_PORT + cluster_idx))
 
-CLIENT_PIDS=()
-for idx in "${!CLIENT_CIDS[@]}"; do
-  cid="${CLIENT_CIDS[$idx]}"
-  layers="${CLIENT_LAYERS[$idx]}"
-  python3 "$ROOT_DIR/client-hetero.py" \
+  echo "Starting SPC-HeteroFL benchmark server with ${SPC_CLUSTER_COUNT} clusters..."
+  python3 "$ROOT_DIR/server-hetero.py" \
     --server_address 127.0.0.1:"$SPC_PORT" \
-    --cid "$cid" \
-    --data_path "$DATA_PATH" \
+    --rounds 50 \
+    --min_fit_clients 6 \
+    --min_evaluate_clients 6 \
+    --min_available_clients 6 \
     --model_name lstm \
-    --prediction_steps "$PREDICTION_STEPS" \
-    --local_num_layers "$layers" \
+    --input_dim 9 \
+    --out_dim 4 \
     --global_num_layers 3 \
-    --epochs 5 \
-    --batch_size 64 \
     --spc \
     --spc_cluster_count "$SPC_CLUSTER_COUNT" \
-    --spc_pattern_source y_hist \
+    --spc_cluster_iters 10 \
     --wandb \
-    --metrics_log_path "$LOG_DIR/spc_heterofl_client_${cid}_L${layers}_metrics.csv" &
-  CLIENT_PIDS+=($!)
-done
+    --metrics_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_server_metrics.csv" \
+    --spc_assignment_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_assignments.csv" &
+  SERVER_PID=$!
+  sleep 3
 
-for pid in "${CLIENT_PIDS[@]}"; do
-  wait "$pid"
+  CLIENT_PIDS=()
+  for idx in "${!CLIENT_CIDS[@]}"; do
+    cid="${CLIENT_CIDS[$idx]}"
+    layers="${CLIENT_LAYERS[$idx]}"
+    python3 "$ROOT_DIR/client-hetero.py" \
+      --server_address 127.0.0.1:"$SPC_PORT" \
+      --cid "$cid" \
+      --data_path "$DATA_PATH" \
+      --model_name lstm \
+      --prediction_steps "$PREDICTION_STEPS" \
+      --local_num_layers "$layers" \
+      --global_num_layers 3 \
+      --epochs 5 \
+      --batch_size 64 \
+      --spc \
+      --spc_cluster_count "$SPC_CLUSTER_COUNT" \
+      --spc_pattern_source y_hist \
+      --wandb \
+      --metrics_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_client_${cid}_L${layers}_metrics.csv" &
+    CLIENT_PIDS+=($!)
+  done
+
+  for pid in "${CLIENT_PIDS[@]}"; do
+    wait "$pid"
+  done
+  wait $SERVER_PID
 done
-wait $SERVER_PID
 
 echo "Benchmark complete."
 echo "Plain metrics: $LOG_DIR/plain_heterofl_server_metrics.csv"
 # echo "SPA-HFL metrics: $LOG_DIR/spa_hfl_server_metrics.csv"
-echo "SPC-HeteroFL metrics: $LOG_DIR/spc_heterofl_server_metrics.csv"
-echo "SPC-HeteroFL assignments: $LOG_DIR/spc_heterofl_assignments.csv"
+for SPC_CLUSTER_COUNT in "${SPC_CLUSTER_COUNTS[@]}"; do
+  echo "SPC-HeteroFL k=${SPC_CLUSTER_COUNT} metrics: $LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_server_metrics.csv"
+  echo "SPC-HeteroFL k=${SPC_CLUSTER_COUNT} assignments: $LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_assignments.csv"
+done

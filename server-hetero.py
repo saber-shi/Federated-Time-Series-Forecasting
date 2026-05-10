@@ -378,8 +378,9 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             for idx, (param, mask) in enumerate(zip(local_backbone, local_masks)):
                 numerators[idx] += num_examples * param * mask
                 denominators[idx] += num_examples * mask.astype(np.float32, copy=False)
-
-            head_results.append((client_proxy.cid, local_head, pattern_mean, num_examples))
+            
+            real_cid = str(fit_res.metrics.get("cid", client_proxy.cid))
+            head_results.append((real_cid, local_head, pattern_mean, num_examples))
             weighted_metrics.append((num_examples, fit_res.metrics))
 
         assert numerators is not None
@@ -402,10 +403,10 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             num_iters=self.spc_cluster_iters,
             previous_centers=self.latest_pattern_cluster_centers,
         )
-        self.client_cluster_assignments = assignment_map
+        self.client_cluster_assignments.update(assignment_map)
         self.latest_pattern_cluster_centers = pattern_centers
-        print(f"[SPC][Round {rnd}] assignments: {assignment_map}")
-        self._append_spc_assignment_rows(rnd, assignment_map)
+        print(f"[SPC][Round {rnd}] assignments: {self.client_cluster_assignments}")
+        self._append_spc_assignment_rows(rnd,  self.client_cluster_assignments)
 
         all_head_entries = [(head, num_examples) for _, head, _, num_examples in head_results]
         self.latest_spc_default_head = aggregate_ndarrays(all_head_entries, previous=self.latest_spc_default_head)
