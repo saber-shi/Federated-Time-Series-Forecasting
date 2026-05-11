@@ -11,9 +11,10 @@ SPC_BASE_PORT=8092
 SPC_CLUSTER_COUNTS=(2 4)
 PWRH_PORT=8096
 PWRH_NUM_RESIDUAL_HEADS=6
-PWRH_TEMPERATURE=0.1
-PWRH_INIT_SCALE=0.01
+PWRH_TEMPERATURE=0.05
+PWRH_INIT_SCALE=0.0
 PWRH_SERVER_WEIGHT_POWER=0.0
+PWRH_HEAD_SCALE=0.2
 mkdir -p "$LOG_DIR"
 
 CLIENT_CIDS=(
@@ -214,6 +215,7 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --num_residual_heads "$PWRH_NUM_RESIDUAL_HEADS" \
     --residual_head_temperature "$PWRH_TEMPERATURE" \
     --residual_head_init_scale "$PWRH_INIT_SCALE" \
+    --residual_head_scale "$PWRH_HEAD_SCALE" \
     --spc_pattern_source y_hist \
     --wandb \
     --metrics_log_path "$LOG_DIR/pwrh_client_${cid}_L${layers}_metrics.csv" &

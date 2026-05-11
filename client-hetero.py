@@ -111,6 +111,7 @@ class PatternWeightedResidualHead(torch.nn.Module):
         base_head: torch.nn.Module,
         num_residual_heads: int,
         init_scale: float,
+        residual_scale: float = 0.2,
     ) -> None:
         super().__init__()
         if num_residual_heads <= 0:
@@ -118,6 +119,7 @@ class PatternWeightedResidualHead(torch.nn.Module):
         self.global_head = copy.deepcopy(base_head)
         self.residual_heads = torch.nn.ModuleList([copy.deepcopy(base_head) for _ in range(num_residual_heads)])
         self.register_buffer("head_weights", torch.full((num_residual_heads,), 1.0 / num_residual_heads))
+        self.residual_scale = float(residual_scale)
         self._init_residual_heads(init_scale)
 
     def _init_residual_heads(self, init_scale: float) -> None:
@@ -141,7 +143,7 @@ class PatternWeightedResidualHead(torch.nn.Module):
         for weight, residual_head in zip(self.head_weights, self.residual_heads):
             weighted = weight * residual_head(x)
             residual_output = weighted if residual_output is None else residual_output + weighted
-        return global_output + residual_output
+        return global_output + self.residual_scale * residual_output
 
 
 class HeteroModelAdapter:
@@ -229,16 +231,18 @@ class HeteroModelAdapter:
 
         return backbone_parameters + backbone_masks + head_parameters
 
-    def enable_pattern_weighted_residual_heads(self, num_residual_heads: int, init_scale: float) -> None:
+    def enable_pattern_weighted_residual_heads(self, num_residual_heads: int, init_scale: float, residual_scale: float) -> None:
         self.local_model.MLP_layers = PatternWeightedResidualHead(
             self.local_model.MLP_layers,
             num_residual_heads=num_residual_heads,
             init_scale=init_scale,
+            residual_scale=residual_scale
         )
         self.reference_model.MLP_layers = PatternWeightedResidualHead(
             self.reference_model.MLP_layers,
             num_residual_heads=num_residual_heads,
             init_scale=init_scale,
+            residual_scale=residual_scale,
         )
         self.pattern_weighted_residual_heads = True
         self.num_residual_heads = num_residual_heads
@@ -819,6 +823,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lambda_cons", type=float, default=0.1)
     parser.add_argument("--acf_lags", type=int, default=8)
     parser.add_argument("--fft_bins", type=int, default=8)
+    parser.add_argument("--residual_head_scale", type=float, default=0.2)
 
     parser.add_argument("--wandb", action="store_true", default=False, help="Enable wandb logging for this client")
     parser.add_argument(
@@ -882,7 +887,8 @@ def parse_args() -> argparse.Namespace:
         raise ValueError("Both local_num_layers and global_num_layers must be positive integers.")
     if args.local_num_layers > args.global_num_layers:
         raise ValueError("local_num_layers cannot exceed global_num_layers.")
-
+    if args.residual_head_scale < 0.0:
+        raise ValueError("--residual_head_scale must be non-negative.")
     return args
 
 
@@ -928,6 +934,7 @@ def main() -> None:
         adapter.enable_pattern_weighted_residual_heads(
             num_residual_heads=args.num_residual_heads,
             init_scale=args.residual_head_init_scale,
+            residual_scale=args.residual_head_scale,
         )
 
     client = FlowerHeteroTimeSeriesClient(
