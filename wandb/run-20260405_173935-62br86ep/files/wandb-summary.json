@@ -1,0 +1,1 @@
+{"_step":0,"_runtime":7,"_timestamp":1.775381984063933e+09,"_wandb":{"runtime":7},"client/val_loss":0.003906902207383687,"client/val_mse":0.24979892373085022,"client/val_r2":-10.614099741286733,"client/val_mae":0.44667893648147583,"client/val_nrmse":1.0149480757823763,"client/local_num_layers":3,"client/spa_hfl":1,"round":0,"client/val_rmse":0.49979888328291633}

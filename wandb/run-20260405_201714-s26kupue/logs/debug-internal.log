@@ -1,0 +1,6 @@
+{"time":"2026-04-05T20:17:14.918137386+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-04-05T20:17:15.288871556+08:00","level":"INFO","msg":"stream: created new stream","id":"s26kupue"}
+{"time":"2026-04-05T20:17:15.289119782+08:00","level":"INFO","msg":"handler: started","stream_id":"s26kupue"}
+{"time":"2026-04-05T20:17:15.289592266+08:00","level":"INFO","msg":"writer: started","stream_id":"s26kupue"}
+{"time":"2026-04-05T20:17:15.28960449+08:00","level":"INFO","msg":"stream: started","id":"s26kupue"}
+{"time":"2026-04-05T20:17:15.289612138+08:00","level":"INFO","msg":"sender: started","stream_id":"s26kupue"}

@@ -1,0 +1,51 @@
+INFO logger 2026-04-05 20:10:02,555 | data_utils.py:28 | Reading 12163-0's data...
+INFO logger 2026-04-05 20:10:02,607 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-04-05 20:10:02,611 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-04-05 20:10:02,615 | data_utils.py:419 | 	Number of samples for validation:  288
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message e46a3cc0-e907-49ac-8c34-e7fcc18d10c3
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 9b3cdd13-f193-4ef8-8711-fc248c870984
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message f3302310-76d3-4cf5-9a91-e9af15ddc5ea
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message b3e6a70d-5f87-4e74-bb8d-c4188407450d
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message d563a9d6-d298-4ff4-afd4-5d1be7b8394e
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message f380afec-bec7-430c-bf1e-d96e1ebcb4b3
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 62152e3f-f0ca-4233-a453-f97fbc40750f
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 097ff5f4-9c8d-4d90-b2fd-ecda0740b97c
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 82564de3-a15f-4af9-b2a8-f85c4590fc28
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 2a2823a1-cb80-4d82-8453-a71affb7c887
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 534cf845-f1e0-4d3c-835a-ab9c529949e5
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12163-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12163-0_lstm_last_48.csv

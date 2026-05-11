@@ -1,0 +1,36 @@
+INFO logger 2026-04-05 20:25:16,085 | data_utils.py:28 | Reading 12162-0's data...
+INFO logger 2026-04-05 20:25:16,134 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-04-05 20:25:16,136 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-04-05 20:25:16,136 | data_utils.py:419 | 	Number of samples for validation:  288
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 552fd673-629a-4486-a75e-00ee55547ebd
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message d433819e-0334-4e37-9371-7970ac688ee6
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 12e82c3d-2a11-4eff-8657-c6a78966d7cf
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message a8885a7a-90ea-4d9b-95e2-df1c9c8f91e1
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 1c08be5b-bbd1-4eea-ac2b-560428a6fe88
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 6e8d1f90-fc5b-47a1-95dc-84e3d06ba37b
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 7f34c067-2b15-436a-aec8-ebf4f9c687d2
+[92mINFO [0m:      Sent reply

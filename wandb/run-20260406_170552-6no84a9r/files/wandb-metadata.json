@@ -1,0 +1,51 @@
+{
+  "os": "Linux-5.10.120-tegra-aarch64-with-glibc2.26",
+  "python": "CPython 3.8.20",
+  "startedAt": "2026-04-06T09:05:52.727120Z",
+  "args": [
+    "--server_address",
+    "127.0.0.1:8090",
+    "--cid",
+    "12165-0",
+    "--data_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-10stations-mixed-duration.csv",
+    "--model_name",
+    "lstm",
+    "--prediction_steps",
+    "4",
+    "--local_num_layers",
+    "1",
+    "--global_num_layers",
+    "3",
+    "--epochs",
+    "2",
+    "--wandb",
+    "--metrics_log_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs/plain_heterofl_client_12165-0_L1_metrics.csv",
+    "--batch_size",
+    "64"
+  ],
+  "program": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py",
+  "codePath": "client-hetero.py",
+  "codePathLocal": "client-hetero.py",
+  "git": {
+    "remote": "https://github.com/saber-shi/Federated-Time-Series-Forecasting.git",
+    "commit": "fe60b7eb4ad2038b128f718cb2d6398856add29b"
+  },
+  "email": "shisiping1992@gmail.com",
+  "root": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting",
+  "host": "hkuiot-orin-1",
+  "executable": "/home/hkuiot/miniconda3/envs/fed/bin/python3",
+  "cpu_count": 12,
+  "cpu_count_logical": 12,
+  "disk": {
+    "/": {
+      "total": "60725108736",
+      "used": "35301392384"
+    }
+  },
+  "memory": {
+    "total": "65853030400"
+  },
+  "writerId": "l1qi3nedsknu38apswaqqxv8zrv5kcss"
+}

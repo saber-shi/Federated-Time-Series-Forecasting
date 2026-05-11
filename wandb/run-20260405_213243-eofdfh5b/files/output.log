@@ -1,0 +1,130 @@
+INFO logger 2026-04-05 21:32:45,770 | data_utils.py:28 | Reading 12166-0's data...
+INFO logger 2026-04-05 21:32:45,886 | data_utils.py:417 | 	Total number of samples:  26256
+INFO logger 2026-04-05 21:32:45,888 | data_utils.py:418 | 	Number of samples for training: 21005
+INFO logger 2026-04-05 21:32:45,889 | data_utils.py:419 | 	Number of samples for validation:  5251
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 9dee83ec-8269-4bd4-b227-0686b7701cad
+INFO logger 2026-04-05 21:33:42,083 | train_utils.py:97 | Epoch 1 [Train]: loss 0.01736256429604709, mse: 0.005363583564758301, rmse: 0.07323649066386442, mae 0.053057435899972916, r2: 0.8505653018930327, nrmse: 0.08397619649104254
+INFO logger 2026-04-05 21:33:42,084 | train_utils.py:99 | Epoch 1 [Test]: loss 9.328719470291757e-05, mse: 0.005931854248046875, rmse: 0.07701853184816544, mae 0.057189665734767914, r2: 0.8077860934382688, nrmse: 0.08954266962096333
+INFO logger 2026-04-05 21:34:17,727 | train_utils.py:97 | Epoch 2 [Train]: loss 0.00444973280820882, mse: 0.004016653634607792, rmse: 0.06337707499252228, mae 0.04528668150305748, r2: 0.8984079635994877, nrmse: 0.05841170552286081
+INFO logger 2026-04-05 21:34:17,728 | train_utils.py:99 | Epoch 2 [Test]: loss 6.668201486508434e-05, mse: 0.004238540306687355, rmse: 0.06510407288862467, mae 0.04655485972762108, r2: 0.8857996391005905, nrmse: 0.054051893440539234
+INFO logger 2026-04-05 21:34:17,732 | train_utils.py:142 | Best Loss: 6.668201486508434e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 886c8169-b74c-4d49-ad34-493c7df1f2d9
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 351d44d9-81d7-457b-8939-d9e2352967f4
+INFO logger 2026-04-05 21:35:38,313 | train_utils.py:97 | Epoch 1 [Train]: loss 0.007670357702697468, mse: 0.004861002322286367, rmse: 0.06972088870838042, mae 0.0473693311214447, r2: 0.8833161161926075, nrmse: 0.05988118732868835
+INFO logger 2026-04-05 21:35:38,314 | train_utils.py:99 | Epoch 1 [Test]: loss 8.066321266456865e-05, mse: 0.0051208119839429855, rmse: 0.07155984896534498, mae 0.04874885827302933, r2: 0.8704565349743837, nrmse: 0.05859884107293429
+INFO logger 2026-04-05 21:36:13,781 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0038214581557152023, mse: 0.003039242932572961, rmse: 0.055129329150398344, mae 0.038185182958841324, r2: 0.9200357082356392, nrmse: 0.056224789892144134
+INFO logger 2026-04-05 21:36:13,782 | train_utils.py:99 | Epoch 2 [Test]: loss 5.020676928464896e-05, mse: 0.0031922319903969765, rmse: 0.05649984062275731, mae 0.03913290798664093, r2: 0.9117169550606482, nrmse: 0.053078382697383394
+INFO logger 2026-04-05 21:36:13,785 | train_utils.py:142 | Best Loss: 5.020676928464896e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message fc5f4996-d9b4-4906-ae20-374794875c01
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 058dc78d-dc49-4aea-9670-c5ed80c5b438
+INFO logger 2026-04-05 21:37:34,362 | train_utils.py:97 | Epoch 1 [Train]: loss 0.004672805898646801, mse: 0.0029949871823191643, rmse: 0.05472647606341161, mae 0.036632344126701355, r2: 0.9224060177847148, nrmse: 0.05417456146798841
+INFO logger 2026-04-05 21:37:34,363 | train_utils.py:99 | Epoch 1 [Test]: loss 4.9409441775284134e-05, mse: 0.003145148977637291, rmse: 0.0560816278083767, mae 0.03782462701201439, r2: 0.9129762314767158, nrmse: 0.05240488095563058
+INFO logger 2026-04-05 21:38:09,999 | train_utils.py:97 | Epoch 2 [Train]: loss 0.002439090209053375, mse: 0.0018725397530943155, rmse: 0.043272852379919624, mae 0.03057333454489708, r2: 0.9437278273588399, nrmse: 0.05570529736713821
+INFO logger 2026-04-05 21:38:10,000 | train_utils.py:99 | Epoch 2 [Test]: loss 3.095623172927075e-05, mse: 0.001967907650396228, rmse: 0.044361105153007944, mae 0.031560368835926056, r2: 0.9342268737655164, nrmse: 0.05405148501499208
+INFO logger 2026-04-05 21:38:10,003 | train_utils.py:142 | Best Loss: 3.095623172927075e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 81be6e77-0198-487c-820f-577197f1b22b
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message c2eb6f88-9b47-4b30-8f29-0f74d852996f
+INFO logger 2026-04-05 21:39:30,589 | train_utils.py:97 | Epoch 1 [Train]: loss 0.003574426819374444, mse: 0.002156072063371539, rmse: 0.046433523055778775, mae 0.03240228816866875, r2: 0.9378743069635491, nrmse: 0.05386566142041001
+INFO logger 2026-04-05 21:39:30,590 | train_utils.py:99 | Epoch 1 [Test]: loss 3.5887379826118166e-05, mse: 0.0022827438078820705, rmse: 0.04777806827281813, mae 0.033635981380939484, r2: 0.9271981334117928, nrmse: 0.052524767045297266
+INFO logger 2026-04-05 21:40:06,140 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0016082206797053491, mse: 0.0012131131952628493, rmse: 0.034829774550847285, mae 0.02524208463728428, r2: 0.9575273216992881, nrmse: 0.052311226407681106
+INFO logger 2026-04-05 21:40:06,141 | train_utils.py:99 | Epoch 2 [Test]: loss 2.0204179320269478e-05, mse: 0.0012834391091018915, rmse: 0.035825118410158695, mae 0.02607169933617115, r2: 0.9487791889037027, nrmse: 0.050224501489187445
+INFO logger 2026-04-05 21:40:06,144 | train_utils.py:142 | Best Loss: 2.0204179320269478e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 79d123f2-2b61-41c1-b2d5-d360eb3eb34e
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 39c19662-a7a3-4d9b-b73d-478823ea05a3
+INFO logger 2026-04-05 21:41:26,988 | train_utils.py:97 | Epoch 1 [Train]: loss 0.002862746849664623, mse: 0.0014960579574108124, rmse: 0.038678908430962895, mae 0.027343951165676117, r2: 0.9512128762024316, nrmse: 0.050703664440594605
+INFO logger 2026-04-05 21:41:26,989 | train_utils.py:99 | Epoch 1 [Test]: loss 2.4901678362556806e-05, mse: 0.0015829866752028465, rmse: 0.039786765075874746, mae 0.028230462223291397, r2: 0.9430957128768458, nrmse: 0.04820114042284658
+INFO logger 2026-04-05 21:42:02,785 | train_utils.py:97 | Epoch 2 [Train]: loss 0.001157159228147598, mse: 0.0008942073909565806, rmse: 0.029903300669935764, mae 0.02068375051021576, r2: 0.9646710297805745, nrmse: 0.0502450719972585
+INFO logger 2026-04-05 21:42:02,785 | train_utils.py:99 | Epoch 2 [Test]: loss 1.4690287974260103e-05, mse: 0.0009362517157569528, rmse: 0.030598230598466846, mae 0.02124963328242302, r2: 0.9572858300203405, nrmse: 0.047894601991591575
+INFO logger 2026-04-05 21:42:02,789 | train_utils.py:142 | Best Loss: 1.4690287974260103e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 57ef4458-ddab-4168-8eb5-9f2c27f4f3c8
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 5c518039-7603-43a4-a683-cecef1f4a342
+INFO logger 2026-04-05 21:43:23,364 | train_utils.py:97 | Epoch 1 [Train]: loss 0.002388365495745547, mse: 0.0010862566996365786, rmse: 0.03295840863325441, mae 0.0231383815407753, r2: 0.9626223244572051, nrmse: 0.04959686068165489
+INFO logger 2026-04-05 21:43:23,365 | train_utils.py:99 | Epoch 1 [Test]: loss 1.803680522313628e-05, mse: 0.0011458670487627387, rmse: 0.03385065802555009, mae 0.02383471466600895, r2: 0.9553964791861387, nrmse: 0.04750781574973175
+INFO logger 2026-04-05 21:43:59,088 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0009050855790009359, mse: 0.0007649425533600152, rmse: 0.027657594858555852, mae 0.019223544746637344, r2: 0.9705948151861634, nrmse: 0.045066892038449075
+INFO logger 2026-04-05 21:43:59,089 | train_utils.py:99 | Epoch 2 [Test]: loss 1.2628341954461156e-05, mse: 0.0008053240017034113, rmse: 0.028378231123581527, mae 0.019800249487161636, r2: 0.9643972789860734, nrmse: 0.042735115763953974
+INFO logger 2026-04-05 21:43:59,093 | train_utils.py:142 | Best Loss: 1.2628341954461156e-05
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message bbc8e71f-e3c3-4b56-b9b4-a6b0899eb3c0
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 0fb2e2db-f860-4ce6-a9cb-89aa24ca2094
+INFO logger 2026-04-05 21:45:20,140 | train_utils.py:97 | Epoch 1 [Train]: loss 0.0020392164461976257, mse: 0.0008842077804729342, rmse: 0.02973563149611816, mae 0.02088983915746212, r2: 0.966458684517161, nrmse: 0.04907884580876991
+INFO logger 2026-04-05 21:45:20,141 | train_utils.py:99 | Epoch 1 [Test]: loss 1.4579130432908781e-05, mse: 0.0009278036886826158, rmse: 0.03045987013568206, mae 0.021465910598635674, r2: 0.9599330766603322, nrmse: 0.04647218738000616
+INFO logger 2026-04-05 21:45:56,209 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0007346242784434453, mse: 0.0005611272063106298, rmse: 0.023688123739769466, mae 0.01590825617313385, r2: 0.9755804334769924, nrmse: 0.04207998901012572
+INFO logger 2026-04-05 21:45:56,210 | train_utils.py:99 | Epoch 2 [Test]: loss 9.161236431772033e-06, mse: 0.0005844665574841201, rmse: 0.02417574316301611, mae 0.016281744465231895, r2: 0.9703370204189099, nrmse: 0.04027182516470145
+INFO logger 2026-04-05 21:45:56,213 | train_utils.py:142 | Best Loss: 9.161236431772033e-06
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 9c49003f-f582-4110-8838-2092a6a7c9af
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 07e11c72-30ec-440f-9110-b68ac04d5b07
+INFO logger 2026-04-05 21:47:16,705 | train_utils.py:97 | Epoch 1 [Train]: loss 0.0017785505500264329, mse: 0.0007611323380842805, rmse: 0.027588626969899763, mae 0.019513973966240883, r2: 0.9702141005900371, nrmse: 0.04652134076316997
+INFO logger 2026-04-05 21:47:16,706 | train_utils.py:99 | Epoch 1 [Test]: loss 1.2540622696038694e-05, mse: 0.0007992873433977365, rmse: 0.028271670332644595, mae 0.020074598491191864, r2: 0.9637613841990988, nrmse: 0.04441451520007217
+INFO logger 2026-04-05 21:47:52,120 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0006244434109426149, mse: 0.000552681100089103, rmse: 0.023509170552980022, mae 0.016101054847240448, r2: 0.9770349815756979, nrmse: 0.04337107066822262
+INFO logger 2026-04-05 21:47:52,121 | train_utils.py:99 | Epoch 2 [Test]: loss 9.083699285558676e-06, mse: 0.0005798053462058306, rmse: 0.024079147539018707, mae 0.01653197407722473, r2: 0.9717386988748846, nrmse: 0.04202352395291961
+INFO logger 2026-04-05 21:47:52,125 | train_utils.py:142 | Best Loss: 9.083699285558676e-06
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 70458fd6-ff09-4884-891e-160f6d788470
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message dde495da-dedb-448a-8a35-74fbd239682a
+INFO logger 2026-04-05 21:49:12,946 | train_utils.py:97 | Epoch 1 [Train]: loss 0.0014573309533106357, mse: 0.000657179276458919, rmse: 0.025635508117822028, mae 0.017669588327407837, r2: 0.974145067192526, nrmse: 0.04291819800260094
+INFO logger 2026-04-05 21:49:12,946 | train_utils.py:99 | Epoch 1 [Test]: loss 1.0902757237020594e-05, mse: 0.0006950244423933327, rmse: 0.026363316225265224, mae 0.018195241689682007, r2: 0.9682389601854022, nrmse: 0.04120429061642173
+INFO logger 2026-04-05 21:49:48,828 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0005329077399304569, mse: 0.0004324923502281308, rmse: 0.02079645042376537, mae 0.014064006507396698, r2: 0.9816748128178232, nrmse: 0.03354827607157291
+INFO logger 2026-04-05 21:49:48,829 | train_utils.py:99 | Epoch 2 [Test]: loss 7.1285476587945596e-06, mse: 0.00045487243914976716, rmse: 0.021327738725654136, mae 0.014466659165918827, r2: 0.9774787443607866, nrmse: 0.03164363083656773
+INFO logger 2026-04-05 21:49:48,833 | train_utils.py:142 | Best Loss: 7.1285476587945596e-06
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message c4a80148-a780-4027-8fe7-6c9d843833bc
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 73b93fc5-2d4e-4d7c-8b76-3a7f25a37eca
+INFO logger 2026-04-05 21:51:09,240 | train_utils.py:97 | Epoch 1 [Train]: loss 0.0012577640695004759, mse: 0.0005169537616893649, rmse: 0.02273661719978073, mae 0.015341147780418396, r2: 0.9779444917182227, nrmse: 0.0389915233720181
+INFO logger 2026-04-05 21:51:09,241 | train_utils.py:99 | Epoch 1 [Test]: loss 8.42550012468844e-06, mse: 0.0005373902968131006, rmse: 0.02318168019823198, mae 0.01571696810424328, r2: 0.9733788742589817, nrmse: 0.03691876218648703
+INFO logger 2026-04-05 21:51:45,070 | train_utils.py:97 | Epoch 2 [Train]: loss 0.00044668056025551686, mse: 0.00035253152600489557, rmse: 0.01877582291152363, mae 0.012848115526139736, r2: 0.9838448825610933, nrmse: 0.02977431908632063
+INFO logger 2026-04-05 21:51:45,071 | train_utils.py:99 | Epoch 2 [Test]: loss 5.776287090646712e-06, mse: 0.00036860915133729577, rmse: 0.019199196632601473, mae 0.013108045794069767, r2: 0.9802315939977001, nrmse: 0.027986172535421124
+INFO logger 2026-04-05 21:51:45,075 | train_utils.py:142 | Best Loss: 5.776287090646712e-06
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 46deceba-31ed-42a8-83ff-0a0b4b308037
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: reconnect message 5ce9596f-eca1-4bb2-aa18-f96ab535b229
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12166-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12166-0_lstm_last_48.csv

@@ -1,0 +1,21 @@
+INFO logger 2026-04-05 20:19:20,485 | data_utils.py:28 | Reading 12162-0's data...
+INFO logger 2026-04-05 20:19:20,532 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-04-05 20:19:20,533 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-04-05 20:19:20,534 | data_utils.py:419 | 	Number of samples for validation:  288
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 45fff304-3aca-4441-b429-10188889cb02
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12162-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12162-0_lstm_last_48.csv

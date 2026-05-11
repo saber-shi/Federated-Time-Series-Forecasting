@@ -1,0 +1,6 @@
+{"time":"2026-04-05T20:25:14.555144112+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-04-05T20:25:14.93568356+08:00","level":"INFO","msg":"stream: created new stream","id":"qcs0laep"}
+{"time":"2026-04-05T20:25:14.935974667+08:00","level":"INFO","msg":"stream: started","id":"qcs0laep"}
+{"time":"2026-04-05T20:25:14.937041427+08:00","level":"INFO","msg":"sender: started","stream_id":"qcs0laep"}
+{"time":"2026-04-05T20:25:14.937129524+08:00","level":"INFO","msg":"handler: started","stream_id":"qcs0laep"}
+{"time":"2026-04-05T20:25:14.937174389+08:00","level":"INFO","msg":"writer: started","stream_id":"qcs0laep"}

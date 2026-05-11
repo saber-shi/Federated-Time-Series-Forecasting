@@ -1,0 +1,80 @@
+INFO logger 2026-04-05 19:53:28,531 | data_utils.py:28 | Reading 12167-0's data...
+INFO logger 2026-04-05 19:53:28,610 | data_utils.py:417 | 	Total number of samples:  17520
+INFO logger 2026-04-05 19:53:28,613 | data_utils.py:418 | 	Number of samples for training: 14016
+INFO logger 2026-04-05 19:53:28,614 | data_utils.py:419 | 	Number of samples for validation:  3504
+[93mWARNING [0m:   DEPRECATED FEATURE: flwr.client.start_numpy_client() is deprecated.
+	Instead, use `flwr.client.start_client()` by ensuring you first call the `.to_client()` method as shown below:
+	flwr.client.start_client(
+		server_address='<IP>:<PORT>',
+		client=FlowerClient().to_client(), # <-- where FlowerClient is of type flwr.client.NumPyClient object
+	)
+	Using `start_numpy_client()` is deprecated.
+
+            This is a deprecated feature. It will be removed
+            entirely in future versions of Flower.
+
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message e31cd577-7fbf-43e9-a188-6634eebaf770
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message e87edfac-0c8a-4300-8d68-ae5ed3bc34a8
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message dde8d125-248f-49e2-b669-15f4205bd240
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 3393c92b-738e-4d41-a42c-01aa1b01dc69
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message be23e6d4-526e-412a-8313-94167c3c1c27
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message f4526331-d95f-4632-b5a7-f1b421a9ff74
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message d1ac0b85-c425-4fb5-af68-c620878b3179
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 64d04a36-c23c-44e2-a8b0-9edcc028b327
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 6c1fd4a1-523a-4985-b77d-4627e2d9cac5
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 40b52818-a569-46e4-be46-3111d77b80d7
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 5fdf33a3-f568-49e9-aadd-3697a707e633
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 0ff1a2b9-d45a-4c7d-aa69-6c47d93aad27
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 7b832d51-8106-44fa-9091-3c7f98104ca4
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message d2766ad0-1e65-492f-87bb-653981dde1b1
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 24524b70-145b-4aea-a42c-bceee23ca21b
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 6109e2ec-ed53-4116-876e-df9c27067a69
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 3be264df-fd42-4f6d-b6d5-2687bb1ec8c1
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 8ac842b0-1622-4560-a7e8-af81c41f3b80
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 356fbbaf-5110-487d-b4bb-aa9625036f5a
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: evaluate message 89a3e9ca-7e73-40a9-a42c-2fec2cc03e2f
+[92mINFO [0m:      Sent reply
+[92mINFO [0m:
+[92mINFO [0m:      Received: reconnect message c00facd4-b54d-4797-be50-c45f33781dea
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12167-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12167-0_lstm_last_48.csv

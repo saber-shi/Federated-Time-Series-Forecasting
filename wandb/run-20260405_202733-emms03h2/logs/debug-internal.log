@@ -1,0 +1,6 @@
+{"time":"2026-04-05T20:27:34.357543713+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-04-05T20:27:34.742337772+08:00","level":"INFO","msg":"stream: created new stream","id":"emms03h2"}
+{"time":"2026-04-05T20:27:34.742924337+08:00","level":"INFO","msg":"stream: started","id":"emms03h2"}
+{"time":"2026-04-05T20:27:34.743174771+08:00","level":"INFO","msg":"handler: started","stream_id":"emms03h2"}
+{"time":"2026-04-05T20:27:34.743286772+08:00","level":"INFO","msg":"sender: started","stream_id":"emms03h2"}
+{"time":"2026-04-05T20:27:34.743345236+08:00","level":"INFO","msg":"writer: started","stream_id":"emms03h2"}

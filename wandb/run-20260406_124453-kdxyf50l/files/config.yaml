@@ -1,0 +1,81 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            z20aipn32mcd54pfbmat0veocko7jk7y:
+                args:
+                    - --server_address
+                    - 127.0.0.1:8091
+                    - --rounds
+                    - "30"
+                    - --min_fit_clients
+                    - "10"
+                    - --min_evaluate_clients
+                    - "10"
+                    - --min_available_clients
+                    - "10"
+                    - --spa_hfl
+                    - --align_dim
+                    - "32"
+                    - --pattern_cluster_count
+                    - "3"
+                    - --pattern_cluster_iters
+                    - "10"
+                    - --wandb
+                    - --metrics_log_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs/spa_hfl_server_metrics.csv
+                codePath: server-hetero.py
+                codePathLocal: server-hetero.py
+                cpu_count: 12
+                cpu_count_logical: 12
+                disk:
+                    /:
+                        total: "60725108736"
+                        used: "35284275200"
+                email: shisiping1992@gmail.com
+                executable: /home/hkuiot/miniconda3/envs/fed/bin/python3
+                git:
+                    commit: fe60b7eb4ad2038b128f718cb2d6398856add29b
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                host: hkuiot-orin-1
+                memory:
+                    total: "65853030400"
+                os: Linux-5.10.120-tegra-aarch64-with-glibc2.26
+                program: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/server-hetero.py
+                python: CPython 3.8.20
+                root: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting
+                startedAt: "2026-04-06T04:44:53.262398Z"
+                writerId: z20aipn32mcd54pfbmat0veocko7jk7y
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 13
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-aarch64
+aggregation:
+    value: spa_hfl_masked_fedavg
+min_available_clients:
+    value: 10
+min_evaluate_clients:
+    value: 10
+min_fit_clients:
+    value: 10
+pattern_cluster_count:
+    value: 3
+rounds:
+    value: 30
+spa_hfl:
+    value: true
+strict_synchronous:
+    value: true
