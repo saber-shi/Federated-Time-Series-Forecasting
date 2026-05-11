@@ -1,0 +1,47 @@
+INFO logger 2026-05-10 21:29:35,998 | data_utils.py:28 | Reading 12167-0's data...
+INFO logger 2026-05-10 21:29:36,020 | data_utils.py:417 | 	Total number of samples:  17520
+INFO logger 2026-05-10 21:29:36,020 | data_utils.py:418 | 	Number of samples for training: 14016
+INFO logger 2026-05-10 21:29:36,020 | data_utils.py:419 | 	Number of samples for validation:  3504
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 721, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 697, in main
+    client = FlowerHeteroTimeSeriesClient(
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 251, in __init__
+    self.model = self.adapter.local_model.to(self.device)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/rnn.py", line 197, in _apply
+    ret = super()._apply(fn)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 820, in _apply
+    param_applied = fn(param)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1143, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 721, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 697, in main
+    client = FlowerHeteroTimeSeriesClient(
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 251, in __init__
+    self.model = self.adapter.local_model.to(self.device)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1145, in to
+    return self._apply(convert)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 797, in _apply
+    module._apply(fn)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/rnn.py", line 197, in _apply
+    ret = super()._apply(fn)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 820, in _apply
+    param_applied = fn(param)
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1143, in convert
+    return t.to(device, dtype if t.is_floating_point() or t.is_complex() else None, non_blocking)
+RuntimeError: CUDA error: out of memory
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
