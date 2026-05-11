@@ -1,5 +1,6 @@
 import argparse
 import csv
+import copy
 import random
 import time
 from pathlib import Path
@@ -37,6 +38,7 @@ CLIENT_METRIC_FIELDNAMES = [
     "global_num_layers",
     "spa_hfl",
     "spc",
+    "pattern_weighted_residual_heads",
     "loss",
     "mse",
     "rmse",
@@ -101,6 +103,47 @@ def build_recurrent_model(
     raise NotImplementedError("Heterogeneous FL is currently implemented for ['rnn', 'lstm', 'gru'].")
 
 
+class PatternWeightedResidualHead(torch.nn.Module):
+    """Prediction head: global head plus fixed pattern-weighted residual heads."""
+
+    def __init__(
+        self,
+        base_head: torch.nn.Module,
+        num_residual_heads: int,
+        init_scale: float,
+    ) -> None:
+        super().__init__()
+        if num_residual_heads <= 0:
+            raise ValueError("num_residual_heads must be positive.")
+        self.global_head = copy.deepcopy(base_head)
+        self.residual_heads = torch.nn.ModuleList([copy.deepcopy(base_head) for _ in range(num_residual_heads)])
+        self.register_buffer("head_weights", torch.full((num_residual_heads,), 1.0 / num_residual_heads))
+        self._init_residual_heads(init_scale)
+
+    def _init_residual_heads(self, init_scale: float) -> None:
+        for residual_head in self.residual_heads:
+            for param in residual_head.parameters():
+                if init_scale <= 0.0:
+                    param.data.zero_()
+                else:
+                    param.data.normal_(mean=0.0, std=init_scale)
+
+    def set_head_weights(self, weights: np.ndarray) -> None:
+        weights_tensor = torch.tensor(weights, dtype=self.head_weights.dtype, device=self.head_weights.device)
+        if weights_tensor.numel() != self.head_weights.numel():
+            raise ValueError(f"Expected {self.head_weights.numel()} residual head weights, got {weights_tensor.numel()}")
+        total = weights_tensor.sum().clamp_min(1e-8)
+        self.head_weights.copy_(weights_tensor / total)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        global_output = self.global_head(x)
+        residual_output = None
+        for weight, residual_head in zip(self.head_weights, self.residual_heads):
+            weighted = weight * residual_head(x)
+            residual_output = weighted if residual_output is None else residual_output + weighted
+        return global_output + residual_output
+
+
 class HeteroModelAdapter:
     """Maps a smaller local recurrent model into a padded global supernet."""
 
@@ -130,6 +173,8 @@ class HeteroModelAdapter:
             raise ValueError(f"Local model is missing SPC head keys: {missing_local_heads}")
         self.backbone_param_count = len(self.backbone_keys)
         self.head_param_count = len(self.head_keys)
+        self.pattern_weighted_residual_heads = False
+        self.num_residual_heads = 0
 
     def _infer_head_keys(self) -> List[str]:
         return [key for key in self.reference_keys if self.is_head_key(key)]
@@ -184,6 +229,59 @@ class HeteroModelAdapter:
 
         return backbone_parameters + backbone_masks + head_parameters
 
+    def enable_pattern_weighted_residual_heads(self, num_residual_heads: int, init_scale: float) -> None:
+        self.local_model.MLP_layers = PatternWeightedResidualHead(
+            self.local_model.MLP_layers,
+            num_residual_heads=num_residual_heads,
+            init_scale=init_scale,
+        )
+        self.reference_model.MLP_layers = PatternWeightedResidualHead(
+            self.reference_model.MLP_layers,
+            num_residual_heads=num_residual_heads,
+            init_scale=init_scale,
+        )
+        self.pattern_weighted_residual_heads = True
+        self.num_residual_heads = num_residual_heads
+
+    @staticmethod
+    def _module_state_arrays(module: torch.nn.Module) -> List[np.ndarray]:
+        return [value.detach().cpu().numpy() for _, value in module.state_dict().items()]
+
+    def _require_residual_head_module(self) -> PatternWeightedResidualHead:
+        head = self.local_model.MLP_layers
+        if not isinstance(head, PatternWeightedResidualHead):
+            raise ValueError("Pattern-weighted residual heads are not enabled on the local model.")
+        return head
+
+    def export_pattern_weighted_residual_payload_prefix(self) -> List[np.ndarray]:
+        """Return PWRH payload prefix: backbone params, masks, global head, K residual heads."""
+        head = self._require_residual_head_module()
+        return (
+            self._export_backbone_parameters_with_masks()
+            + self._module_state_arrays(head.global_head)
+            + [
+                value
+                for residual_head in head.residual_heads
+                for value in self._module_state_arrays(residual_head)
+            ]
+        )
+
+    def _export_backbone_parameters_with_masks(self) -> List[np.ndarray]:
+        local_state = self.local_model.state_dict()
+        reference_state = self.reference_model.state_dict()
+        backbone_parameters: List[np.ndarray] = []
+        backbone_masks: List[np.ndarray] = []
+        for key in self.backbone_keys:
+            ref_tensor = reference_state[key].detach().cpu().numpy()
+            if key in local_state:
+                value = local_state[key].detach().cpu().numpy()
+                backbone_parameters.append(value.astype(ref_tensor.dtype, copy=False))
+                backbone_masks.append(np.ones_like(ref_tensor, dtype=np.float32))
+            else:
+                backbone_parameters.append(np.zeros_like(ref_tensor))
+                backbone_masks.append(np.zeros_like(ref_tensor, dtype=np.float32))
+        return backbone_parameters + backbone_masks
+
     def load_global_parameters(self, parameters: List[np.ndarray]) -> None:
         if not parameters:
             return
@@ -228,6 +326,49 @@ class HeteroModelAdapter:
 
         current_state.update(updated_state)
         self.local_model.load_state_dict(current_state, strict=True)
+
+    @staticmethod
+    def _load_module_state_from_arrays(module: torch.nn.Module, arrays: List[np.ndarray]) -> None:
+        expected = len(module.state_dict())
+        if len(arrays) != expected:
+            raise ValueError(f"Expected {expected} tensors for module state, got {len(arrays)}")
+        state_dict = {
+            key: torch.tensor(value, dtype=module.state_dict()[key].dtype)
+            for key, value in zip(module.state_dict().keys(), arrays)
+        }
+        module.load_state_dict(state_dict, strict=True)
+
+    def load_pattern_weighted_residual_parameters(
+        self,
+        backbone_parameters: List[np.ndarray],
+        global_head_parameters: List[np.ndarray],
+        residual_head_parameters: List[List[np.ndarray]],
+        head_weights: np.ndarray,
+    ) -> None:
+        if len(backbone_parameters) != self.backbone_param_count:
+            raise ValueError(
+                f"Expected {self.backbone_param_count} PWRH backbone tensors, got {len(backbone_parameters)}"
+            )
+        if len(global_head_parameters) != self.head_param_count:
+            raise ValueError(
+                f"Expected {self.head_param_count} PWRH global-head tensors, got {len(global_head_parameters)}"
+            )
+        if len(residual_head_parameters) != self.num_residual_heads:
+            raise ValueError(f"Expected {self.num_residual_heads} residual heads, got {len(residual_head_parameters)}")
+
+        current_state = self.local_model.state_dict()
+        updated_state = {}
+        for key, global_value in zip(self.backbone_keys, backbone_parameters):
+            if key in current_state:
+                updated_state[key] = torch.tensor(global_value, dtype=current_state[key].dtype)
+        current_state.update(updated_state)
+        self.local_model.load_state_dict(current_state, strict=False)
+
+        head = self._require_residual_head_module()
+        self._load_module_state_from_arrays(head.global_head, global_head_parameters)
+        for residual_head, arrays in zip(head.residual_heads, residual_head_parameters):
+            self._load_module_state_from_arrays(residual_head, arrays)
+        head.set_head_weights(head_weights)
 
 
 class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
@@ -277,6 +418,9 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 "global_num_layers": int(self.args.global_num_layers),
                 "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
                 "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
+                "pattern_weighted_residual_heads": 1.0
+                if getattr(self.args, "pattern_weighted_residual_heads", False)
+                else 0.0,
                 "loss": float(loss),
                 "mse": float(metrics["mse"]),
                 "rmse": float(metrics["rmse"]),
@@ -311,6 +455,15 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 pattern_source=self.args.spc_pattern_source,
             )
             return self.adapter.export_spc_parameters_with_masks() + [pattern_mean]
+        if getattr(self.args, "pattern_weighted_residual_heads", False):
+            pattern_mean = compute_client_pattern_mean(
+                self.train_loader,
+                acf_lags=self.args.acf_lags,
+                fft_bins=self.args.fft_bins,
+                device=self.device,
+                pattern_source=self.args.spc_pattern_source,
+            )
+            return self.adapter.export_pattern_weighted_residual_payload_prefix() + [pattern_mean]
         return self.adapter.export_parameters_with_masks()
 
     def _set_parameters(self, parameters: List[np.ndarray]) -> None:
@@ -319,6 +472,9 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             return
         if getattr(self.args, "spc", False):
             self._set_spc_parameters(parameters)
+            return
+        if getattr(self.args, "pattern_weighted_residual_heads", False):
+            self._set_pattern_weighted_residual_parameters(parameters)
             return
         self.adapter.load_global_parameters(parameters)
         self.model = self.adapter.local_model.to(self.device)
@@ -335,6 +491,35 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         backbone_parameters = parameters[:backbone_count]
         head_parameters = parameters[backbone_count:]
         self.adapter.load_spc_parameters(backbone_parameters, head_parameters)
+        self.model = self.adapter.local_model.to(self.device)
+
+    def _set_pattern_weighted_residual_parameters(self, parameters: List[np.ndarray]) -> None:
+        backbone_count = self.adapter.backbone_param_count
+        head_count = self.adapter.head_param_count
+        residual_count = self.args.num_residual_heads
+        expected_total = backbone_count + head_count + residual_count * head_count + 1
+        if len(parameters) != expected_total:
+            raise ValueError(
+                f"Expected {expected_total} tensors for pattern-weighted residual-head payload "
+                f"({backbone_count} backbone + {head_count} global head + "
+                f"{residual_count}*{head_count} residual head + weights), got {len(parameters)}"
+            )
+        cursor = 0
+        backbone_parameters = parameters[cursor : cursor + backbone_count]
+        cursor += backbone_count
+        global_head_parameters = parameters[cursor : cursor + head_count]
+        cursor += head_count
+        residual_head_parameters = []
+        for _ in range(residual_count):
+            residual_head_parameters.append(parameters[cursor : cursor + head_count])
+            cursor += head_count
+        head_weights = parameters[cursor].astype(np.float32, copy=False)
+        self.adapter.load_pattern_weighted_residual_parameters(
+            backbone_parameters=backbone_parameters,
+            global_head_parameters=global_head_parameters,
+            residual_head_parameters=residual_head_parameters,
+            head_weights=head_weights,
+        )
         self.model = self.adapter.local_model.to(self.device)
 
     def _get_spa_parameters(self) -> List[np.ndarray]:
@@ -446,6 +631,9 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "global_num_layers": int(self.args.global_num_layers),
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
             "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
+            "pattern_weighted_residual_heads": 1.0
+            if getattr(self.args, "pattern_weighted_residual_heads", False)
+            else 0.0,
         }
         if alignment_metrics is not None:
             metrics["align_train_loss"] = float(alignment_metrics["train_loss"])
@@ -495,6 +683,17 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             payload = self.adapter.export_spc_parameters_with_masks() + [
                 pattern_mean.astype(np.float32, copy=False)
             ]
+        elif getattr(self.args, "pattern_weighted_residual_heads", False):
+            pattern_mean = compute_client_pattern_mean(
+                self.train_loader,
+                acf_lags=self.args.acf_lags,
+                fft_bins=self.args.fft_bins,
+                device=self.device,
+                pattern_source=self.args.spc_pattern_source,
+            )
+            payload = self.adapter.export_pattern_weighted_residual_payload_prefix() + [
+                pattern_mean.astype(np.float32, copy=False)
+            ]
         else:
             payload = self.get_parameters(config)
         return payload, len(self.train_loader.dataset), metrics
@@ -528,6 +727,9 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "local_num_layers": int(self.args.local_num_layers),
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
             "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
+            "pattern_weighted_residual_heads": 1.0
+            if getattr(self.args, "pattern_weighted_residual_heads", False)
+            else 0.0,
         }
 
         self._append_metric_row(split="val", loss=float(loss), metrics=metrics)
@@ -594,13 +796,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max_grad_norm", type=float, default=0.0)
     parser.add_argument("--reg1", type=float, default=0.0)
     parser.add_argument("--reg2", type=float, default=0.0)
-    parser.add_argument("--cuda", action="store_true", default=True)
+    parser.add_argument("--cuda", dest="cuda", action="store_true", default=True)
+    parser.add_argument("--no_cuda", dest="cuda", action="store_false", help="Disable CUDA and run this client on CPU")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--use_carbontracker", action="store_true", default=False)
     parser.add_argument("--spa_hfl", action="store_true", default=False, help="Enable SPA-HFL alignment training")
     parser.add_argument("--spc", action="store_true", default=False, help="Enable SPC-HeteroFL clustered heads")
     parser.add_argument("--spc_cluster_count", type=int, default=2)
     parser.add_argument("--spc_pattern_source", type=str, default="y_hist", choices=["y_hist", "x"])
+    parser.add_argument(
+        "--pattern_weighted_residual_heads",
+        action="store_true",
+        default=False,
+        help="Enable pattern-weighted residual heads instead of hard SPC heads.",
+    )
+    parser.add_argument("--num_residual_heads", type=int, default=6)
+    parser.add_argument("--residual_head_temperature", type=float, default=0.1)
+    parser.add_argument("--residual_head_entropy_lambda", type=float, default=0.0)
+    parser.add_argument("--residual_head_init_scale", type=float, default=0.01)
     parser.add_argument("--align_dim", type=int, default=32)
     parser.add_argument("--lambda_align", type=float, default=0.1)
     parser.add_argument("--lambda_cons", type=float, default=0.1)
@@ -650,8 +863,21 @@ def parse_args() -> argparse.Namespace:
 
     if args.model_name not in {"rnn", "lstm", "gru"}:
         raise ValueError("client-hetero.py currently supports heterogeneous recurrent models: ['rnn', 'lstm', 'gru']")
-    if args.spa_hfl and args.spc:
-        raise ValueError("--spa_hfl and --spc are mutually exclusive modes.")
+    mode_count = sum(
+        [
+            bool(args.spa_hfl),
+            bool(args.spc),
+            bool(args.pattern_weighted_residual_heads),
+        ]
+    )
+    if mode_count > 1:
+        raise ValueError("--spa_hfl, --spc, and --pattern_weighted_residual_heads are mutually exclusive modes.")
+    if args.num_residual_heads <= 0:
+        raise ValueError("--num_residual_heads must be positive.")
+    if args.residual_head_temperature <= 0.0:
+        raise ValueError("--residual_head_temperature must be positive.")
+    if args.residual_head_init_scale < 0.0:
+        raise ValueError("--residual_head_init_scale must be non-negative.")
     if args.local_num_layers <= 0 or args.global_num_layers <= 0:
         raise ValueError("Both local_num_layers and global_num_layers must be positive integers.")
     if args.local_num_layers > args.global_num_layers:
@@ -669,7 +895,10 @@ def main() -> None:
         wb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
-            name=f"flwr-hetclient-{args.cid}-{args.model_name}-L{args.local_num_layers}{'-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}",
+            name=(
+                f"flwr-hetclient-{args.cid}-{args.model_name}-L{args.local_num_layers}"
+                f"{'-pwrh' if args.pattern_weighted_residual_heads else '-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}"
+            ),
             mode="online",
         )
         wandb.config.update(
@@ -680,6 +909,8 @@ def main() -> None:
                 "global_num_layers": args.global_num_layers,
                 "spa_hfl": args.spa_hfl,
                 "spc": args.spc,
+                "pattern_weighted_residual_heads": args.pattern_weighted_residual_heads,
+                "num_residual_heads": args.num_residual_heads,
             },
             allow_val_change=True,
         )
@@ -693,6 +924,11 @@ def main() -> None:
         local_num_layers=args.local_num_layers,
         global_num_layers=args.global_num_layers,
     )
+    if args.pattern_weighted_residual_heads:
+        adapter.enable_pattern_weighted_residual_heads(
+            num_residual_heads=args.num_residual_heads,
+            init_scale=args.residual_head_init_scale,
+        )
 
     client = FlowerHeteroTimeSeriesClient(
         cid=args.cid,

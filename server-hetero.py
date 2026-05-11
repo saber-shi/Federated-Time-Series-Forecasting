@@ -1,5 +1,6 @@
 import argparse
 import csv
+import json
 from numbers import Number
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -34,6 +35,7 @@ SERVER_METRIC_FIELDNAMES = [
     "local_num_layers",
     "spa_hfl",
     "spc",
+    "pattern_weighted_residual_heads",
     "mse",
     "rmse",
     "mae",
@@ -45,6 +47,7 @@ SERVER_METRIC_FIELDNAMES = [
 ]
 
 SPC_ASSIGNMENT_FIELDNAMES = ["round", "client_id", "cluster_id"]
+RESIDUAL_HEAD_WEIGHT_FIELDNAMES = ["round", "client_id", "weights", "dominant_head_id", "entropy"]
 
 
 def _weighted_numeric_metrics(metrics: List[Tuple[int, Dict[str, Scalar]]]) -> Dict[str, float]:
@@ -143,12 +146,136 @@ def infer_spc_head_keys(reference_keys: List[str]) -> List[str]:
     return [key for key in reference_keys if key.startswith("MLP_layers.")]
 
 
+def _normalize_np_vector(x: np.ndarray) -> np.ndarray:
+    norm = np.linalg.norm(x)
+    if norm <= 1e-8:
+        return x.astype(np.float32, copy=False)
+    return (x / norm).astype(np.float32, copy=False)
+
+
+def compute_soft_head_weights(
+    pattern_descriptor: Optional[np.ndarray],
+    prototypes: Optional[List[np.ndarray]],
+    temperature: float,
+    num_heads: int,
+) -> np.ndarray:
+    if num_heads <= 0:
+        raise ValueError("num_heads must be positive.")
+    if temperature <= 0.0:
+        raise ValueError("temperature must be positive.")
+    if pattern_descriptor is None or prototypes is None or len(prototypes) < num_heads:
+        return np.full(num_heads, 1.0 / num_heads, dtype=np.float32)
+
+    pattern = _normalize_np_vector(np.asarray(pattern_descriptor, dtype=np.float32))
+    centers = np.stack([_normalize_np_vector(np.asarray(proto, dtype=np.float32)) for proto in prototypes[:num_heads]], axis=0)
+    similarities = centers @ pattern
+    logits = similarities / temperature
+    logits = logits - logits.max()
+    exp_logits = np.exp(logits)
+    denom = np.clip(exp_logits.sum(), a_min=1e-8, a_max=None)
+    return (exp_logits / denom).astype(np.float32, copy=False)
+
+
+def mix_residual_heads(residual_head_outputs: List[np.ndarray], weights: np.ndarray) -> np.ndarray:
+    if len(residual_head_outputs) != len(weights):
+        raise ValueError(f"Expected {len(weights)} residual outputs, got {len(residual_head_outputs)}")
+    mixed = np.zeros_like(residual_head_outputs[0])
+    for weight, output in zip(weights, residual_head_outputs):
+        mixed += float(weight) * output
+    return mixed
+
+
+def aggregate_weighted_residual_heads(
+    residual_results: List[Tuple[List[List[np.ndarray]], np.ndarray, int]],
+    previous_residual_heads: Optional[List[List[np.ndarray]]],
+    num_heads: int,
+    head_param_count: int,
+    server_weight_power: float = 0.0,
+) -> List[List[np.ndarray]]:
+    if previous_residual_heads is None:
+        if not residual_results:
+            return []
+        previous_residual_heads = [
+            [np.zeros_like(param) for param in residual_results[0][0][head_idx]]
+            for head_idx in range(num_heads)
+        ]
+
+    updated: List[List[np.ndarray]] = []
+    for head_idx in range(num_heads):
+        numerators = [np.zeros_like(previous_residual_heads[head_idx][param_idx]) for param_idx in range(head_param_count)]
+        denominators = [0.0 for _ in range(head_param_count)]
+        for residual_heads, weights, num_examples in residual_results:
+            head_weight = float(weights[head_idx])
+            if head_weight <= 0.0:
+                continue
+            weighted_examples = num_examples * (head_weight ** server_weight_power)
+            for param_idx in range(head_param_count):
+                numerators[param_idx] += weighted_examples * residual_heads[head_idx][param_idx]
+                denominators[param_idx] += weighted_examples
+
+        updated_head = []
+        for param_idx in range(head_param_count):
+            fallback = previous_residual_heads[head_idx][param_idx]
+            if denominators[param_idx] > 0.0:
+                value = numerators[param_idx] / denominators[param_idx]
+            else:
+                value = fallback
+            updated_head.append(value.astype(fallback.dtype, copy=False))
+        updated.append(updated_head)
+    return updated
+
+
+def update_residual_head_prototypes(
+    descriptor_results: List[Tuple[np.ndarray, np.ndarray, int]],
+    previous_prototypes: Optional[List[np.ndarray]],
+    num_heads: int,
+) -> List[np.ndarray]:
+    if not descriptor_results:
+        return previous_prototypes if previous_prototypes is not None else []
+
+    descriptors = np.stack(
+        [_normalize_np_vector(np.asarray(descriptor, dtype=np.float32)) for descriptor, _, _ in descriptor_results],
+        axis=0,
+    )
+    if previous_prototypes is None or len(previous_prototypes) < num_heads:
+        selected = [0]
+        while len(selected) < min(num_heads, descriptors.shape[0]):
+            similarity = descriptors @ descriptors[selected].T
+            nearest_similarity = similarity.max(axis=1)
+            next_idx = int(np.argmin(nearest_similarity))
+            if next_idx in selected:
+                break
+            selected.append(next_idx)
+        prototypes = [descriptors[idx].astype(np.float32, copy=False) for idx in selected]
+        while len(prototypes) < num_heads:
+            prototypes.append(prototypes[-1].copy())
+        return prototypes
+
+    descriptor_dim = descriptor_results[0][0].shape[0]
+    prototypes: List[np.ndarray] = []
+    for head_idx in range(num_heads):
+        numerator = np.zeros(descriptor_dim, dtype=np.float32)
+        denominator = 0.0
+        for descriptor, weights, num_examples in descriptor_results:
+            weight = num_examples * float(weights[head_idx])
+            numerator += weight * np.asarray(descriptor, dtype=np.float32)
+            denominator += weight
+        if denominator > 0.0:
+            prototypes.append(_normalize_np_vector(numerator / denominator))
+        elif previous_prototypes is not None and head_idx < len(previous_prototypes):
+            prototypes.append(previous_prototypes[head_idx].astype(np.float32, copy=False))
+        else:
+            prototypes.append(np.zeros(descriptor_dim, dtype=np.float32))
+    return prototypes
+
+
 class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
     """Masked aggregation for padded HeteroFL-style client updates."""
 
     def __init__(self, use_wandb: bool = False, *args, **kwargs):
         self.spa_hfl = kwargs.pop("spa_hfl", False)
         self.spc = kwargs.pop("spc", False)
+        self.pattern_weighted_residual_heads = kwargs.pop("pattern_weighted_residual_heads", False)
         self.align_dim = kwargs.pop("align_dim", 32)
         self.centroid_momentum = kwargs.pop("centroid_momentum", 0.9)
         self.pattern_cluster_count = kwargs.pop("pattern_cluster_count", 1)
@@ -156,6 +283,12 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         self.spc_cluster_count = kwargs.pop("spc_cluster_count", 2)
         self.spc_cluster_iters = kwargs.pop("spc_cluster_iters", 10)
         self.spc_assignment_log_path = kwargs.pop("spc_assignment_log_path", "")
+        self.num_residual_heads = kwargs.pop("num_residual_heads", 6)
+        self.residual_head_temperature = kwargs.pop("residual_head_temperature", 0.1)
+        self.residual_head_entropy_lambda = kwargs.pop("residual_head_entropy_lambda", 0.0)
+        self.residual_head_init_scale = kwargs.pop("residual_head_init_scale", 0.01)
+        self.residual_head_weight_log_path = kwargs.pop("residual_head_weight_log_path", "")
+        self.residual_head_server_weight_power = kwargs.pop("residual_head_server_weight_power", 0.0)
         self.reference_keys = kwargs.pop("reference_keys", None)
         self.metrics_log_path = kwargs.pop("metrics_log_path", "")
         super().__init__(*args, **kwargs)
@@ -164,6 +297,13 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         self.latest_spc_backbone: Optional[NDArrays] = None
         self.latest_spc_default_head: Optional[NDArrays] = None
         self.latest_spc_cluster_heads: Dict[int, NDArrays] = {}
+        self.latest_pwrh_backbone: Optional[NDArrays] = None
+        self.latest_pwrh_global_head: Optional[NDArrays] = None
+        self.latest_pwrh_residual_heads: Optional[List[NDArrays]] = None
+        self.latest_pwrh_prototypes: Optional[List[np.ndarray]] = None
+        self.latest_client_pattern_descriptors: Dict[str, np.ndarray] = {}
+        self.latest_client_residual_weights: Dict[str, np.ndarray] = {}
+        self.proxy_to_real_cid: Dict[str, str] = {}
         self.latest_projector: Optional[NDArrays] = None
         self.latest_centroid: Optional[np.ndarray] = None
         self.latest_cluster_centroids: Dict[int, np.ndarray] = {}
@@ -173,10 +313,14 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         self.projector_param_count = len(list(self.projector_template.state_dict().keys()))
         self.head_keys = infer_spc_head_keys(self.reference_keys or [])
         self.backbone_keys = [key for key in (self.reference_keys or []) if key not in self.head_keys]
-        if self.spc and not self.head_keys:
-            raise ValueError("Could not identify SPC prediction-head parameters from server model state_dict.")
+        if (self.spc or self.pattern_weighted_residual_heads) and not self.head_keys:
+            raise ValueError("Could not identify prediction-head parameters from server model state_dict.")
         self.backbone_param_count = len(self.backbone_keys)
         self.head_param_count = len(self.head_keys)
+        if self.pattern_weighted_residual_heads and self.num_residual_heads <= 0:
+            raise ValueError("num_residual_heads must be positive.")
+        if self.pattern_weighted_residual_heads and self.residual_head_temperature <= 0.0:
+            raise ValueError("residual_head_temperature must be positive.")
 
     def _append_metric_row(self, rnd: int, split: str, metrics: Dict[str, Scalar]) -> None:
         if not self.metrics_log_path:
@@ -209,12 +353,63 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             for cid, cluster_idx in sorted(assignments.items()):
                 writer.writerow({"round": rnd, "client_id": cid, "cluster_id": int(cluster_idx)})
 
+    def _append_residual_head_weight_rows(self, rnd: int, weights_by_client: Dict[str, np.ndarray]) -> None:
+        if not self.residual_head_weight_log_path:
+            return
+        path = Path(self.residual_head_weight_log_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        needs_header = not path.exists()
+        with path.open("a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=RESIDUAL_HEAD_WEIGHT_FIELDNAMES)
+            if needs_header:
+                writer.writeheader()
+            for cid, weights in sorted(weights_by_client.items()):
+                weights = weights.astype(np.float32, copy=False)
+                entropy = -float(np.sum(weights * np.log(np.clip(weights, a_min=1e-8, a_max=None))))
+                writer.writerow(
+                    {
+                        "round": rnd,
+                        "client_id": cid,
+                        "weights": json.dumps([float(v) for v in weights]),
+                        "dominant_head_id": int(np.argmax(weights)),
+                        "entropy": entropy,
+                    }
+                )
+
     def initialize_parameters(
         self, client_manager: fl.server.client_manager.ClientManager
     ) -> Optional[Parameters]:
         parameters = super().initialize_parameters(client_manager)
         if parameters is not None:
             ndarrays = parameters_to_ndarrays(parameters)
+            if self.pattern_weighted_residual_heads:
+                if not self.reference_keys:
+                    raise ValueError("Pattern-weighted residual heads require reference_keys.")
+                if len(ndarrays) != len(self.reference_keys):
+                    raise ValueError(
+                        f"Expected {len(self.reference_keys)} initial model tensors for PWRH, got {len(ndarrays)}"
+                    )
+                key_to_array = dict(zip(self.reference_keys, ndarrays))
+                self.latest_pwrh_backbone = [key_to_array[key] for key in self.backbone_keys]
+                self.latest_pwrh_global_head = [key_to_array[key] for key in self.head_keys]
+                self.latest_pwrh_residual_heads = [
+                    [
+                        np.random.normal(
+                            loc=0.0,
+                            scale=self.residual_head_init_scale,
+                            size=key_to_array[key].shape,
+                        ).astype(key_to_array[key].dtype, copy=False)
+                        for key in self.head_keys
+                    ]
+                    for _ in range(self.num_residual_heads)
+                ]
+                uniform_weights = np.full(self.num_residual_heads, 1.0 / self.num_residual_heads, dtype=np.float32)
+                return ndarrays_to_parameters(
+                    list(self.latest_pwrh_backbone)
+                    + list(self.latest_pwrh_global_head)
+                    + [param for head in self.latest_pwrh_residual_heads for param in head]
+                    + [uniform_weights]
+                )
             if self.spc:
                 if not self.reference_keys:
                     raise ValueError("SPC requires reference_keys to split backbone/head parameters.")
@@ -249,6 +444,30 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         if head is None:
             head = self.latest_spc_default_head
         payload = list(self.latest_spc_backbone) + list(head)
+        return ndarrays_to_parameters(payload)
+
+    def _build_pwrh_payload_for_client(self, client_proxy: ClientProxy) -> Parameters:
+        if (
+            self.latest_pwrh_backbone is None
+            or self.latest_pwrh_global_head is None
+            or self.latest_pwrh_residual_heads is None
+        ):
+            return ndarrays_to_parameters([])
+        real_cid = self.proxy_to_real_cid.get(client_proxy.cid, client_proxy.cid)
+        descriptor = self.latest_client_pattern_descriptors.get(real_cid)
+        weights = compute_soft_head_weights(
+            pattern_descriptor=descriptor,
+            prototypes=self.latest_pwrh_prototypes,
+            temperature=self.residual_head_temperature,
+            num_heads=self.num_residual_heads,
+        )
+        self.latest_client_residual_weights[real_cid] = weights
+        payload = (
+            list(self.latest_pwrh_backbone)
+            + list(self.latest_pwrh_global_head)
+            + [param for residual_head in self.latest_pwrh_residual_heads for param in residual_head]
+            + [weights]
+        )
         return ndarrays_to_parameters(payload)
 
     def _build_spa_payload_for_client(self, client_proxy: ClientProxy) -> Parameters:
@@ -291,6 +510,18 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         parameters: Parameters,
         client_manager: fl.server.client_manager.ClientManager,
     ):
+        if self.pattern_weighted_residual_heads and self.latest_pwrh_backbone is not None:
+            config = {} if self.on_fit_config_fn is None else self.on_fit_config_fn(server_round)
+            fit_ins_by_client: List[Tuple[ClientProxy, FitIns]] = []
+
+            sample_size, min_num_clients = self.num_fit_clients(client_manager.num_available())
+            clients = client_manager.sample(num_clients=sample_size, min_num_clients=min_num_clients)
+
+            for client in clients:
+                fit_ins = FitIns(self._build_pwrh_payload_for_client(client), config)
+                fit_ins_by_client.append((client, fit_ins))
+            return fit_ins_by_client
+
         if self.spc and self.latest_spc_backbone is not None:
             config = {} if self.on_fit_config_fn is None else self.on_fit_config_fn(server_round)
             fit_ins_by_client: List[Tuple[ClientProxy, FitIns]] = []
@@ -323,6 +554,18 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         parameters: Parameters,
         client_manager: fl.server.client_manager.ClientManager,
     ):
+        if self.pattern_weighted_residual_heads and self.latest_pwrh_backbone is not None:
+            config = {} if self.on_evaluate_config_fn is None else self.on_evaluate_config_fn(server_round)
+            evaluate_ins_by_client: List[Tuple[ClientProxy, EvaluateIns]] = []
+
+            sample_size, min_num_clients = self.num_evaluation_clients(client_manager.num_available())
+            clients = client_manager.sample(num_clients=sample_size, min_num_clients=min_num_clients)
+
+            for client in clients:
+                evaluate_ins = EvaluateIns(self._build_pwrh_payload_for_client(client), config)
+                evaluate_ins_by_client.append((client, evaluate_ins))
+            return evaluate_ins_by_client
+
         if self.spc and self.latest_spc_backbone is not None:
             config = {} if self.on_evaluate_config_fn is None else self.on_evaluate_config_fn(server_round)
             evaluate_ins_by_client: List[Tuple[ClientProxy, EvaluateIns]] = []
@@ -431,6 +674,124 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
 
         return ndarrays_to_parameters(list(self.latest_spc_backbone) + list(self.latest_spc_default_head)), metrics
 
+    def _aggregate_pwrh_fit(
+        self,
+        rnd: int,
+        results: List[Tuple[ClientProxy, FitRes]],
+    ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
+        backbone_count = self.backbone_param_count
+        head_count = self.head_param_count
+        num_heads = self.num_residual_heads
+        expected_total = 2 * backbone_count + head_count + num_heads * head_count + 1
+        if backbone_count <= 0 or head_count <= 0:
+            raise ValueError("PWRH requires non-empty backbone and head parameter splits.")
+        if self.latest_pwrh_backbone is None or self.latest_pwrh_global_head is None:
+            raise ValueError("PWRH server state is not initialized.")
+
+        numerators: Optional[List[np.ndarray]] = None
+        denominators: Optional[List[np.ndarray]] = None
+        global_head_results: List[Tuple[List[np.ndarray], int]] = []
+        residual_results: List[Tuple[List[List[np.ndarray]], np.ndarray, int]] = []
+        descriptor_results: List[Tuple[np.ndarray, np.ndarray, int]] = []
+        weights_by_client: Dict[str, np.ndarray] = {}
+        weighted_metrics: List[Tuple[int, Dict[str, Scalar]]] = []
+
+        for client_proxy, fit_res in results:
+            arrays = parameters_to_ndarrays(fit_res.parameters)
+            if len(arrays) != expected_total:
+                raise ValueError(
+                    f"Expected PWRH client payload of {expected_total} arrays "
+                    f"({backbone_count} backbone + {backbone_count} masks + {head_count} global head + "
+                    f"{num_heads}*{head_count} residual head + pattern), got {len(arrays)} from client {client_proxy.cid}"
+                )
+
+            cursor = 0
+            local_backbone = arrays[cursor : cursor + backbone_count]
+            cursor += backbone_count
+            local_masks = arrays[cursor : cursor + backbone_count]
+            cursor += backbone_count
+            local_global_head = arrays[cursor : cursor + head_count]
+            cursor += head_count
+            local_residual_heads = []
+            for _ in range(num_heads):
+                local_residual_heads.append(arrays[cursor : cursor + head_count])
+                cursor += head_count
+            pattern_mean = arrays[cursor].astype(np.float32, copy=False)
+
+            if numerators is None:
+                numerators = [np.zeros_like(arr) for arr in local_backbone]
+                denominators = [np.zeros_like(arr, dtype=np.float32) for arr in local_backbone]
+
+            num_examples = fit_res.num_examples
+            for idx, (param, mask) in enumerate(zip(local_backbone, local_masks)):
+                numerators[idx] += num_examples * param * mask
+                denominators[idx] += num_examples * mask.astype(np.float32, copy=False)
+
+            real_cid = str(fit_res.metrics.get("cid", client_proxy.cid))
+            self.proxy_to_real_cid[client_proxy.cid] = real_cid
+            self.latest_client_pattern_descriptors[real_cid] = pattern_mean
+            weights = compute_soft_head_weights(
+                pattern_descriptor=pattern_mean,
+                prototypes=self.latest_pwrh_prototypes,
+                temperature=self.residual_head_temperature,
+                num_heads=num_heads,
+            )
+            weights_by_client[real_cid] = weights
+            self.latest_client_residual_weights[real_cid] = weights
+
+            global_head_results.append((local_global_head, num_examples))
+            residual_results.append((local_residual_heads, weights, num_examples))
+            descriptor_results.append((pattern_mean, weights, num_examples))
+            weighted_metrics.append((num_examples, fit_res.metrics))
+
+        assert numerators is not None
+        assert denominators is not None
+
+        aggregated_backbone: NDArrays = []
+        for idx in range(backbone_count):
+            fallback = self.latest_pwrh_backbone[idx]
+            denom = denominators[idx]
+            aggregated_array = np.where(denom > 0, numerators[idx] / denom, fallback)
+            aggregated_backbone.append(aggregated_array.astype(fallback.dtype, copy=False))
+        self.latest_pwrh_backbone = aggregated_backbone
+        self.latest_pwrh_global_head = aggregate_ndarrays(
+            global_head_results,
+            previous=self.latest_pwrh_global_head,
+        )
+        self.latest_pwrh_residual_heads = aggregate_weighted_residual_heads(
+            residual_results=residual_results,
+            previous_residual_heads=self.latest_pwrh_residual_heads,
+            num_heads=num_heads,
+            head_param_count=head_count,
+            server_weight_power=self.residual_head_server_weight_power,
+        )
+        self.latest_pwrh_prototypes = update_residual_head_prototypes(
+            descriptor_results=descriptor_results,
+            previous_prototypes=self.latest_pwrh_prototypes,
+            num_heads=num_heads,
+        )
+        print(
+            f"[PWRH][Round {rnd}] weights: "
+            f"{ {cid: weights.tolist() for cid, weights in sorted(weights_by_client.items())} }"
+        )
+        self._append_residual_head_weight_rows(rnd, weights_by_client)
+
+        metrics = _weighted_numeric_metrics(weighted_metrics)
+        if self.use_wandb and metrics:
+            log_data = {f"server/train_{key}": float(value) for key, value in metrics.items()}
+            log_data["round"] = rnd
+            wandb.log(log_data, step=rnd, commit=False)
+        self._append_metric_row(rnd, "train", metrics)
+
+        uniform_weights = np.full(num_heads, 1.0 / num_heads, dtype=np.float32)
+        payload = (
+            list(self.latest_pwrh_backbone)
+            + list(self.latest_pwrh_global_head)
+            + [param for residual_head in self.latest_pwrh_residual_heads for param in residual_head]
+            + [uniform_weights]
+        )
+        return ndarrays_to_parameters(payload), metrics
+
     def aggregate_fit(
         self,
         rnd: int,
@@ -439,6 +800,9 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         if not results:
             return None, {}
+
+        if self.pattern_weighted_residual_heads:
+            return self._aggregate_pwrh_fit(rnd, results)
 
         if self.spc:
             return self._aggregate_spc_fit(rnd, results)
@@ -632,6 +996,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--spa_hfl", action="store_true", default=False, help="Enable SPA-HFL aggregation state")
     parser.add_argument("--spc", action="store_true", default=False, help="Enable SPC-HeteroFL clustered heads")
+    parser.add_argument(
+        "--pattern_weighted_residual_heads",
+        action="store_true",
+        default=False,
+        help="Enable pattern-weighted residual heads.",
+    )
     parser.add_argument("--align_dim", type=int, default=32)
     parser.add_argument("--centroid_momentum", type=float, default=0.9)
     parser.add_argument(
@@ -648,6 +1018,17 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--spc_cluster_count", type=int, default=2, help="Number of SPC sequence-pattern clusters.")
     parser.add_argument("--spc_cluster_iters", type=int, default=10, help="Maximum SPC clustering iterations.")
+    parser.add_argument("--num_residual_heads", type=int, default=6)
+    parser.add_argument("--residual_head_temperature", type=float, default=0.1)
+    parser.add_argument("--residual_head_entropy_lambda", type=float, default=0.0)
+    parser.add_argument("--residual_head_init_scale", type=float, default=0.01)
+    parser.add_argument(
+        "--residual_head_weight_log_path",
+        type=str,
+        default="",
+        help="Optional CSV path for pattern-weighted residual head weights.",
+    )
+    parser.add_argument("--residual_head_server_weight_power", type=float, default=0.0)
     parser.add_argument(
         "--spc_assignment_log_path",
         type=str,
@@ -661,10 +1042,23 @@ def parse_args() -> argparse.Namespace:
         help="CSV path for per-round aggregated metrics logging.",
     )
     args = parser.parse_args()
-    if args.spa_hfl and args.spc:
-        raise ValueError("--spa_hfl and --spc are mutually exclusive modes.")
+    mode_count = sum(
+        [
+            bool(args.spa_hfl),
+            bool(args.spc),
+            bool(args.pattern_weighted_residual_heads),
+        ]
+    )
+    if mode_count > 1:
+        raise ValueError("--spa_hfl, --spc, and --pattern_weighted_residual_heads are mutually exclusive modes.")
     if args.spc_cluster_count <= 0:
         raise ValueError("--spc_cluster_count must be positive.")
+    if args.num_residual_heads <= 0:
+        raise ValueError("--num_residual_heads must be positive.")
+    if args.residual_head_temperature <= 0.0:
+        raise ValueError("--residual_head_temperature must be positive.")
+    if args.residual_head_init_scale < 0.0:
+        raise ValueError("--residual_head_init_scale must be non-negative.")
     return args
 
 
@@ -689,7 +1083,10 @@ def main() -> None:
         wb_run = wandb.init(
             entity=args.wandb_entity,
             project=args.wandb_project,
-            name=f"flwr-hetero-server{'-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}",
+            name=(
+                f"flwr-hetero-server"
+                f"{'-pwrh' if args.pattern_weighted_residual_heads else '-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}"
+            ),
             mode="online",
         )
         wandb.config.update(
@@ -698,11 +1095,21 @@ def main() -> None:
                 "min_fit_clients": args.min_fit_clients,
                 "min_evaluate_clients": min_evaluate_clients,
                 "min_available_clients": args.min_available_clients,
-                "aggregation": "spc_heterofl_clustered_heads" if args.spc else "spa_hfl_masked_fedavg" if args.spa_hfl else "heterofl_masked_fedavg",
+                "aggregation": (
+                    "pattern_weighted_residual_heads"
+                    if args.pattern_weighted_residual_heads
+                    else "spc_heterofl_clustered_heads"
+                    if args.spc
+                    else "spa_hfl_masked_fedavg"
+                    if args.spa_hfl
+                    else "heterofl_masked_fedavg"
+                ),
                 "spa_hfl": args.spa_hfl,
                 "spc": args.spc,
+                "pattern_weighted_residual_heads": args.pattern_weighted_residual_heads,
                 "pattern_cluster_count": args.pattern_cluster_count,
                 "spc_cluster_count": args.spc_cluster_count,
+                "num_residual_heads": args.num_residual_heads,
                 "strict_synchronous": True,
             },
             allow_val_change=True,
@@ -712,6 +1119,7 @@ def main() -> None:
         use_wandb=getattr(args, "wandb", False),
         spa_hfl=args.spa_hfl,
         spc=args.spc,
+        pattern_weighted_residual_heads=args.pattern_weighted_residual_heads,
         align_dim=args.align_dim,
         centroid_momentum=args.centroid_momentum,
         pattern_cluster_count=args.pattern_cluster_count,
@@ -719,6 +1127,12 @@ def main() -> None:
         spc_cluster_count=args.spc_cluster_count,
         spc_cluster_iters=args.spc_cluster_iters,
         spc_assignment_log_path=args.spc_assignment_log_path,
+        num_residual_heads=args.num_residual_heads,
+        residual_head_temperature=args.residual_head_temperature,
+        residual_head_entropy_lambda=args.residual_head_entropy_lambda,
+        residual_head_init_scale=args.residual_head_init_scale,
+        residual_head_weight_log_path=args.residual_head_weight_log_path,
+        residual_head_server_weight_power=args.residual_head_server_weight_power,
         reference_keys=reference_keys,
         metrics_log_path=args.metrics_log_path,
         fraction_fit=1.0,
