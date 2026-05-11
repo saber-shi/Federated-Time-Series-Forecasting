@@ -1,0 +1,84 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            1n2u7csjb3mou9eymikkmwa9gac8xvvq:
+                args:
+                    - --server_address
+                    - 127.0.0.1:8092
+                    - --cid
+                    - 12167-0
+                    - --data_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed.csv
+                    - --model_name
+                    - lstm
+                    - --prediction_steps
+                    - "4"
+                    - --local_num_layers
+                    - "3"
+                    - --global_num_layers
+                    - "3"
+                    - --epochs
+                    - "5"
+                    - --batch_size
+                    - "64"
+                    - --spc
+                    - --spc_cluster_count
+                    - "2"
+                    - --spc_pattern_source
+                    - y_hist
+                    - --wandb
+                    - --metrics_log_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs/spc_k2_client_12167-0_L3_metrics.csv
+                codePath: client-hetero.py
+                cpu_count: 12
+                cpu_count_logical: 12
+                disk:
+                    /:
+                        total: "60725108736"
+                        used: "38639587328"
+                email: shisiping1992@gmail.com
+                executable: /home/hkuiot/miniconda3/envs/fed/bin/python3
+                git:
+                    commit: 9b7ac4951cbaad5f26b98396a948c2c4f209fd60
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                host: hkuiot-orin-1
+                memory:
+                    total: "65853030400"
+                os: Linux-5.10.120-tegra-aarch64-with-glibc2.26
+                program: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py
+                python: CPython 3.8.20
+                root: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment
+                startedAt: "2026-05-10T14:31:14.764797Z"
+                writerId: 1n2u7csjb3mou9eymikkmwa9gac8xvvq
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 13
+                - 61
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-aarch64
+cid:
+    value: 12167-0
+global_num_layers:
+    value: 3
+local_num_layers:
+    value: 3
+model_name:
+    value: lstm
+spa_hfl:
+    value: false
+spc:
+    value: true

@@ -1,0 +1,48 @@
+INFO logger 2026-05-10 21:37:16,264 | data_utils.py:28 | Reading 12167-0's data...
+INFO logger 2026-05-10 21:37:16,329 | data_utils.py:417 | 	Total number of samples:  17520
+INFO logger 2026-05-10 21:37:16,332 | data_utils.py:418 | 	Number of samples for training: 14016
+INFO logger 2026-05-10 21:37:16,333 | data_utils.py:419 | 	Number of samples for validation:  3504
+[92mINFO [0m:
+[92mINFO [0m:      Received: train message 4bb660ff-4349-48f5-b059-3c72dc683f9f
+INFO logger 2026-05-10 21:37:39,979 | train_utils.py:97 | Epoch 1 [Train]: loss 0.017444793551152395, mse: 0.0027477985713630915, rmse: 0.05241944840765774, mae 0.03413408249616623, r2: 0.7887861793976159, nrmse: 0.07935274991645873
+INFO logger 2026-05-10 21:37:39,980 | train_utils.py:99 | Epoch 1 [Test]: loss 3.940564803584931e-05, mse: 0.002521039452403784, rmse: 0.05020995371839914, mae 0.03288307785987854, r2: 0.6837800336758633, nrmse: 0.07018422784718568
+INFO logger 2026-05-10 21:37:50,836 | train_utils.py:97 | Epoch 2 [Train]: loss 0.0027375988429412246, mse: 0.002619554055854678, rmse: 0.05118157926299928, mae 0.03481210023164749, r2: 0.7986438026007663, nrmse: 0.07614670008151139
+INFO logger 2026-05-10 21:37:50,837 | train_utils.py:99 | Epoch 2 [Test]: loss 3.9980993459156e-05, mse: 0.002557472325861454, rmse: 0.05057145762049433, mae 0.034397318959236145, r2: 0.6792104151867668, nrmse: 0.068021563955707
+[91mERROR [0m:     Client raised an exception.
+Traceback (most recent call last):
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 526, in start_client_internal
+    reply_message = client_app(message=message, context=context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 143, in __call__
+    return self._call(message, context)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client_app.py", line 126, in ffn
+    out_message = handle_legacy_message_from_msgtype(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/message_handler/message_handler.py", line 129, in handle_legacy_message_from_msgtype
+    fit_res = maybe_call_fit(
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/client.py", line 255, in maybe_call_fit
+    return client.fit(fit_ins)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/numpy_client.py", line 259, in _fit
+    results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py", line 400, in fit
+    self.model = train(
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 92, in train
+    _, train_mse, train_rmse, train_mae, train_r2, train_nrmse = test(model, train_loader,
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/utils/train_utils.py", line 161, in test
+    out = model(x, exogenous, device, y_hist)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/ml/models/lstm.py", line 51, in forward
+    prediction = self.MLP_layers(out)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+  File "/home/hkuiot/miniconda3/envs/fed/lib/python3.8/site-packages/flwr/client/app.py", line 767, in signal_handler
+    raise StopIteration from None
+StopIteration
+[92mINFO [0m:      Disconnect and shut down
+Saved final client model to: saved_models/12167-0_lstm_final.pt
+Saved final predictions CSV to: saved_predictions/12167-0_lstm_last_48.csv

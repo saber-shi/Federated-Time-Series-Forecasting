@@ -1,0 +1,1263 @@
+[92mINFO [0m:      Starting Flower server, config: num_rounds=50, no round_timeout
+[92mINFO [0m:      Flower ECE: gRPC server running (50 rounds), SSL is disabled
+[92mINFO [0m:      [INIT]
+[92mINFO [0m:      Using initial global parameters provided by strategy
+[92mINFO [0m:      Starting evaluation of initial global parameters
+[92mINFO [0m:      Evaluation returned no results (`None`)
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 1]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 1] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 2]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 2] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 3]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 3] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 4]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 4] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 5]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 5] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 6]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 6] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 7]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 7] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 8]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 8] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 9]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 9] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 10]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 10] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 11]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 11] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 12]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 12] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 13]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 13] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 14]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 14] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 15]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 15] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 16]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 16] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 17]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 17] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 18]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 18] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 19]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 19] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 20]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 20] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 21]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 21] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 22]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 22] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 23]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 23] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 24]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 24] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 25]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 25] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 26]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 26] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 27]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 27] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 28]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 28] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 29]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 29] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 30]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 30] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 31]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 31] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 32]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 32] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 33]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 33] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 34]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 34] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 35]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 35] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 36]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 36] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 37]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 37] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 38]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 38] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 39]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 39] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 40]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 40] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 41]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 41] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 42]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 42] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 43]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 43] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 44]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 44] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 45]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 45] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 46]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 46] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 47]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 47] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 48]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 48] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 49]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 49] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [ROUND 50]
+[92mINFO [0m:      configure_fit: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_fit: received 6 results and 0 failures
+[SPC][Round 50] assignments: {'12166-0': 0, '12164-0': 0, '12165-0': 1, '12167-0': 0, '12162-0': 0, '12163-0': 1}
+[92mINFO [0m:      configure_evaluate: strategy sampled 6 clients (out of 6)
+[92mINFO [0m:      aggregate_evaluate: received 6 results and 0 failures
+[92mINFO [0m:
+[92mINFO [0m:      [SUMMARY]
+[92mINFO [0m:      Run finished 50 round(s) in 3119.46s
+[92mINFO [0m:      	History (loss, distributed):
+[92mINFO [0m:      		round 1: 0.0013432318264652487
+[92mINFO [0m:      		round 2: 0.000913242060107791
+[92mINFO [0m:      		round 3: 0.0007499311656522173
+[92mINFO [0m:      		round 4: 0.0006615246269991102
+[92mINFO [0m:      		round 5: 0.0006170146251031785
+[92mINFO [0m:      		round 6: 0.0005666746699845352
+[92mINFO [0m:      		round 7: 0.0005256799085934067
+[92mINFO [0m:      		round 8: 0.0005053623933431654
+[92mINFO [0m:      		round 9: 0.0004987989742990585
+[92mINFO [0m:      		round 10: 0.00048394340901759255
+[92mINFO [0m:      		round 11: 0.0004970249235322516
+[92mINFO [0m:      		round 12: 0.0004801151672484525
+[92mINFO [0m:      		round 13: 0.0004673959069808308
+[92mINFO [0m:      		round 14: 0.000449563795900746
+[92mINFO [0m:      		round 15: 0.000431391127687062
+[92mINFO [0m:      		round 16: 0.000422989609284234
+[92mINFO [0m:      		round 17: 0.00041541205279380843
+[92mINFO [0m:      		round 18: 0.00039691786831857925
+[92mINFO [0m:      		round 19: 0.0003925285747311432
+[92mINFO [0m:      		round 20: 0.00037733932404086464
+[92mINFO [0m:      		round 21: 0.0003848858852754182
+[92mINFO [0m:      		round 22: 0.00037036954451301053
+[92mINFO [0m:      		round 23: 0.00037098447743382293
+[92mINFO [0m:      		round 24: 0.0003677216041950809
+[92mINFO [0m:      		round 25: 0.0003641649792846073
+[92mINFO [0m:      		round 26: 0.00035379630229167024
+[92mINFO [0m:      		round 27: 0.0003522756548074884
+[92mINFO [0m:      		round 28: 0.00034268479330306414
+[92mINFO [0m:      		round 29: 0.0003425075182074156
+[92mINFO [0m:      		round 30: 0.0003422446304925746
+[92mINFO [0m:      		round 31: 0.00033572274636278673
+[92mINFO [0m:      		round 32: 0.0003221827378335143
+[92mINFO [0m:      		round 33: 0.00032057973244963695
+[92mINFO [0m:      		round 34: 0.00031335339475291286
+[92mINFO [0m:      		round 35: 0.00031483714302923765
+[92mINFO [0m:      		round 36: 0.0003142128982619178
+[92mINFO [0m:      		round 37: 0.0003145508071117573
+[92mINFO [0m:      		round 38: 0.00030374951557508146
+[92mINFO [0m:      		round 39: 0.00032208829894906553
+[92mINFO [0m:      		round 40: 0.00030543365535681675
+[92mINFO [0m:      		round 41: 0.00029831504042813854
+[92mINFO [0m:      		round 42: 0.00028759154010192284
+[92mINFO [0m:      		round 43: 0.0002974857098780327
+[92mINFO [0m:      		round 44: 0.00027861976302685055
+[92mINFO [0m:      		round 45: 0.0002912340427329345
+[92mINFO [0m:      		round 46: 0.0002833723157723813
+[92mINFO [0m:      		round 47: 0.00029108751181384547
+[92mINFO [0m:      		round 48: 0.0002895118191184645
+[92mINFO [0m:      		round 49: 0.00028556595350354104
+[92mINFO [0m:      		round 50: 0.0002828941358082673
+[92mINFO [0m:      	History (metrics, distributed, fit):
+[92mINFO [0m:      	{'global_num_layers': [(1, 3.0),
+[92mINFO [0m:      	                       (2, 3.0),
+[92mINFO [0m:      	                       (3, 3.0),
+[92mINFO [0m:      	                       (4, 3.0),
+[92mINFO [0m:      	                       (5, 3.0),
+[92mINFO [0m:      	                       (6, 3.0),
+[92mINFO [0m:      	                       (7, 3.0),
+[92mINFO [0m:      	                       (8, 3.0),
+[92mINFO [0m:      	                       (9, 3.0),
+[92mINFO [0m:      	                       (10, 3.0),
+[92mINFO [0m:      	                       (11, 3.0),
+[92mINFO [0m:      	                       (12, 3.0),
+[92mINFO [0m:      	                       (13, 3.0),
+[92mINFO [0m:      	                       (14, 3.0),
+[92mINFO [0m:      	                       (15, 3.0),
+[92mINFO [0m:      	                       (16, 3.0),
+[92mINFO [0m:      	                       (17, 3.0),
+[92mINFO [0m:      	                       (18, 3.0),
+[92mINFO [0m:      	                       (19, 3.0),
+[92mINFO [0m:      	                       (20, 3.0),
+[92mINFO [0m:      	                       (21, 3.0),
+[92mINFO [0m:      	                       (22, 3.0),
+[92mINFO [0m:      	                       (23, 3.0),
+[92mINFO [0m:      	                       (24, 3.0),
+[92mINFO [0m:      	                       (25, 3.0),
+[92mINFO [0m:      	                       (26, 3.0),
+[92mINFO [0m:      	                       (27, 3.0),
+[92mINFO [0m:      	                       (28, 3.0),
+[92mINFO [0m:      	                       (29, 3.0),
+[92mINFO [0m:      	                       (30, 3.0),
+[92mINFO [0m:      	                       (31, 3.0),
+[92mINFO [0m:      	                       (32, 3.0),
+[92mINFO [0m:      	                       (33, 3.0),
+[92mINFO [0m:      	                       (34, 3.0),
+[92mINFO [0m:      	                       (35, 3.0),
+[92mINFO [0m:      	                       (36, 3.0),
+[92mINFO [0m:      	                       (37, 3.0),
+[92mINFO [0m:      	                       (38, 3.0),
+[92mINFO [0m:      	                       (39, 3.0),
+[92mINFO [0m:      	                       (40, 3.0),
+[92mINFO [0m:      	                       (41, 3.0),
+[92mINFO [0m:      	                       (42, 3.0),
+[92mINFO [0m:      	                       (43, 3.0),
+[92mINFO [0m:      	                       (44, 3.0),
+[92mINFO [0m:      	                       (45, 3.0),
+[92mINFO [0m:      	                       (46, 3.0),
+[92mINFO [0m:      	                       (47, 3.0),
+[92mINFO [0m:      	                       (48, 3.0),
+[92mINFO [0m:      	                       (49, 3.0),
+[92mINFO [0m:      	                       (50, 3.0)],
+[92mINFO [0m:      	 'local_num_layers': [(1, 2.696443072925126),
+[92mINFO [0m:      	                      (2, 2.696443072925126),
+[92mINFO [0m:      	                      (3, 2.696443072925126),
+[92mINFO [0m:      	                      (4, 2.696443072925126),
+[92mINFO [0m:      	                      (5, 2.696443072925126),
+[92mINFO [0m:      	                      (6, 2.696443072925126),
+[92mINFO [0m:      	                      (7, 2.696443072925126),
+[92mINFO [0m:      	                      (8, 2.696443072925126),
+[92mINFO [0m:      	                      (9, 2.696443072925126),
+[92mINFO [0m:      	                      (10, 2.696443072925126),
+[92mINFO [0m:      	                      (11, 2.696443072925126),
+[92mINFO [0m:      	                      (12, 2.696443072925126),
+[92mINFO [0m:      	                      (13, 2.696443072925126),
+[92mINFO [0m:      	                      (14, 2.696443072925126),
+[92mINFO [0m:      	                      (15, 2.696443072925126),
+[92mINFO [0m:      	                      (16, 2.696443072925126),
+[92mINFO [0m:      	                      (17, 2.696443072925126),
+[92mINFO [0m:      	                      (18, 2.696443072925126),
+[92mINFO [0m:      	                      (19, 2.696443072925126),
+[92mINFO [0m:      	                      (20, 2.696443072925126),
+[92mINFO [0m:      	                      (21, 2.696443072925126),
+[92mINFO [0m:      	                      (22, 2.696443072925126),
+[92mINFO [0m:      	                      (23, 2.696443072925126),
+[92mINFO [0m:      	                      (24, 2.696443072925126),
+[92mINFO [0m:      	                      (25, 2.696443072925126),
+[92mINFO [0m:      	                      (26, 2.696443072925126),
+[92mINFO [0m:      	                      (27, 2.696443072925126),
+[92mINFO [0m:      	                      (28, 2.696443072925126),
+[92mINFO [0m:      	                      (29, 2.696443072925126),
+[92mINFO [0m:      	                      (30, 2.696443072925126),
+[92mINFO [0m:      	                      (31, 2.696443072925126),
+[92mINFO [0m:      	                      (32, 2.696443072925126),
+[92mINFO [0m:      	                      (33, 2.696443072925126),
+[92mINFO [0m:      	                      (34, 2.696443072925126),
+[92mINFO [0m:      	                      (35, 2.696443072925126),
+[92mINFO [0m:      	                      (36, 2.696443072925126),
+[92mINFO [0m:      	                      (37, 2.696443072925126),
+[92mINFO [0m:      	                      (38, 2.696443072925126),
+[92mINFO [0m:      	                      (39, 2.696443072925126),
+[92mINFO [0m:      	                      (40, 2.696443072925126),
+[92mINFO [0m:      	                      (41, 2.696443072925126),
+[92mINFO [0m:      	                      (42, 2.696443072925126),
+[92mINFO [0m:      	                      (43, 2.696443072925126),
+[92mINFO [0m:      	                      (44, 2.696443072925126),
+[92mINFO [0m:      	                      (45, 2.696443072925126),
+[92mINFO [0m:      	                      (46, 2.696443072925126),
+[92mINFO [0m:      	                      (47, 2.696443072925126),
+[92mINFO [0m:      	                      (48, 2.696443072925126),
+[92mINFO [0m:      	                      (49, 2.696443072925126),
+[92mINFO [0m:      	                      (50, 2.696443072925126)],
+[92mINFO [0m:      	 'mae': [(1, 0.034974503478518465),
+[92mINFO [0m:      	         (2, 0.02916039541422406),
+[92mINFO [0m:      	         (3, 0.023257914895791695),
+[92mINFO [0m:      	         (4, 0.020188731407156445),
+[92mINFO [0m:      	         (5, 0.019305050443338776),
+[92mINFO [0m:      	         (6, 0.01890131122247655),
+[92mINFO [0m:      	         (7, 0.017840000393968186),
+[92mINFO [0m:      	         (8, 0.018243537580454352),
+[92mINFO [0m:      	         (9, 0.01714116124652867),
+[92mINFO [0m:      	         (10, 0.01632284533852021),
+[92mINFO [0m:      	         (11, 0.017214887592377617),
+[92mINFO [0m:      	         (12, 0.016297887034114618),
+[92mINFO [0m:      	         (13, 0.016031640938009576),
+[92mINFO [0m:      	         (14, 0.01611185081525324),
+[92mINFO [0m:      	         (15, 0.015209172078857096),
+[92mINFO [0m:      	         (16, 0.015126102532613922),
+[92mINFO [0m:      	         (17, 0.0157987833288083),
+[92mINFO [0m:      	         (18, 0.0162019898589859),
+[92mINFO [0m:      	         (19, 0.015314452284718632),
+[92mINFO [0m:      	         (20, 0.014363454188622107),
+[92mINFO [0m:      	         (21, 0.014901904523280683),
+[92mINFO [0m:      	         (22, 0.014985142278943174),
+[92mINFO [0m:      	         (23, 0.015118003079294976),
+[92mINFO [0m:      	         (24, 0.015117548086582302),
+[92mINFO [0m:      	         (25, 0.014029143532274925),
+[92mINFO [0m:      	         (26, 0.013977057541884991),
+[92mINFO [0m:      	         (27, 0.013850685162106715),
+[92mINFO [0m:      	         (28, 0.01376298161066823),
+[92mINFO [0m:      	         (29, 0.013535705163082012),
+[92mINFO [0m:      	         (30, 0.013679272159634544),
+[92mINFO [0m:      	         (31, 0.013134697079779519),
+[92mINFO [0m:      	         (32, 0.013341283448604996),
+[92mINFO [0m:      	         (33, 0.013047132931765551),
+[92mINFO [0m:      	         (34, 0.013030085282745733),
+[92mINFO [0m:      	         (35, 0.01330170305059315),
+[92mINFO [0m:      	         (36, 0.013567948630628709),
+[92mINFO [0m:      	         (37, 0.013064518793558211),
+[92mINFO [0m:      	         (38, 0.013071776940592453),
+[92mINFO [0m:      	         (39, 0.01336316040246488),
+[92mINFO [0m:      	         (40, 0.012988896524341223),
+[92mINFO [0m:      	         (41, 0.012740565708643124),
+[92mINFO [0m:      	         (42, 0.013330136767078954),
+[92mINFO [0m:      	         (43, 0.013037604739200048),
+[92mINFO [0m:      	         (44, 0.013453392600463677),
+[92mINFO [0m:      	         (45, 0.013058956845784347),
+[92mINFO [0m:      	         (46, 0.012675245933421349),
+[92mINFO [0m:      	         (47, 0.012631347834860033),
+[92mINFO [0m:      	         (48, 0.013543009352688014),
+[92mINFO [0m:      	         (49, 0.01289857543650358),
+[92mINFO [0m:      	         (50, 0.013447414399411325)],
+[92mINFO [0m:      	 'mse': [(1, 0.0034994569425885586),
+[92mINFO [0m:      	         (2, 0.002551258506040233),
+[92mINFO [0m:      	         (3, 0.0019424741108430162),
+[92mINFO [0m:      	         (4, 0.0017048637619979023),
+[92mINFO [0m:      	         (5, 0.0016458324378069355),
+[92mINFO [0m:      	         (6, 0.0015758624155120418),
+[92mINFO [0m:      	         (7, 0.001495896187724494),
+[92mINFO [0m:      	         (8, 0.001552377121601925),
+[92mINFO [0m:      	         (9, 0.0014576445401746636),
+[92mINFO [0m:      	         (10, 0.001365768568017065),
+[92mINFO [0m:      	         (11, 0.0013981629958265225),
+[92mINFO [0m:      	         (12, 0.0013605950523880824),
+[92mINFO [0m:      	         (13, 0.0013607276251490295),
+[92mINFO [0m:      	         (14, 0.0014281574159755615),
+[92mINFO [0m:      	         (15, 0.0013066107742452271),
+[92mINFO [0m:      	         (16, 0.0012551349627451984),
+[92mINFO [0m:      	         (17, 0.0013585043312367392),
+[92mINFO [0m:      	         (18, 0.0014167122706597304),
+[92mINFO [0m:      	         (19, 0.0012713527087576764),
+[92mINFO [0m:      	         (20, 0.0011680897220235048),
+[92mINFO [0m:      	         (21, 0.0012353386667916819),
+[92mINFO [0m:      	         (22, 0.0012696289633965438),
+[92mINFO [0m:      	         (23, 0.0012750293967500193),
+[92mINFO [0m:      	         (24, 0.0012141737992645662),
+[92mINFO [0m:      	         (25, 0.001147897539928107),
+[92mINFO [0m:      	         (26, 0.0011314306904905505),
+[92mINFO [0m:      	         (27, 0.0011342250817420164),
+[92mINFO [0m:      	         (28, 0.0011264789562569055),
+[92mINFO [0m:      	         (29, 0.0010748507242630753),
+[92mINFO [0m:      	         (30, 0.0010668133801337593),
+[92mINFO [0m:      	         (31, 0.0010416849803580623),
+[92mINFO [0m:      	         (32, 0.001063145316884548),
+[92mINFO [0m:      	         (33, 0.001021977888512291),
+[92mINFO [0m:      	         (34, 0.0010152935657739344),
+[92mINFO [0m:      	         (35, 0.0010679705811077601),
+[92mINFO [0m:      	         (36, 0.0010776957284358854),
+[92mINFO [0m:      	         (37, 0.0010260234886384602),
+[92mINFO [0m:      	         (38, 0.0010355049657621125),
+[92mINFO [0m:      	         (39, 0.0010456415416661064),
+[92mINFO [0m:      	         (40, 0.0010296653741065542),
+[92mINFO [0m:      	         (41, 0.0010245451393272476),
+[92mINFO [0m:      	         (42, 0.001053626509678046),
+[92mINFO [0m:      	         (43, 0.00103513287622575),
+[92mINFO [0m:      	         (44, 0.001052449277557854),
+[92mINFO [0m:      	         (45, 0.0010302403134846),
+[92mINFO [0m:      	         (46, 0.0010134833376266512),
+[92mINFO [0m:      	         (47, 0.0010208623890429454),
+[92mINFO [0m:      	         (48, 0.0010436998072806715),
+[92mINFO [0m:      	         (49, 0.0010122460793512901),
+[92mINFO [0m:      	         (50, 0.0010385483464795762)],
+[92mINFO [0m:      	 'nrmse': [(1, 0.1176766810633079),
+[92mINFO [0m:      	           (2, 0.09969557896723602),
+[92mINFO [0m:      	           (3, 0.08638803395726961),
+[92mINFO [0m:      	           (4, 0.0786888293939015),
+[92mINFO [0m:      	           (5, 0.0757048721254492),
+[92mINFO [0m:      	           (6, 0.07855709813066408),
+[92mINFO [0m:      	           (7, 0.07299031668929662),
+[92mINFO [0m:      	           (8, 0.07346357231355939),
+[92mINFO [0m:      	           (9, 0.07187697149704038),
+[92mINFO [0m:      	           (10, 0.06939302110562862),
+[92mINFO [0m:      	           (11, 0.07122981805354377),
+[92mINFO [0m:      	           (12, 0.06968530763336404),
+[92mINFO [0m:      	           (13, 0.06915150761763794),
+[92mINFO [0m:      	           (14, 0.07144903746155526),
+[92mINFO [0m:      	           (15, 0.06810328493550642),
+[92mINFO [0m:      	           (16, 0.06746938947188966),
+[92mINFO [0m:      	           (17, 0.06886175061520614),
+[92mINFO [0m:      	           (18, 0.07071320057982897),
+[92mINFO [0m:      	           (19, 0.0672405356208025),
+[92mINFO [0m:      	           (20, 0.06555805485544254),
+[92mINFO [0m:      	           (21, 0.06740024492935545),
+[92mINFO [0m:      	           (22, 0.06780615455029677),
+[92mINFO [0m:      	           (23, 0.06719959347603481),
+[92mINFO [0m:      	           (24, 0.06710385273721255),
+[92mINFO [0m:      	           (25, 0.0651665293631307),
+[92mINFO [0m:      	           (26, 0.06471669386022494),
+[92mINFO [0m:      	           (27, 0.06471731821336867),
+[92mINFO [0m:      	           (28, 0.0641539516710513),
+[92mINFO [0m:      	           (29, 0.06345114043260192),
+[92mINFO [0m:      	           (30, 0.06369965662160304),
+[92mINFO [0m:      	           (31, 0.062127877410669566),
+[92mINFO [0m:      	           (32, 0.06256443032673065),
+[92mINFO [0m:      	           (33, 0.06193359439122581),
+[92mINFO [0m:      	           (34, 0.061948071390060776),
+[92mINFO [0m:      	           (35, 0.0630673181877042),
+[92mINFO [0m:      	           (36, 0.06309006371063505),
+[92mINFO [0m:      	           (37, 0.06191340206721872),
+[92mINFO [0m:      	           (38, 0.061915176798732915),
+[92mINFO [0m:      	           (39, 0.06285669873226339),
+[92mINFO [0m:      	           (40, 0.06177889253309295),
+[92mINFO [0m:      	           (41, 0.06227794288368825),
+[92mINFO [0m:      	           (42, 0.06295147952967678),
+[92mINFO [0m:      	           (43, 0.06240308917727569),
+[92mINFO [0m:      	           (44, 0.06281575238614162),
+[92mINFO [0m:      	           (45, 0.062210872438387174),
+[92mINFO [0m:      	           (46, 0.061494972189289836),
+[92mINFO [0m:      	           (47, 0.06215716731815411),
+[92mINFO [0m:      	           (48, 0.06245771544405579),
+[92mINFO [0m:      	           (49, 0.061208041819324606),
+[92mINFO [0m:      	           (50, 0.06245065849248842)],
+[92mINFO [0m:      	 'r2': [(1, 0.7830444263472705),
+[92mINFO [0m:      	        (2, 0.8479066710700401),
+[92mINFO [0m:      	        (3, 0.8966962139811925),
+[92mINFO [0m:      	        (4, 0.9099372736432186),
+[92mINFO [0m:      	        (5, 0.9144776413587452),
+[92mINFO [0m:      	        (6, 0.9163700202699253),
+[92mINFO [0m:      	        (7, 0.9200503220667713),
+[92mINFO [0m:      	        (8, 0.9184779192652719),
+[92mINFO [0m:      	        (9, 0.9226436141041056),
+[92mINFO [0m:      	        (10, 0.9252514224678745),
+[92mINFO [0m:      	        (11, 0.9236917969183231),
+[92mINFO [0m:      	        (12, 0.9263317875727451),
+[92mINFO [0m:      	        (13, 0.9273366112559047),
+[92mINFO [0m:      	        (14, 0.9242518315434761),
+[92mINFO [0m:      	        (15, 0.9291159708076512),
+[92mINFO [0m:      	        (16, 0.9313904642765275),
+[92mINFO [0m:      	        (17, 0.9287976632056174),
+[92mINFO [0m:      	        (18, 0.92560943512088),
+[92mINFO [0m:      	        (19, 0.9305782371872635),
+[92mINFO [0m:      	        (20, 0.934731254641908),
+[92mINFO [0m:      	        (21, 0.9341461193451022),
+[92mINFO [0m:      	        (22, 0.9324682396045191),
+[92mINFO [0m:      	        (23, 0.9323278021935385),
+[92mINFO [0m:      	        (24, 0.9341869410004234),
+[92mINFO [0m:      	        (25, 0.9366302280688483),
+[92mINFO [0m:      	        (26, 0.9371436634253268),
+[92mINFO [0m:      	        (27, 0.9375534182504952),
+[92mINFO [0m:      	        (28, 0.9379682123346608),
+[92mINFO [0m:      	        (29, 0.9389735251222453),
+[92mINFO [0m:      	        (30, 0.9387477818455799),
+[92mINFO [0m:      	        (31, 0.9400806805202023),
+[92mINFO [0m:      	        (32, 0.9401211438239065),
+[92mINFO [0m:      	        (33, 0.9411503532210168),
+[92mINFO [0m:      	        (34, 0.9411239419634676),
+[92mINFO [0m:      	        (35, 0.939221560738365),
+[92mINFO [0m:      	        (36, 0.9394927524372996),
+[92mINFO [0m:      	        (37, 0.9406844119516531),
+[92mINFO [0m:      	        (38, 0.940179466502387),
+[92mINFO [0m:      	        (39, 0.9397274527228308),
+[92mINFO [0m:      	        (40, 0.9401212224818016),
+[92mINFO [0m:      	        (41, 0.940163790218723),
+[92mINFO [0m:      	        (42, 0.9400694792185865),
+[92mINFO [0m:      	        (43, 0.940752760866296),
+[92mINFO [0m:      	        (44, 0.9395031306309902),
+[92mINFO [0m:      	        (45, 0.9409986029131309),
+[92mINFO [0m:      	        (46, 0.9412039701498609),
+[92mINFO [0m:      	        (47, 0.9404799247284479),
+[92mINFO [0m:      	        (48, 0.9395002736213537),
+[92mINFO [0m:      	        (49, 0.9407777541827071),
+[92mINFO [0m:      	        (50, 0.939775969734988)],
+[92mINFO [0m:      	 'rmse': [(1, 0.05576479108573778),
+[92mINFO [0m:      	          (2, 0.04647322205508783),
+[92mINFO [0m:      	          (3, 0.03622778398788226),
+[92mINFO [0m:      	          (4, 0.032476456280707305),
+[92mINFO [0m:      	          (5, 0.031288604770887116),
+[92mINFO [0m:      	          (6, 0.031230088614999294),
+[92mINFO [0m:      	          (7, 0.02966984081560035),
+[92mINFO [0m:      	          (8, 0.029938682717367042),
+[92mINFO [0m:      	          (9, 0.02884299596652603),
+[92mINFO [0m:      	          (10, 0.02789570274065136),
+[92mINFO [0m:      	          (11, 0.02915339713810306),
+[92mINFO [0m:      	          (12, 0.0280781502168108),
+[92mINFO [0m:      	          (13, 0.02784670121679031),
+[92mINFO [0m:      	          (14, 0.028130886454728662),
+[92mINFO [0m:      	          (15, 0.027333069135064073),
+[92mINFO [0m:      	          (16, 0.026905564462231326),
+[92mINFO [0m:      	          (17, 0.02764177976106115),
+[92mINFO [0m:      	          (18, 0.02844100880665541),
+[92mINFO [0m:      	          (19, 0.0273549348054774),
+[92mINFO [0m:      	          (20, 0.026080371433692868),
+[92mINFO [0m:      	          (21, 0.02674052509955295),
+[92mINFO [0m:      	          (22, 0.02677927264198495),
+[92mINFO [0m:      	          (23, 0.026929331962190793),
+[92mINFO [0m:      	          (24, 0.0264932298353604),
+[92mINFO [0m:      	          (25, 0.025947005469823745),
+[92mINFO [0m:      	          (26, 0.025769509488369726),
+[92mINFO [0m:      	          (27, 0.025503765379546215),
+[92mINFO [0m:      	          (28, 0.025543008609857844),
+[92mINFO [0m:      	          (29, 0.025191219291427393),
+[92mINFO [0m:      	          (30, 0.02535022517041507),
+[92mINFO [0m:      	          (31, 0.02469365760788348),
+[92mINFO [0m:      	          (32, 0.024913623507329903),
+[92mINFO [0m:      	          (33, 0.024579225684776954),
+[92mINFO [0m:      	          (34, 0.024637961198452456),
+[92mINFO [0m:      	          (35, 0.0250039636872228),
+[92mINFO [0m:      	          (36, 0.025192528906905345),
+[92mINFO [0m:      	          (37, 0.02451985620286673),
+[92mINFO [0m:      	          (38, 0.024476252737954406),
+[92mINFO [0m:      	          (39, 0.024873186613181702),
+[92mINFO [0m:      	          (40, 0.02455751383671161),
+[92mINFO [0m:      	          (41, 0.024708934609787844),
+[92mINFO [0m:      	          (42, 0.024988640266375303),
+[92mINFO [0m:      	          (43, 0.024631499464170578),
+[92mINFO [0m:      	          (44, 0.02493947010830726),
+[92mINFO [0m:      	          (45, 0.024490826305175916),
+[92mINFO [0m:      	          (46, 0.024386260667363716),
+[92mINFO [0m:      	          (47, 0.024496100084876994),
+[92mINFO [0m:      	          (48, 0.025017377307211066),
+[92mINFO [0m:      	          (49, 0.024405181052682613),
+[92mINFO [0m:      	          (50, 0.024861134812720852)],
+[92mINFO [0m:      	 'spa_hfl': [(1, 0.0),
+[92mINFO [0m:      	             (2, 0.0),
+[92mINFO [0m:      	             (3, 0.0),
+[92mINFO [0m:      	             (4, 0.0),
+[92mINFO [0m:      	             (5, 0.0),
+[92mINFO [0m:      	             (6, 0.0),
+[92mINFO [0m:      	             (7, 0.0),
+[92mINFO [0m:      	             (8, 0.0),
+[92mINFO [0m:      	             (9, 0.0),
+[92mINFO [0m:      	             (10, 0.0),
+[92mINFO [0m:      	             (11, 0.0),
+[92mINFO [0m:      	             (12, 0.0),
+[92mINFO [0m:      	             (13, 0.0),
+[92mINFO [0m:      	             (14, 0.0),
+[92mINFO [0m:      	             (15, 0.0),
+[92mINFO [0m:      	             (16, 0.0),
+[92mINFO [0m:      	             (17, 0.0),
+[92mINFO [0m:      	             (18, 0.0),
+[92mINFO [0m:      	             (19, 0.0),
+[92mINFO [0m:      	             (20, 0.0),
+[92mINFO [0m:      	             (21, 0.0),
+[92mINFO [0m:      	             (22, 0.0),
+[92mINFO [0m:      	             (23, 0.0),
+[92mINFO [0m:      	             (24, 0.0),
+[92mINFO [0m:      	             (25, 0.0),
+[92mINFO [0m:      	             (26, 0.0),
+[92mINFO [0m:      	             (27, 0.0),
+[92mINFO [0m:      	             (28, 0.0),
+[92mINFO [0m:      	             (29, 0.0),
+[92mINFO [0m:      	             (30, 0.0),
+[92mINFO [0m:      	             (31, 0.0),
+[92mINFO [0m:      	             (32, 0.0),
+[92mINFO [0m:      	             (33, 0.0),
+[92mINFO [0m:      	             (34, 0.0),
+[92mINFO [0m:      	             (35, 0.0),
+[92mINFO [0m:      	             (36, 0.0),
+[92mINFO [0m:      	             (37, 0.0),
+[92mINFO [0m:      	             (38, 0.0),
+[92mINFO [0m:      	             (39, 0.0),
+[92mINFO [0m:      	             (40, 0.0),
+[92mINFO [0m:      	             (41, 0.0),
+[92mINFO [0m:      	             (42, 0.0),
+[92mINFO [0m:      	             (43, 0.0),
+[92mINFO [0m:      	             (44, 0.0),
+[92mINFO [0m:      	             (45, 0.0),
+[92mINFO [0m:      	             (46, 0.0),
+[92mINFO [0m:      	             (47, 0.0),
+[92mINFO [0m:      	             (48, 0.0),
+[92mINFO [0m:      	             (49, 0.0),
+[92mINFO [0m:      	             (50, 0.0)],
+[92mINFO [0m:      	 'spc': [(1, 1.0),
+[92mINFO [0m:      	         (2, 1.0),
+[92mINFO [0m:      	         (3, 1.0),
+[92mINFO [0m:      	         (4, 1.0),
+[92mINFO [0m:      	         (5, 1.0),
+[92mINFO [0m:      	         (6, 1.0),
+[92mINFO [0m:      	         (7, 1.0),
+[92mINFO [0m:      	         (8, 1.0),
+[92mINFO [0m:      	         (9, 1.0),
+[92mINFO [0m:      	         (10, 1.0),
+[92mINFO [0m:      	         (11, 1.0),
+[92mINFO [0m:      	         (12, 1.0),
+[92mINFO [0m:      	         (13, 1.0),
+[92mINFO [0m:      	         (14, 1.0),
+[92mINFO [0m:      	         (15, 1.0),
+[92mINFO [0m:      	         (16, 1.0),
+[92mINFO [0m:      	         (17, 1.0),
+[92mINFO [0m:      	         (18, 1.0),
+[92mINFO [0m:      	         (19, 1.0),
+[92mINFO [0m:      	         (20, 1.0),
+[92mINFO [0m:      	         (21, 1.0),
+[92mINFO [0m:      	         (22, 1.0),
+[92mINFO [0m:      	         (23, 1.0),
+[92mINFO [0m:      	         (24, 1.0),
+[92mINFO [0m:      	         (25, 1.0),
+[92mINFO [0m:      	         (26, 1.0),
+[92mINFO [0m:      	         (27, 1.0),
+[92mINFO [0m:      	         (28, 1.0),
+[92mINFO [0m:      	         (29, 1.0),
+[92mINFO [0m:      	         (30, 1.0),
+[92mINFO [0m:      	         (31, 1.0),
+[92mINFO [0m:      	         (32, 1.0),
+[92mINFO [0m:      	         (33, 1.0),
+[92mINFO [0m:      	         (34, 1.0),
+[92mINFO [0m:      	         (35, 1.0),
+[92mINFO [0m:      	         (36, 1.0),
+[92mINFO [0m:      	         (37, 1.0),
+[92mINFO [0m:      	         (38, 1.0),
+[92mINFO [0m:      	         (39, 1.0),
+[92mINFO [0m:      	         (40, 1.0),
+[92mINFO [0m:      	         (41, 1.0),
+[92mINFO [0m:      	         (42, 1.0),
+[92mINFO [0m:      	         (43, 1.0),
+[92mINFO [0m:      	         (44, 1.0),
+[92mINFO [0m:      	         (45, 1.0),
+[92mINFO [0m:      	         (46, 1.0),
+[92mINFO [0m:      	         (47, 1.0),
+[92mINFO [0m:      	         (48, 1.0),
+[92mINFO [0m:      	         (49, 1.0),
+[92mINFO [0m:      	         (50, 1.0)]}
+[92mINFO [0m:      	History (metrics, distributed, evaluate):
+[92mINFO [0m:      	{'local_num_layers': [(1, 2.71419053964024),
+[92mINFO [0m:      	                      (2, 2.71419053964024),
+[92mINFO [0m:      	                      (3, 2.71419053964024),
+[92mINFO [0m:      	                      (4, 2.71419053964024),
+[92mINFO [0m:      	                      (5, 2.71419053964024),
+[92mINFO [0m:      	                      (6, 2.71419053964024),
+[92mINFO [0m:      	                      (7, 2.71419053964024),
+[92mINFO [0m:      	                      (8, 2.71419053964024),
+[92mINFO [0m:      	                      (9, 2.71419053964024),
+[92mINFO [0m:      	                      (10, 2.71419053964024),
+[92mINFO [0m:      	                      (11, 2.71419053964024),
+[92mINFO [0m:      	                      (12, 2.71419053964024),
+[92mINFO [0m:      	                      (13, 2.71419053964024),
+[92mINFO [0m:      	                      (14, 2.71419053964024),
+[92mINFO [0m:      	                      (15, 2.71419053964024),
+[92mINFO [0m:      	                      (16, 2.71419053964024),
+[92mINFO [0m:      	                      (17, 2.71419053964024),
+[92mINFO [0m:      	                      (18, 2.71419053964024),
+[92mINFO [0m:      	                      (19, 2.71419053964024),
+[92mINFO [0m:      	                      (20, 2.71419053964024),
+[92mINFO [0m:      	                      (21, 2.71419053964024),
+[92mINFO [0m:      	                      (22, 2.71419053964024),
+[92mINFO [0m:      	                      (23, 2.71419053964024),
+[92mINFO [0m:      	                      (24, 2.71419053964024),
+[92mINFO [0m:      	                      (25, 2.71419053964024),
+[92mINFO [0m:      	                      (26, 2.71419053964024),
+[92mINFO [0m:      	                      (27, 2.71419053964024),
+[92mINFO [0m:      	                      (28, 2.71419053964024),
+[92mINFO [0m:      	                      (29, 2.71419053964024),
+[92mINFO [0m:      	                      (30, 2.71419053964024),
+[92mINFO [0m:      	                      (31, 2.71419053964024),
+[92mINFO [0m:      	                      (32, 2.71419053964024),
+[92mINFO [0m:      	                      (33, 2.71419053964024),
+[92mINFO [0m:      	                      (34, 2.71419053964024),
+[92mINFO [0m:      	                      (35, 2.71419053964024),
+[92mINFO [0m:      	                      (36, 2.71419053964024),
+[92mINFO [0m:      	                      (37, 2.71419053964024),
+[92mINFO [0m:      	                      (38, 2.71419053964024),
+[92mINFO [0m:      	                      (39, 2.71419053964024),
+[92mINFO [0m:      	                      (40, 2.71419053964024),
+[92mINFO [0m:      	                      (41, 2.71419053964024),
+[92mINFO [0m:      	                      (42, 2.71419053964024),
+[92mINFO [0m:      	                      (43, 2.71419053964024),
+[92mINFO [0m:      	                      (44, 2.71419053964024),
+[92mINFO [0m:      	                      (45, 2.71419053964024),
+[92mINFO [0m:      	                      (46, 2.71419053964024),
+[92mINFO [0m:      	                      (47, 2.71419053964024),
+[92mINFO [0m:      	                      (48, 2.71419053964024),
+[92mINFO [0m:      	                      (49, 2.71419053964024),
+[92mINFO [0m:      	                      (50, 2.71419053964024)],
+[92mINFO [0m:      	 'mae': [(1, 0.1882216784281583),
+[92mINFO [0m:      	         (2, 0.11842648914303484),
+[92mINFO [0m:      	         (3, 0.1146615598782609),
+[92mINFO [0m:      	         (4, 0.11143904710020981),
+[92mINFO [0m:      	         (5, 0.10575238373602115),
+[92mINFO [0m:      	         (6, 0.09989515664074558),
+[92mINFO [0m:      	         (7, 0.09770772523488068),
+[92mINFO [0m:      	         (8, 0.09367431674976594),
+[92mINFO [0m:      	         (9, 0.09172687054841937),
+[92mINFO [0m:      	         (10, 0.08982677738629605),
+[92mINFO [0m:      	         (11, 0.09211271138381533),
+[92mINFO [0m:      	         (12, 0.09226018258945633),
+[92mINFO [0m:      	         (13, 0.09104534565067188),
+[92mINFO [0m:      	         (14, 0.08789190171233104),
+[92mINFO [0m:      	         (15, 0.08602829425186813),
+[92mINFO [0m:      	         (16, 0.08277517815258882),
+[92mINFO [0m:      	         (17, 0.08451216782242814),
+[92mINFO [0m:      	         (18, 0.08096658354680948),
+[92mINFO [0m:      	         (19, 0.08042040275165353),
+[92mINFO [0m:      	         (20, 0.07813224538436021),
+[92mINFO [0m:      	         (21, 0.08097052780339255),
+[92mINFO [0m:      	         (22, 0.07740054080891935),
+[92mINFO [0m:      	         (23, 0.07827962900969206),
+[92mINFO [0m:      	         (24, 0.07777118164894582),
+[92mINFO [0m:      	         (25, 0.07630427836066361),
+[92mINFO [0m:      	         (26, 0.07404405135614207),
+[92mINFO [0m:      	         (27, 0.07306156166364439),
+[92mINFO [0m:      	         (28, 0.0734075254839482),
+[92mINFO [0m:      	         (29, 0.07369897666658405),
+[92mINFO [0m:      	         (30, 0.07254947774263619),
+[92mINFO [0m:      	         (31, 0.06968328527557718),
+[92mINFO [0m:      	         (32, 0.06940786837464288),
+[92mINFO [0m:      	         (33, 0.06991474568064533),
+[92mINFO [0m:      	         (34, 0.06770956436039348),
+[92mINFO [0m:      	         (35, 0.06723135388546253),
+[92mINFO [0m:      	         (36, 0.06739270758767334),
+[92mINFO [0m:      	         (37, 0.06661344294142794),
+[92mINFO [0m:      	         (38, 0.06611358034837095),
+[92mINFO [0m:      	         (39, 0.06856933635641523),
+[92mINFO [0m:      	         (40, 0.06835211216931857),
+[92mINFO [0m:      	         (41, 0.06599487437383283),
+[92mINFO [0m:      	         (42, 0.06507311702372728),
+[92mINFO [0m:      	         (43, 0.06439095314252107),
+[92mINFO [0m:      	         (44, 0.06250014059341139),
+[92mINFO [0m:      	         (45, 0.06382400090796879),
+[92mINFO [0m:      	         (46, 0.06343230210693875),
+[92mINFO [0m:      	         (47, 0.06596916432440936),
+[92mINFO [0m:      	         (48, 0.06389513607419219),
+[92mINFO [0m:      	         (49, 0.06429623837783179),
+[92mINFO [0m:      	         (50, 0.06447428466626837)],
+[92mINFO [0m:      	 'mse': [(1, 0.08204062279037073),
+[92mINFO [0m:      	         (2, 0.05530551551911933),
+[92mINFO [0m:      	         (3, 0.045294604318335575),
+[92mINFO [0m:      	         (4, 0.0398858754953331),
+[92mINFO [0m:      	         (5, 0.037162071569428114),
+[92mINFO [0m:      	         (6, 0.034082861021519396),
+[92mINFO [0m:      	         (7, 0.03160620989346365),
+[92mINFO [0m:      	         (8, 0.030366631456573857),
+[92mINFO [0m:      	         (9, 0.02995075853166886),
+[92mINFO [0m:      	         (10, 0.029052748183749595),
+[92mINFO [0m:      	         (11, 0.029870660787806296),
+[92mINFO [0m:      	         (12, 0.02884111241823736),
+[92mINFO [0m:      	         (13, 0.028058415067367885),
+[92mINFO [0m:      	         (14, 0.026958356019581665),
+[92mINFO [0m:      	         (15, 0.02585573139107804),
+[92mINFO [0m:      	         (16, 0.02533587575842813),
+[92mINFO [0m:      	         (17, 0.02488451498548353),
+[92mINFO [0m:      	         (18, 0.023748506709289855),
+[92mINFO [0m:      	         (19, 0.023497003457058522),
+[92mINFO [0m:      	         (20, 0.02259328424985484),
+[92mINFO [0m:      	         (21, 0.02304762211035091),
+[92mINFO [0m:      	         (22, 0.022163051942999827),
+[92mINFO [0m:      	         (23, 0.022208305087825005),
+[92mINFO [0m:      	         (24, 0.02200433766672718),
+[92mINFO [0m:      	         (25, 0.021781326208499725),
+[92mINFO [0m:      	         (26, 0.021141784441035965),
+[92mINFO [0m:      	         (27, 0.02106119570779775),
+[92mINFO [0m:      	         (28, 0.020484415894592347),
+[92mINFO [0m:      	         (29, 0.020479259270931756),
+[92mINFO [0m:      	         (30, 0.020459552000803058),
+[92mINFO [0m:      	         (31, 0.020053027726861548),
+[92mINFO [0m:      	         (32, 0.01924096955227505),
+[92mINFO [0m:      	         (33, 0.019150338246258128),
+[92mINFO [0m:      	         (34, 0.018720072059364566),
+[92mINFO [0m:      	         (35, 0.018806969974600903),
+[92mINFO [0m:      	         (36, 0.018766892576553108),
+[92mINFO [0m:      	         (37, 0.018788520750079488),
+[92mINFO [0m:      	         (38, 0.018139775797289155),
+[92mINFO [0m:      	         (39, 0.01926861398683974),
+[92mINFO [0m:      	         (40, 0.01825855150536124),
+[92mINFO [0m:      	         (41, 0.017820016672338533),
+[92mINFO [0m:      	         (42, 0.017178808673023422),
+[92mINFO [0m:      	         (43, 0.01776514725164674),
+[92mINFO [0m:      	         (44, 0.01663136856353871),
+[92mINFO [0m:      	         (45, 0.017391731977685516),
+[92mINFO [0m:      	         (46, 0.01692696068869304),
+[92mINFO [0m:      	         (47, 0.01739229771638147),
+[92mINFO [0m:      	         (48, 0.01730137962895569),
+[92mINFO [0m:      	         (49, 0.017084337246953588),
+[92mINFO [0m:      	         (50, 0.016905691700158106)],
+[92mINFO [0m:      	 'nrmse': [(1, 0.3441394151724931),
+[92mINFO [0m:      	           (2, 0.280873264724364),
+[92mINFO [0m:      	           (3, 0.2672832698499199),
+[92mINFO [0m:      	           (4, 0.2628261188035982),
+[92mINFO [0m:      	           (5, 0.24163120644709127),
+[92mINFO [0m:      	           (6, 0.22822530945399525),
+[92mINFO [0m:      	           (7, 0.22587681061740172),
+[92mINFO [0m:      	           (8, 0.2222896462165647),
+[92mINFO [0m:      	           (9, 0.22135354291561524),
+[92mINFO [0m:      	           (10, 0.21968547395042287),
+[92mINFO [0m:      	           (11, 0.23258918898809075),
+[92mINFO [0m:      	           (12, 0.22777865160573085),
+[92mINFO [0m:      	           (13, 0.23421049821353587),
+[92mINFO [0m:      	           (14, 0.22102190956228887),
+[92mINFO [0m:      	           (15, 0.21882132014867822),
+[92mINFO [0m:      	           (16, 0.21586752023112277),
+[92mINFO [0m:      	           (17, 0.2191710333979058),
+[92mINFO [0m:      	           (18, 0.21528592554933115),
+[92mINFO [0m:      	           (19, 0.21726083582176325),
+[92mINFO [0m:      	           (20, 0.21517901473401005),
+[92mINFO [0m:      	           (21, 0.21740725768917468),
+[92mINFO [0m:      	           (22, 0.2137962968574462),
+[92mINFO [0m:      	           (23, 0.21130738406462518),
+[92mINFO [0m:      	           (24, 0.2105211875231502),
+[92mINFO [0m:      	           (25, 0.20714906423656979),
+[92mINFO [0m:      	           (26, 0.2083872622472022),
+[92mINFO [0m:      	           (27, 0.20727233507331613),
+[92mINFO [0m:      	           (28, 0.208754714906447),
+[92mINFO [0m:      	           (29, 0.2120637794773878),
+[92mINFO [0m:      	           (30, 0.2135232982126807),
+[92mINFO [0m:      	           (31, 0.20643340256036372),
+[92mINFO [0m:      	           (32, 0.20360996843715035),
+[92mINFO [0m:      	           (33, 0.20979754306026366),
+[92mINFO [0m:      	           (34, 0.20728981830680165),
+[92mINFO [0m:      	           (35, 0.20982358246198113),
+[92mINFO [0m:      	           (36, 0.20847434929163175),
+[92mINFO [0m:      	           (37, 0.207292371218452),
+[92mINFO [0m:      	           (38, 0.20344841191480045),
+[92mINFO [0m:      	           (39, 0.20496458384044386),
+[92mINFO [0m:      	           (40, 0.20410575291015776),
+[92mINFO [0m:      	           (41, 0.2006116304046465),
+[92mINFO [0m:      	           (42, 0.19962027173819655),
+[92mINFO [0m:      	           (43, 0.19742028449599347),
+[92mINFO [0m:      	           (44, 0.1938249162634443),
+[92mINFO [0m:      	           (45, 0.20303438806309043),
+[92mINFO [0m:      	           (46, 0.2033125183358901),
+[92mINFO [0m:      	           (47, 0.2078166858408721),
+[92mINFO [0m:      	           (48, 0.1998835911500259),
+[92mINFO [0m:      	           (49, 0.20155161404556002),
+[92mINFO [0m:      	           (50, 0.19697643850333782)],
+[92mINFO [0m:      	 'r2': [(1, -3.383160764369749),
+[92mINFO [0m:      	        (2, -1.697444069132812),
+[92mINFO [0m:      	        (3, -1.3688011979908234),
+[92mINFO [0m:      	        (4, -1.2116908453063664),
+[92mINFO [0m:      	        (5, -1.0608049364826486),
+[92mINFO [0m:      	        (6, -0.9016746183314321),
+[92mINFO [0m:      	        (7, -0.8058181010585656),
+[92mINFO [0m:      	        (8, -0.7233144798528094),
+[92mINFO [0m:      	        (9, -0.6950118645244573),
+[92mINFO [0m:      	        (10, -0.6493406730885684),
+[92mINFO [0m:      	        (11, -0.6878692242502605),
+[92mINFO [0m:      	        (12, -0.6604607343986415),
+[92mINFO [0m:      	        (13, -0.626068085105832),
+[92mINFO [0m:      	        (14, -0.569278460882081),
+[92mINFO [0m:      	        (15, -0.5126874696139945),
+[92mINFO [0m:      	        (16, -0.47122337627368865),
+[92mINFO [0m:      	        (17, -0.471141346855032),
+[92mINFO [0m:      	        (18, -0.40740261064487665),
+[92mINFO [0m:      	        (19, -0.38816949187519906),
+[92mINFO [0m:      	        (20, -0.3368423636442285),
+[92mINFO [0m:      	        (21, -0.3707899185307056),
+[92mINFO [0m:      	        (22, -0.3110904993930278),
+[92mINFO [0m:      	        (23, -0.312986292404144),
+[92mINFO [0m:      	        (24, -0.30526845359744265),
+[92mINFO [0m:      	        (25, -0.29441132910514695),
+[92mINFO [0m:      	        (26, -0.2659974922130976),
+[92mINFO [0m:      	        (27, -0.24361070748695068),
+[92mINFO [0m:      	        (28, -0.22828906721072095),
+[92mINFO [0m:      	        (29, -0.22652506782307275),
+[92mINFO [0m:      	        (30, -0.21894285160300875),
+[92mINFO [0m:      	        (31, -0.18973614604123507),
+[92mINFO [0m:      	        (32, -0.14595738013661058),
+[92mINFO [0m:      	        (33, -0.14961675002036165),
+[92mINFO [0m:      	        (34, -0.1141482344818366),
+[92mINFO [0m:      	        (35, -0.11633278677361901),
+[92mINFO [0m:      	        (36, -0.11842659943583006),
+[92mINFO [0m:      	        (37, -0.11029872961105022),
+[92mINFO [0m:      	        (38, -0.07880512075814226),
+[92mINFO [0m:      	        (39, -0.13331068168627305),
+[92mINFO [0m:      	        (40, -0.08194102547064179),
+[92mINFO [0m:      	        (41, -0.055010317327190895),
+[92mINFO [0m:      	        (42, -0.021456860288569555),
+[92mINFO [0m:      	        (43, -0.04811891159687764),
+[92mINFO [0m:      	        (44, 0.014079489529413984),
+[92mINFO [0m:      	        (45, -0.029269837876687667),
+[92mINFO [0m:      	        (46, -0.0060211693663786365),
+[92mINFO [0m:      	        (47, -0.03396981842997348),
+[92mINFO [0m:      	        (48, -0.020421900830081764),
+[92mINFO [0m:      	        (49, -0.0178725214447851),
+[92mINFO [0m:      	        (50, 0.005997926832113872)],
+[92mINFO [0m:      	 'rmse': [(1, 0.2024406744232614),
+[92mINFO [0m:      	          (2, 0.13853783555418608),
+[92mINFO [0m:      	          (3, 0.1328872528187361),
+[92mINFO [0m:      	          (4, 0.12879279335839552),
+[92mINFO [0m:      	          (5, 0.12201590250664078),
+[92mINFO [0m:      	          (6, 0.11437489923751169),
+[92mINFO [0m:      	          (7, 0.11217928020142459),
+[92mINFO [0m:      	          (8, 0.10819821853940899),
+[92mINFO [0m:      	          (9, 0.10536524212384933),
+[92mINFO [0m:      	          (10, 0.10297286053393061),
+[92mINFO [0m:      	          (11, 0.10559387633908048),
+[92mINFO [0m:      	          (12, 0.10398546227539585),
+[92mINFO [0m:      	          (13, 0.10191028173002528),
+[92mINFO [0m:      	          (14, 0.09898693423796731),
+[92mINFO [0m:      	          (15, 0.09650066162115836),
+[92mINFO [0m:      	          (16, 0.09274668436612836),
+[92mINFO [0m:      	          (17, 0.09480672410933527),
+[92mINFO [0m:      	          (18, 0.09091525823533018),
+[92mINFO [0m:      	          (19, 0.09059555244412629),
+[92mINFO [0m:      	          (20, 0.08831473312250014),
+[92mINFO [0m:      	          (21, 0.09071057229532796),
+[92mINFO [0m:      	          (22, 0.08696399495753793),
+[92mINFO [0m:      	          (23, 0.0876119675736117),
+[92mINFO [0m:      	          (24, 0.08696920279256225),
+[92mINFO [0m:      	          (25, 0.08555346441871502),
+[92mINFO [0m:      	          (26, 0.08321705124576802),
+[92mINFO [0m:      	          (27, 0.08210979150728563),
+[92mINFO [0m:      	          (28, 0.08254648678626747),
+[92mINFO [0m:      	          (29, 0.08285694928650587),
+[92mINFO [0m:      	          (30, 0.08174322676323678),
+[92mINFO [0m:      	          (31, 0.07910533039347321),
+[92mINFO [0m:      	          (32, 0.07846446866647651),
+[92mINFO [0m:      	          (33, 0.07891344423444147),
+[92mINFO [0m:      	          (34, 0.07663554606149957),
+[92mINFO [0m:      	          (35, 0.07618041820936777),
+[92mINFO [0m:      	          (36, 0.0764246793788086),
+[92mINFO [0m:      	          (37, 0.07574328836875908),
+[92mINFO [0m:      	          (38, 0.0754166894251314),
+[92mINFO [0m:      	          (39, 0.07998357969253889),
+[92mINFO [0m:      	          (40, 0.07714843753755771),
+[92mINFO [0m:      	          (41, 0.07486187034527815),
+[92mINFO [0m:      	          (42, 0.07408059524061966),
+[92mINFO [0m:      	          (43, 0.07319266950557009),
+[92mINFO [0m:      	          (44, 0.07160582536191844),
+[92mINFO [0m:      	          (45, 0.07271311339702986),
+[92mINFO [0m:      	          (46, 0.07256243588789661),
+[92mINFO [0m:      	          (47, 0.07494591342221928),
+[92mINFO [0m:      	          (48, 0.07602792646444542),
+[92mINFO [0m:      	          (49, 0.07839665364868091),
+[92mINFO [0m:      	          (50, 0.07451532292101597)],
+[92mINFO [0m:      	 'spa_hfl': [(1, 0.0),
+[92mINFO [0m:      	             (2, 0.0),
+[92mINFO [0m:      	             (3, 0.0),
+[92mINFO [0m:      	             (4, 0.0),
+[92mINFO [0m:      	             (5, 0.0),
+[92mINFO [0m:      	             (6, 0.0),
+[92mINFO [0m:      	             (7, 0.0),
+[92mINFO [0m:      	             (8, 0.0),
+[92mINFO [0m:      	             (9, 0.0),
+[92mINFO [0m:      	             (10, 0.0),
+[92mINFO [0m:      	             (11, 0.0),
+[92mINFO [0m:      	             (12, 0.0),
+[92mINFO [0m:      	             (13, 0.0),
+[92mINFO [0m:      	             (14, 0.0),
+[92mINFO [0m:      	             (15, 0.0),
+[92mINFO [0m:      	             (16, 0.0),
+[92mINFO [0m:      	             (17, 0.0),
+[92mINFO [0m:      	             (18, 0.0),
+[92mINFO [0m:      	             (19, 0.0),
+[92mINFO [0m:      	             (20, 0.0),
+[92mINFO [0m:      	             (21, 0.0),
+[92mINFO [0m:      	             (22, 0.0),
+[92mINFO [0m:      	             (23, 0.0),
+[92mINFO [0m:      	             (24, 0.0),
+[92mINFO [0m:      	             (25, 0.0),
+[92mINFO [0m:      	             (26, 0.0),
+[92mINFO [0m:      	             (27, 0.0),
+[92mINFO [0m:      	             (28, 0.0),
+[92mINFO [0m:      	             (29, 0.0),
+[92mINFO [0m:      	             (30, 0.0),
+[92mINFO [0m:      	             (31, 0.0),
+[92mINFO [0m:      	             (32, 0.0),
+[92mINFO [0m:      	             (33, 0.0),
+[92mINFO [0m:      	             (34, 0.0),
+[92mINFO [0m:      	             (35, 0.0),
+[92mINFO [0m:      	             (36, 0.0),
+[92mINFO [0m:      	             (37, 0.0),
+[92mINFO [0m:      	             (38, 0.0),
+[92mINFO [0m:      	             (39, 0.0),
+[92mINFO [0m:      	             (40, 0.0),
+[92mINFO [0m:      	             (41, 0.0),
+[92mINFO [0m:      	             (42, 0.0),
+[92mINFO [0m:      	             (43, 0.0),
+[92mINFO [0m:      	             (44, 0.0),
+[92mINFO [0m:      	             (45, 0.0),
+[92mINFO [0m:      	             (46, 0.0),
+[92mINFO [0m:      	             (47, 0.0),
+[92mINFO [0m:      	             (48, 0.0),
+[92mINFO [0m:      	             (49, 0.0),
+[92mINFO [0m:      	             (50, 0.0)],
+[92mINFO [0m:      	 'spc': [(1, 1.0),
+[92mINFO [0m:      	         (2, 1.0),
+[92mINFO [0m:      	         (3, 1.0),
+[92mINFO [0m:      	         (4, 1.0),
+[92mINFO [0m:      	         (5, 1.0),
+[92mINFO [0m:      	         (6, 1.0),
+[92mINFO [0m:      	         (7, 1.0),
+[92mINFO [0m:      	         (8, 1.0),
+[92mINFO [0m:      	         (9, 1.0),
+[92mINFO [0m:      	         (10, 1.0),
+[92mINFO [0m:      	         (11, 1.0),
+[92mINFO [0m:      	         (12, 1.0),
+[92mINFO [0m:      	         (13, 1.0),
+[92mINFO [0m:      	         (14, 1.0),
+[92mINFO [0m:      	         (15, 1.0),
+[92mINFO [0m:      	         (16, 1.0),
+[92mINFO [0m:      	         (17, 1.0),
+[92mINFO [0m:      	         (18, 1.0),
+[92mINFO [0m:      	         (19, 1.0),
+[92mINFO [0m:      	         (20, 1.0),
+[92mINFO [0m:      	         (21, 1.0),
+[92mINFO [0m:      	         (22, 1.0),
+[92mINFO [0m:      	         (23, 1.0),
+[92mINFO [0m:      	         (24, 1.0),
+[92mINFO [0m:      	         (25, 1.0),
+[92mINFO [0m:      	         (26, 1.0),
+[92mINFO [0m:      	         (27, 1.0),
+[92mINFO [0m:      	         (28, 1.0),
+[92mINFO [0m:      	         (29, 1.0),
+[92mINFO [0m:      	         (30, 1.0),
+[92mINFO [0m:      	         (31, 1.0),
+[92mINFO [0m:      	         (32, 1.0),
+[92mINFO [0m:      	         (33, 1.0),
+[92mINFO [0m:      	         (34, 1.0),
+[92mINFO [0m:      	         (35, 1.0),
+[92mINFO [0m:      	         (36, 1.0),
+[92mINFO [0m:      	         (37, 1.0),
+[92mINFO [0m:      	         (38, 1.0),
+[92mINFO [0m:      	         (39, 1.0),
+[92mINFO [0m:      	         (40, 1.0),
+[92mINFO [0m:      	         (41, 1.0),
+[92mINFO [0m:      	         (42, 1.0),
+[92mINFO [0m:      	         (43, 1.0),
+[92mINFO [0m:      	         (44, 1.0),
+[92mINFO [0m:      	         (45, 1.0),
+[92mINFO [0m:      	         (46, 1.0),
+[92mINFO [0m:      	         (47, 1.0),
+[92mINFO [0m:      	         (48, 1.0),
+[92mINFO [0m:      	         (49, 1.0),
+[92mINFO [0m:      	         (50, 1.0)]}
+[92mINFO [0m:

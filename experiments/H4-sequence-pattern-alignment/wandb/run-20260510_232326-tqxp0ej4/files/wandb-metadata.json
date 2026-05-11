@@ -1,0 +1,57 @@
+{
+  "os": "Linux-5.10.120-tegra-aarch64-with-glibc2.26",
+  "python": "CPython 3.8.20",
+  "startedAt": "2026-05-10T15:23:26.372403Z",
+  "args": [
+    "--server_address",
+    "127.0.0.1:8093",
+    "--rounds",
+    "50",
+    "--min_fit_clients",
+    "6",
+    "--min_evaluate_clients",
+    "6",
+    "--min_available_clients",
+    "6",
+    "--model_name",
+    "lstm",
+    "--input_dim",
+    "9",
+    "--out_dim",
+    "4",
+    "--global_num_layers",
+    "3",
+    "--spc",
+    "--spc_cluster_count",
+    "4",
+    "--spc_cluster_iters",
+    "10",
+    "--wandb",
+    "--metrics_log_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs/spc_k4_server_metrics.csv",
+    "--spc_assignment_log_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs/spc_k4_assignments.csv"
+  ],
+  "program": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/server-hetero.py",
+  "codePath": "server-hetero.py",
+  "git": {
+    "remote": "https://github.com/saber-shi/Federated-Time-Series-Forecasting.git",
+    "commit": "9b7ac4951cbaad5f26b98396a948c2c4f209fd60"
+  },
+  "email": "shisiping1992@gmail.com",
+  "root": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment",
+  "host": "hkuiot-orin-1",
+  "executable": "/home/hkuiot/miniconda3/envs/fed/bin/python3",
+  "cpu_count": 12,
+  "cpu_count_logical": 12,
+  "disk": {
+    "/": {
+      "total": "60725108736",
+      "used": "38644051968"
+    }
+  },
+  "memory": {
+    "total": "65853030400"
+  },
+  "writerId": "dc56z4f7qfbg836cgochjdtx33r37d10"
+}
