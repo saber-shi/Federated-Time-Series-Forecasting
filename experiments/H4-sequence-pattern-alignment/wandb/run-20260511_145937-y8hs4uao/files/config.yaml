@@ -1,0 +1,83 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            w52ex8r2vnm4wd7nej6czulurpruufmx:
+                args:
+                    - --server_address
+                    - 127.0.0.1:8090
+                    - --cid
+                    - 12165-0
+                    - --data_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed.csv
+                    - --model_name
+                    - lstm
+                    - --prediction_steps
+                    - "4"
+                    - --local_num_layers
+                    - "2"
+                    - --global_num_layers
+                    - "3"
+                    - --epochs
+                    - "5"
+                    - --wandb
+                    - --metrics_log_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs/plain_heterofl_client_12165-0_L2_metrics.csv
+                    - --batch_size
+                    - "64"
+                codePath: client-hetero.py
+                cpu_count: 12
+                cpu_count_logical: 12
+                disk:
+                    /:
+                        total: "60725108736"
+                        used: "39114498048"
+                email: shisiping1992@gmail.com
+                executable: /home/hkuiot/miniconda3/envs/fed/bin/python3
+                git:
+                    commit: 4c751b6840ba931d755f891d9367f090652df224
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                host: hkuiot-orin-1
+                memory:
+                    total: "65853030400"
+                os: Linux-5.10.120-tegra-aarch64-with-glibc2.26
+                program: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py
+                python: CPython 3.8.20
+                root: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment
+                startedAt: "2026-05-11T06:59:37.665726Z"
+                writerId: w52ex8r2vnm4wd7nej6czulurpruufmx
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 13
+                - 61
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-aarch64
+cid:
+    value: 12165-0
+global_num_layers:
+    value: 3
+local_num_layers:
+    value: 2
+model_name:
+    value: lstm
+num_residual_heads:
+    value: 6
+pattern_weighted_residual_heads:
+    value: false
+spa_hfl:
+    value: false
+spc:
+    value: false
