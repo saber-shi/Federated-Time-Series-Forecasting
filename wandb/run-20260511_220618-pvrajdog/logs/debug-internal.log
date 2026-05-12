@@ -1,0 +1,12 @@
+{"time":"2026-05-11T22:06:18.46237689+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-05-11T22:06:18.827064546+08:00","level":"INFO","msg":"stream: created new stream","id":"pvrajdog"}
+{"time":"2026-05-11T22:06:18.827206732+08:00","level":"INFO","msg":"handler: started","stream_id":"pvrajdog"}
+{"time":"2026-05-11T22:06:18.827237883+08:00","level":"INFO","msg":"stream: started","id":"pvrajdog"}
+{"time":"2026-05-11T22:06:18.827267655+08:00","level":"INFO","msg":"sender: started","stream_id":"pvrajdog"}
+{"time":"2026-05-11T22:06:18.827270555+08:00","level":"INFO","msg":"writer: started","stream_id":"pvrajdog"}
+{"time":"2026-05-11T22:15:22.444363262+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-05-11T22:15:23.174838832+08:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2026-05-11T22:15:23.181722862+08:00","level":"INFO","msg":"stream: closing","id":"pvrajdog"}
+{"time":"2026-05-11T22:15:23.181753523+08:00","level":"INFO","msg":"handler: closed","stream_id":"pvrajdog"}
+{"time":"2026-05-11T22:15:23.181898548+08:00","level":"INFO","msg":"sender: closed","stream_id":"pvrajdog"}
+{"time":"2026-05-11T22:15:23.1819405+08:00","level":"INFO","msg":"stream: closed","id":"pvrajdog"}

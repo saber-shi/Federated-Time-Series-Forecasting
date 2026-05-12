@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-LOG_DIR="$ROOT_DIR/benchmark_logs_l2_2months"
+LOG_DIR="$ROOT_DIR/benchmark_logs_l2_2months_noscale"
 DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed-l2-2months.csv"
 MODEL_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months"
 PREDICTION_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months"
@@ -13,10 +13,10 @@ SPC_BASE_PORT=8092
 SPC_CLUSTER_COUNTS=(2 4)
 PWRH_PORT=8096
 PWRH_NUM_RESIDUAL_HEADS=6
-PWRH_TEMPERATURE=0.05
-PWRH_INIT_SCALE=0.0
+PWRH_TEMPERATURE=0.1
+PWRH_INIT_SCALE=0.01
 PWRH_SERVER_WEIGHT_POWER=0.0
-PWRH_HEAD_SCALE=0.2
+PWRH_HEAD_SCALE=1.0
 mkdir -p "$LOG_DIR" "$MODEL_SAVE_DIR" "$PREDICTION_SAVE_DIR"
 
 CLIENT_CIDS=(

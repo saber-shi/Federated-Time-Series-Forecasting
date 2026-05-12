@@ -1,0 +1,99 @@
+{
+  "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.17",
+  "python": "CPython 3.8.20",
+  "startedAt": "2026-05-11T14:06:21.856337Z",
+  "args": [
+    "--server_address",
+    "127.0.0.1:8096",
+    "--cid",
+    "12165-0",
+    "--data_path",
+    "/home/saber/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed-l2-2months.csv",
+    "--model_name",
+    "lstm",
+    "--prediction_steps",
+    "4",
+    "--local_num_layers",
+    "2",
+    "--global_num_layers",
+    "3",
+    "--epochs",
+    "5",
+    "--batch_size",
+    "64",
+    "--pattern_weighted_residual_heads",
+    "--num_residual_heads",
+    "6",
+    "--residual_head_temperature",
+    "0.1",
+    "--residual_head_init_scale",
+    "0.01",
+    "--residual_head_scale",
+    "1.0",
+    "--spc_pattern_source",
+    "y_hist",
+    "--wandb",
+    "--metrics_log_path",
+    "/home/saber/Federated-Time-Series-Forecasting/benchmark_logs_l2_2months_noscale/pwrh_client_12165-0_L2_metrics.csv",
+    "--model_save_path",
+    "/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months/{cid}_{model_name}_final.pt",
+    "--prediction_save_path",
+    "/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months/{cid}_{model_name}_last_{num_lags}.csv"
+  ],
+  "program": "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py",
+  "codePath": "client-hetero.py",
+  "codePathLocal": "client-hetero.py",
+  "git": {
+    "remote": "https://github.com/saber-shi/Federated-Time-Series-Forecasting.git",
+    "commit": "df5c983375ef07656dc129bf6c80872775339771"
+  },
+  "email": "shisiping1992@gmail.com",
+  "root": "/home/saber/Federated-Time-Series-Forecasting",
+  "host": "hku00245537gpu",
+  "executable": "/home/saber/miniconda3/envs/time/bin/python3",
+  "cpu_count": 32,
+  "cpu_count_logical": 64,
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "gpu_count": 4,
+  "disk": {
+    "/": {
+      "total": "1888559353856",
+      "used": "620362313728"
+    }
+  },
+  "memory": {
+    "total": "270278557696"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-56fae8fe-4a6e-9d62-692c-25743d7e61ad"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-7008ea9a-4f44-7161-dcfe-2f53c864120a"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-f9024888-a0b4-2d15-34a5-b5e78da2dee1"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 4090",
+      "memoryTotal": "25757220864",
+      "cudaCores": 16384,
+      "architecture": "Ada",
+      "uuid": "GPU-eb0d01b3-fa66-43fa-25d4-f1b4f8e8c278"
+    }
+  ],
+  "cudaVersion": "12.9",
+  "writerId": "ufcwa1l74k83f6nciqsa1t5uczjycmyc"
+}
