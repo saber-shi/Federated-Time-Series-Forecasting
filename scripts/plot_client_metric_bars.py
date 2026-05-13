@@ -13,21 +13,21 @@ import matplotlib.pyplot as plt
 METRICS = ["loss", "mse", "rmse", "mae", "r2", "nrmse"]
 METHOD_PATTERNS = {
     "plain": "plain_heterofl_client_*_metrics.csv",
-    "spa": "spa_hfl_client_*_metrics.csv",
+    "pwrh": "pwrh_client_*_metrics.csv",
 }
 METHOD_LABELS = {
     "plain": "Plain HeteroFL",
-    "spa": "SPA-HFL",
+    "pwrh": "PWRH",
 }
 METHOD_COLORS = {
     "plain": "#2E86AB",
-    "spa": "#E07A5F",
+    "pwrh": "#E07A5F",
 }
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Plot final validation client metrics as bar charts for plain HeteroFL vs SPA-HFL."
+        description="Plot final validation client metrics as bar charts for plain HeteroFL vs PWRH."
     )
     parser.add_argument("--log_dir", type=str, default="benchmark_logs")
     parser.add_argument("--output_dir", type=str, default="benchmark_logs/figures/client_metric_bars")
@@ -69,14 +69,14 @@ def plot_metric(
     metric: str,
     clients: List[str],
     plain_results: Dict[str, Dict[str, float]],
-    spa_results: Dict[str, Dict[str, float]],
+    pwrh_results: Dict[str, Dict[str, float]],
     output_dir: Path,
 ) -> Path:
     x_positions = list(range(len(clients)))
     width = 0.38
 
     plain_values = [plain_results[cid][metric] for cid in clients]
-    spa_values = [spa_results[cid][metric] for cid in clients]
+    pwrh_values = [pwrh_results[cid][metric] for cid in clients]
 
     fig, ax = plt.subplots(figsize=(max(10, len(clients) * 1.2), 6))
     ax.bar(
@@ -88,10 +88,10 @@ def plot_metric(
     )
     ax.bar(
         [x + width / 2 for x in x_positions],
-        spa_values,
+        pwrh_values,
         width=width,
-        label=METHOD_LABELS["spa"],
-        color=METHOD_COLORS["spa"],
+        label=METHOD_LABELS["pwrh"],
+        color=METHOD_COLORS["pwrh"],
     )
 
     ax.set_title(f"Final Validation {metric.upper()} by Client")
@@ -111,20 +111,20 @@ def plot_metric(
 
 def validate_results(
     plain_results: Dict[str, Dict[str, float]],
-    spa_results: Dict[str, Dict[str, float]],
+    pwrh_results: Dict[str, Dict[str, float]],
 ) -> Tuple[Dict[str, Dict[str, float]], Dict[str, Dict[str, float]]]:
     if not plain_results:
         raise ValueError("No plain client metric files were found.")
-    if not spa_results:
-        raise ValueError("No SPA client metric files were found.")
-    missing_in_plain = sorted(set(spa_results) - set(plain_results))
-    missing_in_spa = sorted(set(plain_results) - set(spa_results))
-    if missing_in_plain or missing_in_spa:
+    if not pwrh_results:
+        raise ValueError("No PWRH client metric files were found.")
+    missing_in_plain = sorted(set(pwrh_results) - set(plain_results))
+    missing_in_pwrh = sorted(set(plain_results) - set(pwrh_results))
+    if missing_in_plain or missing_in_pwrh:
         raise ValueError(
             "Client mismatch between methods. "
-            f"Missing in plain: {missing_in_plain}. Missing in SPA: {missing_in_spa}."
+            f"Missing in plain: {missing_in_plain}. Missing in PWRH: {missing_in_pwrh}."
         )
-    return plain_results, spa_results
+    return plain_results, pwrh_results
 
 
 def main() -> None:
@@ -134,13 +134,13 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     plain_results = collect_method_results(log_dir, "plain")
-    spa_results = collect_method_results(log_dir, "spa")
-    plain_results, spa_results = validate_results(plain_results, spa_results)
-    clients = ordered_clients(plain_results, spa_results)
+    pwrh_results = collect_method_results(log_dir, "pwrh")
+    plain_results, pwrh_results = validate_results(plain_results, pwrh_results)
+    clients = ordered_clients(plain_results, pwrh_results)
 
     saved_paths = []
     for metric in args.metrics:
-        saved_paths.append(plot_metric(metric, clients, plain_results, spa_results, output_dir))
+        saved_paths.append(plot_metric(metric, clients, plain_results, pwrh_results, output_dir))
 
     print("Saved client comparison figures:")
     for path in saved_paths:

@@ -67,8 +67,8 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --epochs 5 \
     --wandb \
     --metrics_log_path "$LOG_DIR/plain_heterofl_client_${cid}_L${layers}_metrics.csv" \
-    --model_save_path "$MODEL_SAVE_DIR/{cid}_{model_name}_final.pt" \
-    --prediction_save_path "$PREDICTION_SAVE_DIR/{cid}_{model_name}_last_{num_lags}.csv" \
+    --model_save_path "$MODEL_SAVE_DIR/plain_heterofl_{cid}_{model_name}_final.pt" \
+    --prediction_save_path "$PREDICTION_SAVE_DIR/plain_heterofl_{cid}_{model_name}_last_{num_lags}.csv" \
     --batch_size 64 &
   CLIENT_PIDS+=($!)
 done
@@ -116,8 +116,8 @@ wait $SERVER_PID
 #     --align_dim 32 \
 #     --wandb \
 #     --metrics_log_path "$LOG_DIR/spa_hfl_client_${cid}_L${layers}_metrics.csv" \
-#     --model_save_path "$MODEL_SAVE_DIR/{cid}_{model_name}_final.pt" \
-#     --prediction_save_path "$PREDICTION_SAVE_DIR/{cid}_{model_name}_last_{num_lags}.csv" \
+#     --model_save_path "$MODEL_SAVE_DIR/spa_hfl_{cid}_{model_name}_final.pt" \
+#     --prediction_save_path "$PREDICTION_SAVE_DIR/spa_hfl_{cid}_{model_name}_last_{num_lags}.csv" \
 #     --lambda_align 0.005 \
 #     --lambda_cons 0 &
 #   CLIENT_PIDS+=($!)
@@ -171,8 +171,8 @@ wait $SERVER_PID
 #       --spc_pattern_source y_hist \
 #       --wandb \
 #       --metrics_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_client_${cid}_L${layers}_metrics.csv" \
-#       --model_save_path "$MODEL_SAVE_DIR/{cid}_{model_name}_final.pt" \
-#       --prediction_save_path "$PREDICTION_SAVE_DIR/{cid}_{model_name}_last_{num_lags}.csv" &
+#       --model_save_path "$MODEL_SAVE_DIR/spc_k${SPC_CLUSTER_COUNT}_{cid}_{model_name}_final.pt" \
+#       --prediction_save_path "$PREDICTION_SAVE_DIR/spc_k${SPC_CLUSTER_COUNT}_{cid}_{model_name}_last_{num_lags}.csv" &
 #     CLIENT_PIDS+=($!)
 #   done
 
@@ -227,8 +227,8 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --spc_pattern_source y_hist \
     --wandb \
     --metrics_log_path "$LOG_DIR/pwrh_client_${cid}_L${layers}_metrics.csv" \
-    --model_save_path "$MODEL_SAVE_DIR/{cid}_{model_name}_final.pt" \
-    --prediction_save_path "$PREDICTION_SAVE_DIR/{cid}_{model_name}_last_{num_lags}.csv" &
+    --model_save_path "$MODEL_SAVE_DIR/pwrh_{cid}_{model_name}_final.pt" \
+    --prediction_save_path "$PREDICTION_SAVE_DIR/pwrh_{cid}_{model_name}_last_{num_lags}.csv" &
   CLIENT_PIDS+=($!)
 done
 
