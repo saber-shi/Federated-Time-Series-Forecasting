@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
 import numpy as np
@@ -11,11 +13,20 @@ import gurobipy as gp
 from gurobipy import GRB
 
 params = {
-"WLSACCESSID": '402bd59f-47b2-40f2-915d-8822c1886180',
-"WLSSECRET": '325a9d0e-64ee-4d62-b685-a9895e5c4351',
-"LICENSEID": 2715331,
+    "WLSACCESSID": "1c23747a-c60d-4a23-aad9-4f1ad990da0c",
+    "WLSSECRET": "251bbc74-0263-4665-b382-3c329957c321",
+    "LICENSEID": 2715331,
 }
 env = gp.Env(params=params)
+
+
+PREDICTION_METHOD_ALIASES = {
+	"plain": "plain_heterofl",
+	"plain_heterofl": "plain_heterofl",
+	"pwrh": "pwrh",
+	"spa": "spa_hfl",
+	"spa_hfl": "spa_hfl",
+}
 
 
 @dataclass(frozen=True)
@@ -179,6 +190,106 @@ def _prepare_renewables_for_loads(
 
 	# Same renewable availability is used for every station at each time step.
 	return pd.DataFrame({col: ren_series for col in load_columns})
+
+
+def _canonical_prediction_method(method: str) -> str:
+	key = method.strip().lower()
+	if key not in PREDICTION_METHOD_ALIASES:
+		raise ValueError(
+			f"Unknown prediction method '{method}'. Supported methods: {sorted(PREDICTION_METHOD_ALIASES)}"
+		)
+	return PREDICTION_METHOD_ALIASES[key]
+
+
+def _extract_station_id_from_prediction_file(path: Path, method: str, model_name: str) -> str:
+	prefix = f"{method}_"
+	suffix = f"_{model_name}_last_"
+	name = path.name
+	if not name.startswith(prefix) or suffix not in name:
+		raise ValueError(f"Could not parse station id from prediction filename: {path.name}")
+	return name[len(prefix): name.index(suffix)]
+
+
+def _prediction_step_columns(df: pd.DataFrame, target: str, value_prefix: str) -> list[tuple[int, str]]:
+	pattern = re.compile(rf"^{re.escape(value_prefix)}_{re.escape(target)}_step\+(\d+)$")
+	columns: list[tuple[int, str]] = []
+	for col in df.columns:
+		match = pattern.match(str(col))
+		if match:
+			columns.append((int(match.group(1)), str(col)))
+	columns.sort(key=lambda item: item[0])
+	if not columns:
+		raise ValueError(f"No '{value_prefix}_{target}_step+N' columns found in prediction CSV.")
+	return columns
+
+
+def _sample_prediction_csv_loads(
+	path: Path,
+	target: str,
+	sample_every: int,
+	n_points: int,
+) -> tuple[np.ndarray, np.ndarray]:
+	if sample_every <= 0:
+		raise ValueError("--sample_every must be positive.")
+	if n_points <= 0:
+		raise ValueError("--n_points must be positive.")
+
+	df = pd.read_csv(path)
+	pred_cols = _prediction_step_columns(df, target, "pred")
+	true_cols = _prediction_step_columns(df, target, "true")
+	if [step for step, _ in pred_cols] != [step for step, _ in true_cols]:
+		raise ValueError(f"Prediction and ground-truth horizons do not match in {path}.")
+
+	pred_values: list[float] = []
+	true_values: list[float] = []
+	for row_idx in range(0, len(df), sample_every):
+		row = df.iloc[row_idx]
+		for (_, pred_col), (_, true_col) in zip(pred_cols, true_cols):
+			pred_values.append(float(row[pred_col]))
+			true_values.append(float(row[true_col]))
+			if len(pred_values) == n_points:
+				return np.asarray(pred_values, dtype=float), np.asarray(true_values, dtype=float)
+
+	raise ValueError(
+		f"Could only sample {len(pred_values)} points from {path}; need {n_points}. "
+		"Use a smaller --sample_every or --n_points."
+	)
+
+
+def load_prediction_loads(
+	predictions_dir: str | Path,
+	method: str,
+	target: str = "BBU Energy (W)",
+	sample_every: int = 4,
+	n_points: int = 48,
+	model_name: str = "lstm",
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+	predictions_path = Path(predictions_dir)
+	canonical_method = _canonical_prediction_method(method)
+	files = sorted(predictions_path.glob(f"{canonical_method}_*_{model_name}_last_*.csv"))
+	if not files:
+		raise FileNotFoundError(
+			f"No prediction files found for method '{canonical_method}' in {predictions_path}. "
+			f"Expected files like '{canonical_method}_<station>_{model_name}_last_48.csv'."
+		)
+
+	pred_columns: dict[str, np.ndarray] = {}
+	true_columns: dict[str, np.ndarray] = {}
+	for path in files:
+		station_id = _extract_station_id_from_prediction_file(path, canonical_method, model_name)
+		pred_load, true_load = _sample_prediction_csv_loads(
+			path=path,
+			target=target,
+			sample_every=sample_every,
+			n_points=n_points,
+		)
+		pred_columns[station_id] = pred_load
+		true_columns[station_id] = true_load
+
+	station_ids = sorted(pred_columns)
+	pred_loads = pd.DataFrame({station_id: pred_columns[station_id] for station_id in station_ids})
+	true_loads = pd.DataFrame({station_id: true_columns[station_id] for station_id in station_ids})
+	return pred_loads, true_loads
 
 
 def _align_specs(
@@ -377,6 +488,138 @@ def optimize_renewable_battery_schedule(
 	}
 
 
+def add_groundtruth_penalty(
+	optimization_result: dict[str, float | int | pd.DataFrame],
+	groundtruth_loads: pd.DataFrame | np.ndarray | Sequence[Sequence[float]],
+	prices: pd.Series | np.ndarray | Sequence[float],
+	penalty_coef: float,
+	curtailment_cost: float,
+) -> dict[str, float | int | pd.DataFrame]:
+	if penalty_coef < 0:
+		raise ValueError("--penalty_coef must be non-negative.")
+	if curtailment_cost < 0:
+		raise ValueError("--curtailment_cost must be non-negative.")
+
+	truth_arr, truth_station_ids = _as_2d_values(groundtruth_loads, "groundtruth_loads")
+	schedule = optimization_result["schedule"].copy()
+	if not isinstance(schedule, pd.DataFrame):
+		raise TypeError("optimization_result['schedule'] must be a pandas DataFrame.")
+	price_arr = _as_1d(prices, truth_arr.shape[1], "prices")
+
+	schedule_station_ids = list(dict.fromkeys(schedule["station"].astype(str)))
+	if schedule_station_ids != truth_station_ids:
+		raise ValueError(
+			"Ground-truth load stations do not match optimized schedule stations. "
+			f"Schedule={schedule_station_ids}, groundtruth={truth_station_ids}."
+		)
+
+	for station_idx, station_id in enumerate(truth_station_ids):
+		mask = schedule["station"].astype(str) == station_id
+		station_slots = schedule.loc[mask, "t"].to_numpy(dtype=int)
+		if len(station_slots) != truth_arr.shape[1]:
+			raise ValueError(
+				f"Ground-truth slot count for station {station_id} ({truth_arr.shape[1]}) "
+				f"does not match schedule slot count ({len(station_slots)})."
+			)
+		schedule.loc[mask, "groundtruth_load"] = truth_arr[station_idx, station_slots]
+
+	schedule["shortage_penalty_rate"] = schedule["t"].map(lambda t: penalty_coef * price_arr[int(t)])
+	schedule["surplus_penalty_rate"] = float(curtailment_cost)
+	schedule["diff"] = (
+		schedule["grid_energy"]
+		+ schedule["discharge"]
+		+ schedule["renewable_to_load"]
+		- (
+			schedule["groundtruth_load"]
+			+ schedule["grid_to_battery"]
+			+ schedule["renewable_to_battery"]
+		)
+	)
+	schedule["shortage_penalty_cost"] = np.where(
+		schedule["diff"] < 0,
+		-schedule["diff"] * schedule["shortage_penalty_rate"],
+		0.0,
+	)
+	schedule["surplus_penalty_cost"] = np.where(
+		schedule["diff"] > 0,
+		schedule["diff"] * schedule["surplus_penalty_rate"],
+		0.0,
+	)
+	schedule["penalty_cost"] = schedule["shortage_penalty_cost"] + schedule["surplus_penalty_cost"]
+	schedule["realized_slot_cost"] = schedule["slot_cost"] + schedule["penalty_cost"]
+
+	penalty_cost = float(schedule["penalty_cost"].sum())
+	shortage_penalty_cost = float(schedule["shortage_penalty_cost"].sum())
+	surplus_penalty_cost = float(schedule["surplus_penalty_cost"].sum())
+	base_cost = float(optimization_result["objective_value"])
+	penalized_cost = base_cost + penalty_cost
+	station_summary = (
+		schedule.groupby("station", as_index=False)
+		.agg(
+			total_grid_energy=("grid_energy", "sum"),
+			total_grid_cost=("grid_cost", "sum"),
+			total_curtailment=("curtailed_renewable", "sum"),
+			total_curtailment_cost=("curtailment_cost", "sum"),
+			total_cost=("slot_cost", "sum"),
+			total_shortage_penalty_cost=("shortage_penalty_cost", "sum"),
+			total_surplus_penalty_cost=("surplus_penalty_cost", "sum"),
+			total_penalty_cost=("penalty_cost", "sum"),
+			total_realized_cost=("realized_slot_cost", "sum"),
+			min_diff=("diff", "min"),
+			max_diff=("diff", "max"),
+		)
+		.sort_values("station")
+		.reset_index(drop=True)
+	)
+
+	updated = dict(optimization_result)
+	updated.update(
+		{
+			"base_objective_value": base_cost,
+			"shortage_penalty_cost": shortage_penalty_cost,
+			"surplus_penalty_cost": surplus_penalty_cost,
+			"penalty_cost": penalty_cost,
+			"penalized_objective_value": penalized_cost,
+			"schedule": schedule,
+			"station_summary": station_summary,
+		}
+	)
+	return updated
+
+
+def evaluate_prediction_method_cost(
+	predicted_loads: pd.DataFrame,
+	groundtruth_loads: pd.DataFrame,
+	renewables: pd.DataFrame,
+	prices: pd.Series | np.ndarray | Sequence[float],
+	specs: Sequence[BatterySpec] | Mapping[str, BatterySpec],
+	curtailment_cost: float,
+	slot_hours: float = 0.5,
+	penalty_coef: float = 1.5,
+	mip_gap: float | None = None,
+	time_limit_sec: float | None = None,
+	verbose: bool = False,
+) -> dict[str, float | int | pd.DataFrame]:
+	result = optimize_renewable_battery_schedule(
+		loads=predicted_loads,
+		renewables=renewables,
+		prices=prices,
+		specs=specs,
+		curtailment_cost=curtailment_cost,
+		slot_hours=slot_hours,
+		mip_gap=mip_gap,
+		time_limit_sec=time_limit_sec,
+		verbose=verbose,
+	)
+	return add_groundtruth_penalty(
+		result,
+		groundtruth_loads=groundtruth_loads,
+		prices=prices,
+		penalty_coef=penalty_coef,
+		curtailment_cost=curtailment_cost,
+	)
+
+
 def _demo_data(n_stations: int = 3, n_slots: int = 48) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray, list[BatterySpec]]:
 	rng = np.random.default_rng(11)
 
@@ -407,11 +650,42 @@ def _demo_data(n_stations: int = 3, n_slots: int = 48) -> tuple[pd.DataFrame, pd
 def main(argv: Iterable[str] | None = None) -> None:
 	parser = argparse.ArgumentParser(description="Renewable-aware battery scheduling optimization with Gurobi.")
 	parser.add_argument("--demo", action="store_true", help="Run with synthetic demo data.")
+	parser.add_argument(
+		"--predictions_dir",
+		type=str,
+		default=None,
+		help="Directory containing saved prediction CSVs named by method, e.g. plain_heterofl_<cid>_lstm_last_48.csv.",
+	)
+	parser.add_argument(
+		"--methods",
+		nargs="+",
+		default=["plain", "pwrh"],
+		help="Prediction methods to evaluate from --predictions_dir. Aliases include plain and pwrh.",
+	)
+	parser.add_argument(
+		"--prediction_target",
+		type=str,
+		default="BBU Energy (W)",
+		help="Target column in saved prediction files to use as the load.",
+	)
+	parser.add_argument(
+		"--prediction_model_name",
+		type=str,
+		default="lstm",
+		help="Model-name segment used in saved prediction filenames.",
+	)
+	parser.add_argument(
+		"--sample_every",
+		type=int,
+		default=4,
+		help="Sample one rolling forecast row every N rows, then flatten its forecast horizons.",
+	)
+	parser.add_argument("--n_points", type=int, default=48, help="Number of sampled load points per station.")
 	parser.add_argument("--loads_csv", type=str, default=None, help="CSV with base-station loads (columns=stations).")
 	parser.add_argument(
 		"--renewables_csv",
 		type=str,
-		default="./merged_predicted_loads.csv",
+		default="ninja_pv_33.9647_-118.1510_uncorrected.csv",
 		help="CSV with renewable energy time series (shared across all stations).",
 	)
 	parser.add_argument(
@@ -423,7 +697,7 @@ def main(argv: Iterable[str] | None = None) -> None:
 	parser.add_argument(
 		"--renewable_day",
 		type=str,
-		default=None,
+		default="2019-01-01",
 		help="Local day to select from renewables_csv (format: YYYY-MM-DD).",
 	)
 	parser.add_argument(
@@ -435,41 +709,158 @@ def main(argv: Iterable[str] | None = None) -> None:
 	parser.add_argument(
 		"--prices_csv",
 		type=str,
-		default=None,
+		default="United Kingdom.csv",
 		help="CSV containing price data. Supports direct slot-level prices or hourly prices (auto-expanded).",
 	)
 	parser.add_argument(
 		"--price_col",
 		type=str,
-		default=None,
+		default="Price (EUR/MWhe)",
 		help="Price column name when using --prices_csv (optional for common formats like 'Price (EUR/MWhe)').",
 	)
 	parser.add_argument(
 		"--price_day",
 		type=str,
-		default=None,
-		help="Local day to select from multi-day price CSV, using 'Datetime (Local)' (format: YYYY-MM-DD).",
+		default="2016-06-30",
+		help="Local day to select from multi-day price CSV (format: YYYY-MM-DD).",
 	)
-	parser.add_argument("--curtailment_cost", type=float, default=0.05, help="Penalty per unit of curtailed renewable energy.")
+	parser.add_argument(
+		"--price_datetime_col",
+		type=str,
+		default="Datetime (Local)",
+		help="Datetime column to use with --price_day.",
+	)
+	parser.add_argument("--curtailment_cost", type=float, default=50, help="Penalty per unit of curtailed renewable energy.")
+	parser.add_argument(
+		"--penalty_coef",
+		type=float,
+		default=1.5,
+		help="Multiplier on slot price for shortage penalty: max(0, -diff) * penalty_coef * price[t].",
+	)
+	parser.add_argument(
+		"--output_dir",
+		type=str,
+		default=None,
+		help="Optional directory to save prediction-based cost summaries and schedules.",
+	)
 	parser.add_argument(
 		"--slot_hours",
 		type=float,
 		default=0.5,
 		help="Duration of each prediction/load slot in hours (default: 0.5 for half-hour granularity).",
 	)
+	parser.add_argument("--mip_gap", type=float, default=None)
+	parser.add_argument("--time_limit_sec", type=float, default=None)
 	parser.add_argument("--verbose", action="store_true")
 	args = parser.parse_args(list(argv) if argv is not None else None)
 
 	if args.demo:
 		loads_df, renewables_df, prices_arr, specs_arr = _demo_data()
+	elif args.predictions_dir is not None:
+		renewables_raw_df = pd.read_csv(args.renewables_csv)
+		prices_df = pd.read_csv(args.prices_csv)
+		raw_prices = _extract_price_series(
+			prices_df,
+			args.price_col,
+			price_day=args.price_day,
+			datetime_col=args.price_datetime_col,
+		)
+		prices_arr = _prepare_prices_for_slots(raw_prices, n_slots=args.n_points, slot_hours=args.slot_hours)
+
+		method_summaries: list[dict[str, float | str | int]] = []
+		output_dir = Path(args.output_dir).expanduser() if args.output_dir is not None else None
+		if output_dir is not None:
+			output_dir.mkdir(parents=True, exist_ok=True)
+
+		for method in args.methods:
+			canonical_method = _canonical_prediction_method(method)
+			predicted_loads, groundtruth_loads = load_prediction_loads(
+				predictions_dir=args.predictions_dir,
+				method=canonical_method,
+				target=args.prediction_target,
+				sample_every=args.sample_every,
+				n_points=args.n_points,
+				model_name=args.prediction_model_name,
+			)
+			renewables_df = _prepare_renewables_for_loads(
+				renewables_df=renewables_raw_df,
+				load_columns=list(predicted_loads.columns),
+				n_slots=len(predicted_loads),
+				slot_hours=args.slot_hours,
+				renewable_col=args.renewable_col,
+				renewable_day=args.renewable_day,
+				renewable_time_col=args.renewable_time_col,
+			)
+			specs_arr = [
+				BatterySpec(e_max=45.0, e_min=8.0, p_ch_max=10.0, p_dis_max=10.0, eta_ch=0.95, eta_dis=0.95, e0=20.0)
+				for _ in predicted_loads.columns
+			]
+			result = evaluate_prediction_method_cost(
+				predicted_loads=predicted_loads,
+				groundtruth_loads=groundtruth_loads,
+				renewables=renewables_df,
+				prices=prices_arr,
+				specs=specs_arr,
+				curtailment_cost=args.curtailment_cost,
+				slot_hours=args.slot_hours,
+				penalty_coef=args.penalty_coef,
+				mip_gap=args.mip_gap,
+				time_limit_sec=args.time_limit_sec,
+				verbose=args.verbose,
+			)
+			method_summaries.append(
+				{
+					"method": canonical_method,
+					"status": int(result["status"]),
+					"base_objective_value": float(result["base_objective_value"]),
+					"shortage_penalty_cost": float(result["shortage_penalty_cost"]),
+					"surplus_penalty_cost": float(result["surplus_penalty_cost"]),
+					"penalty_cost": float(result["penalty_cost"]),
+					"penalized_objective_value": float(result["penalized_objective_value"]),
+					"mip_gap": float(result["mip_gap"]),
+					"n_stations": len(predicted_loads.columns),
+					"n_slots": len(predicted_loads),
+				}
+			)
+
+			print(f"\nMethod: {canonical_method}")
+			print(f"Optimization status: {result['status']}")
+			print(f"Predicted-load optimal cost: {result['base_objective_value']:.6f}")
+			print(f"Shortage penalty cost: {result['shortage_penalty_cost']:.6f}")
+			print(f"Surplus penalty cost: {result['surplus_penalty_cost']:.6f}")
+			print(f"Total penalty cost: {result['penalty_cost']:.6f}")
+			print(f"Penalized realized cost: {result['penalized_objective_value']:.6f}")
+			print("\nPer-station summary:")
+			print(result["station_summary"].to_string(index=False))
+
+			if output_dir is not None:
+				predicted_loads.to_csv(output_dir / f"{canonical_method}_sampled_predicted_loads.csv", index=False)
+				groundtruth_loads.to_csv(output_dir / f"{canonical_method}_sampled_groundtruth_loads.csv", index=False)
+				renewables_df.to_csv(output_dir / f"{canonical_method}_sampled_renewables.csv", index=False)
+				result["schedule"].to_csv(output_dir / f"{canonical_method}_renewable_schedule_with_penalty.csv", index=False)
+				result["station_summary"].to_csv(output_dir / f"{canonical_method}_station_summary.csv", index=False)
+
+		summary_df = pd.DataFrame(method_summaries)
+		print("\nMethod comparison summary:")
+		print(summary_df.to_string(index=False))
+		if output_dir is not None:
+			summary_df.to_csv(output_dir / "method_cost_summary.csv", index=False)
+		return
 	else:
 		if args.loads_csv is None or args.renewables_csv is None or args.prices_csv is None:
-			raise ValueError("Provide --demo or all of --loads_csv, --renewables_csv and --prices_csv.")
+			raise ValueError(
+				"Provide --demo, --predictions_dir, or all of --loads_csv, --renewables_csv and --prices_csv."
+			)
 
 		loads_df = pd.read_csv(args.loads_csv)
 		renewables_raw_df = pd.read_csv(args.renewables_csv)
 		prices_df = pd.read_csv(args.prices_csv)
-		raw_prices = _extract_price_series(prices_df, args.price_col, price_day=args.price_day)
+		raw_prices = _extract_price_series(
+			prices_df,
+			args.price_col,
+			price_day=args.price_day,
+			datetime_col=args.price_datetime_col,
+		)
 		prices_arr = _prepare_prices_for_slots(raw_prices, n_slots=len(loads_df), slot_hours=args.slot_hours)
 		renewables_df = _prepare_renewables_for_loads(
 			renewables_df=renewables_raw_df,
@@ -493,6 +884,8 @@ def main(argv: Iterable[str] | None = None) -> None:
 		specs=specs_arr,
 		curtailment_cost=args.curtailment_cost,
 		slot_hours=args.slot_hours,
+		mip_gap=args.mip_gap,
+		time_limit_sec=args.time_limit_sec,
 		verbose=args.verbose,
 	)
 
@@ -504,4 +897,3 @@ def main(argv: Iterable[str] | None = None) -> None:
 
 if __name__ == "__main__":
 	main()
-
