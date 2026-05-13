@@ -559,14 +559,14 @@ def main(argv: Iterable[str] | None = None) -> None:
 	parser.add_argument(
 		"--prices_csv",
 		type=str,
-		default=None,
-		help="Path to CSV containing price data. Supports direct slot-level prices or hourly prices (auto-expanded).",
+		default="United Kingdom.csv",
+		help="Path to CSV containing price data. Defaults to the United Kingdom price file.",
 	)
 	parser.add_argument(
 		"--price_col",
 		type=str,
-		default=None,
-		help="Price column name when using --prices_csv (optional for common formats like 'Price (EUR/MWhe)').",
+		default="Price (EUR/MWhe)",
+		help="Price column name when using --prices_csv.",
 	)
 	parser.add_argument(
 		"--price_day",
