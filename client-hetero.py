@@ -36,9 +36,14 @@ CLIENT_METRIC_FIELDNAMES = [
     "cid",
     "local_num_layers",
     "global_num_layers",
+    "model_rate",
+    "hetero_fedavg",
+    "inclusive_fl",
     "spa_hfl",
     "spc",
     "pattern_weighted_residual_heads",
+    "fedprox",
+    "fedprox_mu",
     "loss",
     "mse",
     "rmse",
@@ -66,14 +71,15 @@ def build_recurrent_model(
     input_dim: int,
     out_dim: int,
     num_layers: int,
+    hidden_size: int = 128,
 ) -> torch.nn.Module:
     if model_name == "rnn":
         return RNN(
             input_dim=input_dim,
-            rnn_hidden_size=128,
+            rnn_hidden_size=hidden_size,
             num_rnn_layers=num_layers,
             rnn_dropout=0.0,
-            layer_units=[128],
+            layer_units=[hidden_size],
             num_outputs=out_dim,
             matrix_rep=True,
             exogenous_dim=0,
@@ -81,10 +87,10 @@ def build_recurrent_model(
     if model_name == "lstm":
         return LSTM(
             input_dim=input_dim,
-            lstm_hidden_size=128,
+            lstm_hidden_size=hidden_size,
             num_lstm_layers=num_layers,
             lstm_dropout=0.0,
-            layer_units=[128],
+            layer_units=[hidden_size],
             num_outputs=out_dim,
             matrix_rep=True,
             exogenous_dim=0,
@@ -92,10 +98,10 @@ def build_recurrent_model(
     if model_name == "gru":
         return GRU(
             input_dim=input_dim,
-            gru_hidden_size=128,
+            gru_hidden_size=hidden_size,
             num_gru_layers=num_layers,
             gru_dropout=0.0,
-            layer_units=[128],
+            layer_units=[hidden_size],
             num_outputs=out_dim,
             matrix_rep=True,
             exogenous_dim=0,
@@ -156,15 +162,33 @@ class HeteroModelAdapter:
         out_dim: int,
         local_num_layers: int,
         global_num_layers: int,
+        model_rate: float = 1.0,
     ) -> None:
         if local_num_layers > global_num_layers:
             raise ValueError("local_num_layers must be <= global_num_layers")
+        if not (0.0 < model_rate <= 1.0):
+            raise ValueError("model_rate must be in the interval (0, 1].")
 
         self.model_name = model_name
         self.local_num_layers = local_num_layers
         self.global_num_layers = global_num_layers
-        self.local_model = build_recurrent_model(model_name, input_dim, out_dim, local_num_layers)
-        self.reference_model = build_recurrent_model(model_name, input_dim, out_dim, global_num_layers)
+        self.model_rate = float(model_rate)
+        self.global_hidden_size = 128
+        self.local_hidden_size = max(1, int(round(self.global_hidden_size * self.model_rate)))
+        self.local_model = build_recurrent_model(
+            model_name,
+            input_dim,
+            out_dim,
+            local_num_layers,
+            hidden_size=self.local_hidden_size,
+        )
+        self.reference_model = build_recurrent_model(
+            model_name,
+            input_dim,
+            out_dim,
+            global_num_layers,
+            hidden_size=self.global_hidden_size,
+        )
         self.reference_keys = list(self.reference_model.state_dict().keys())
         self.head_keys = self._infer_head_keys()
         self.backbone_keys = [key for key in self.reference_keys if key not in self.head_keys]
@@ -184,6 +208,31 @@ class HeteroModelAdapter:
     def is_head_key(self, key: str) -> bool:
         return key.startswith("MLP_layers.")
 
+    @staticmethod
+    def _prefix_slices(shape: Tuple[int, ...]) -> Tuple[slice, ...]:
+        return tuple(slice(0, dim) for dim in shape)
+
+    def _pad_local_to_reference(self, local_value: np.ndarray, ref_tensor: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        if local_value.ndim != ref_tensor.ndim:
+            raise ValueError(f"Cannot map local tensor with shape {local_value.shape} to {ref_tensor.shape}")
+        if any(local_dim > ref_dim for local_dim, ref_dim in zip(local_value.shape, ref_tensor.shape)):
+            raise ValueError(f"Local tensor shape {local_value.shape} exceeds reference shape {ref_tensor.shape}")
+        padded = np.zeros_like(ref_tensor)
+        mask = np.zeros_like(ref_tensor, dtype=np.float32)
+        slices = self._prefix_slices(local_value.shape)
+        padded[slices] = local_value.astype(ref_tensor.dtype, copy=False)
+        mask[slices] = 1.0
+        return padded, mask
+
+    def _slice_reference_to_local(self, global_value: np.ndarray, local_tensor: torch.Tensor) -> torch.Tensor:
+        local_shape = tuple(local_tensor.shape)
+        if global_value.ndim != len(local_shape):
+            raise ValueError(f"Cannot map global tensor with shape {global_value.shape} to {local_shape}")
+        if any(local_dim > global_dim for local_dim, global_dim in zip(local_shape, global_value.shape)):
+            raise ValueError(f"Local tensor shape {local_shape} exceeds global shape {global_value.shape}")
+        sliced = global_value[self._prefix_slices(local_shape)]
+        return torch.tensor(sliced, dtype=local_tensor.dtype)
+
     def export_parameters_with_masks(self) -> List[np.ndarray]:
         local_state = self.local_model.state_dict()
         reference_state = self.reference_model.state_dict()
@@ -194,8 +243,9 @@ class HeteroModelAdapter:
             ref_tensor = reference_state[key].detach().cpu().numpy()
             if key in local_state:
                 value = local_state[key].detach().cpu().numpy()
-                full_parameters.append(value.astype(ref_tensor.dtype, copy=False))
-                full_masks.append(np.ones_like(ref_tensor, dtype=np.float32))
+                padded, mask = self._pad_local_to_reference(value, ref_tensor)
+                full_parameters.append(padded)
+                full_masks.append(mask)
             else:
                 full_parameters.append(np.zeros_like(ref_tensor))
                 full_masks.append(np.zeros_like(ref_tensor, dtype=np.float32))
@@ -217,8 +267,9 @@ class HeteroModelAdapter:
             ref_tensor = reference_state[key].detach().cpu().numpy()
             if key in local_state:
                 value = local_state[key].detach().cpu().numpy()
-                backbone_parameters.append(value.astype(ref_tensor.dtype, copy=False))
-                backbone_masks.append(np.ones_like(ref_tensor, dtype=np.float32))
+                padded, mask = self._pad_local_to_reference(value, ref_tensor)
+                backbone_parameters.append(padded)
+                backbone_masks.append(mask)
             else:
                 backbone_parameters.append(np.zeros_like(ref_tensor))
                 backbone_masks.append(np.zeros_like(ref_tensor, dtype=np.float32))
@@ -279,8 +330,9 @@ class HeteroModelAdapter:
             ref_tensor = reference_state[key].detach().cpu().numpy()
             if key in local_state:
                 value = local_state[key].detach().cpu().numpy()
-                backbone_parameters.append(value.astype(ref_tensor.dtype, copy=False))
-                backbone_masks.append(np.ones_like(ref_tensor, dtype=np.float32))
+                padded, mask = self._pad_local_to_reference(value, ref_tensor)
+                backbone_parameters.append(padded)
+                backbone_masks.append(mask)
             else:
                 backbone_parameters.append(np.zeros_like(ref_tensor))
                 backbone_masks.append(np.zeros_like(ref_tensor, dtype=np.float32))
@@ -304,7 +356,7 @@ class HeteroModelAdapter:
         for key, global_value in zip(self.reference_keys, parameters):
             if key not in current_state:
                 continue
-            updated_state[key] = torch.tensor(global_value, dtype=current_state[key].dtype)
+            updated_state[key] = self._slice_reference_to_local(global_value, current_state[key])
 
         current_state.update(updated_state)
         self.local_model.load_state_dict(current_state, strict=True)
@@ -322,7 +374,7 @@ class HeteroModelAdapter:
         updated_state = {}
         for key, global_value in zip(self.backbone_keys, backbone_parameters):
             if key in current_state:
-                updated_state[key] = torch.tensor(global_value, dtype=current_state[key].dtype)
+                updated_state[key] = self._slice_reference_to_local(global_value, current_state[key])
         for key, head_value in zip(self.head_keys, head_parameters):
             if key not in current_state:
                 raise ValueError(f"Local model is missing SPC head key: {key}")
@@ -364,7 +416,7 @@ class HeteroModelAdapter:
         updated_state = {}
         for key, global_value in zip(self.backbone_keys, backbone_parameters):
             if key in current_state:
-                updated_state[key] = torch.tensor(global_value, dtype=current_state[key].dtype)
+                updated_state[key] = self._slice_reference_to_local(global_value, current_state[key])
         current_state.update(updated_state)
         self.local_model.load_state_dict(current_state, strict=False)
 
@@ -420,11 +472,16 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 "cid": self.cid,
                 "local_num_layers": int(self.args.local_num_layers),
                 "global_num_layers": int(self.args.global_num_layers),
+                "model_rate": float(self.args.model_rate),
+                "hetero_fedavg": 1.0 if getattr(self.args, "hetero_fedavg", False) else 0.0,
+                "inclusive_fl": 1.0 if getattr(self.args, "inclusive_fl", False) else 0.0,
                 "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
                 "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
                 "pattern_weighted_residual_heads": 1.0
                 if getattr(self.args, "pattern_weighted_residual_heads", False)
                 else 0.0,
+                "fedprox": 1.0 if getattr(self.args, "fedprox_mu", 0.0) > 0.0 else 0.0,
+                "fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
                 "loss": float(loss),
                 "mse": float(metrics["mse"]),
                 "rmse": float(metrics["rmse"]),
@@ -601,7 +658,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 patience=self.args.local_patience,
                 plot_history=False,
                 device=self.device,
-                fedprox_mu=0.0,
+                fedprox_mu=self.args.fedprox_mu,
                 log_per=1,
                 use_carbontracker=self.args.use_carbontracker,
             )
@@ -633,11 +690,16 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "nrmse": float(nrmse),
             "local_num_layers": int(self.args.local_num_layers),
             "global_num_layers": int(self.args.global_num_layers),
+            "model_rate": float(self.args.model_rate),
+            "hetero_fedavg": 1.0 if getattr(self.args, "hetero_fedavg", False) else 0.0,
+            "inclusive_fl": 1.0 if getattr(self.args, "inclusive_fl", False) else 0.0,
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
             "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
             "pattern_weighted_residual_heads": 1.0
             if getattr(self.args, "pattern_weighted_residual_heads", False)
             else 0.0,
+            "fedprox": 1.0 if getattr(self.args, "fedprox_mu", 0.0) > 0.0 else 0.0,
+            "fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
         }
         if alignment_metrics is not None:
             metrics["align_train_loss"] = float(alignment_metrics["train_loss"])
@@ -663,7 +725,12 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 "client/train_nrmse": float(nrmse),
                 "client/round_train_time_seconds": float(round_train_time),
                 "client/local_num_layers": int(self.args.local_num_layers),
+                "client/model_rate": float(self.args.model_rate),
+                "client/hetero_fedavg": 1.0 if getattr(self.args, "hetero_fedavg", False) else 0.0,
+                "client/inclusive_fl": 1.0 if getattr(self.args, "inclusive_fl", False) else 0.0,
                 "client/spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+                "client/fedprox": 1.0 if getattr(self.args, "fedprox_mu", 0.0) > 0.0 else 0.0,
+                "client/fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
                 "round": int(self.wandb_round),
             }
             if alignment_metrics is not None:
@@ -729,11 +796,16 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "r2": float(r2),
             "nrmse": float(nrmse),
             "local_num_layers": int(self.args.local_num_layers),
+            "model_rate": float(self.args.model_rate),
+            "hetero_fedavg": 1.0 if getattr(self.args, "hetero_fedavg", False) else 0.0,
+            "inclusive_fl": 1.0 if getattr(self.args, "inclusive_fl", False) else 0.0,
             "spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
             "spc": 1.0 if getattr(self.args, "spc", False) else 0.0,
             "pattern_weighted_residual_heads": 1.0
             if getattr(self.args, "pattern_weighted_residual_heads", False)
             else 0.0,
+            "fedprox": 1.0 if getattr(self.args, "fedprox_mu", 0.0) > 0.0 else 0.0,
+            "fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
         }
 
         self._append_metric_row(split="val", loss=float(loss), metrics=metrics)
@@ -748,7 +820,12 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                     "client/val_r2": float(r2),
                     "client/val_nrmse": float(nrmse),
                     "client/local_num_layers": int(self.args.local_num_layers),
+                    "client/model_rate": float(self.args.model_rate),
+                    "client/hetero_fedavg": 1.0 if getattr(self.args, "hetero_fedavg", False) else 0.0,
+                    "client/inclusive_fl": 1.0 if getattr(self.args, "inclusive_fl", False) else 0.0,
                     "client/spa_hfl": 1.0 if getattr(self.args, "spa_hfl", False) else 0.0,
+                    "client/fedprox": 1.0 if getattr(self.args, "fedprox_mu", 0.0) > 0.0 else 0.0,
+                    "client/fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
                     "round": int(self.wandb_round),
                 },
                 step=int(self.wandb_round),
@@ -790,6 +867,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model_name", type=str, default="lstm")
     parser.add_argument("--local_num_layers", type=int, default=1)
     parser.add_argument("--global_num_layers", type=int, default=3)
+    parser.add_argument(
+        "--model_rate",
+        type=float,
+        default=1.0,
+        help="HeteroFL channel/model-rate shrink ratio for the local submodel, in (0, 1].",
+    )
     parser.add_argument("--criterion", type=str, default="mse")
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--lr", type=float, default=0.001)
@@ -800,10 +883,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max_grad_norm", type=float, default=0.0)
     parser.add_argument("--reg1", type=float, default=0.0)
     parser.add_argument("--reg2", type=float, default=0.0)
+    parser.add_argument(
+        "--fedprox_mu",
+        type=float,
+        default=0.0,
+        help="FedProx proximal regularization strength. Set > 0 to run the FedProx baseline.",
+    )
     parser.add_argument("--cuda", dest="cuda", action="store_true", default=True)
     parser.add_argument("--no_cuda", dest="cuda", action="store_false", help="Disable CUDA and run this client on CPU")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--use_carbontracker", action="store_true", default=False)
+    parser.add_argument(
+        "--hetero_fedavg",
+        action="store_true",
+        default=False,
+        help="Label this client run as the heterogeneous FedAvg layer-update baseline.",
+    )
+    parser.add_argument(
+        "--inclusive_fl",
+        action="store_true",
+        default=False,
+        help="Label this client run as the InclusiveFL group-transfer baseline.",
+    )
     parser.add_argument("--spa_hfl", action="store_true", default=False, help="Enable SPA-HFL alignment training")
     parser.add_argument("--spc", action="store_true", default=False, help="Enable SPC-HeteroFL clustered heads")
     parser.add_argument("--spc_cluster_count", type=int, default=2)
@@ -873,10 +974,17 @@ def parse_args() -> argparse.Namespace:
             bool(args.spa_hfl),
             bool(args.spc),
             bool(args.pattern_weighted_residual_heads),
+            bool(args.fedprox_mu > 0.0),
+            bool(args.hetero_fedavg),
+            bool(args.inclusive_fl),
         ]
     )
     if mode_count > 1:
-        raise ValueError("--spa_hfl, --spc, and --pattern_weighted_residual_heads are mutually exclusive modes.")
+        raise ValueError(
+            "--inclusive_fl, --hetero_fedavg, --spa_hfl, --spc, --pattern_weighted_residual_heads, and --fedprox_mu > 0 are mutually exclusive modes."
+        )
+    if args.fedprox_mu < 0.0:
+        raise ValueError("--fedprox_mu must be non-negative.")
     if args.num_residual_heads <= 0:
         raise ValueError("--num_residual_heads must be positive.")
     if args.residual_head_temperature <= 0.0:
@@ -887,6 +995,10 @@ def parse_args() -> argparse.Namespace:
         raise ValueError("Both local_num_layers and global_num_layers must be positive integers.")
     if args.local_num_layers > args.global_num_layers:
         raise ValueError("local_num_layers cannot exceed global_num_layers.")
+    if not (0.0 < args.model_rate <= 1.0):
+        raise ValueError("--model_rate must be in the interval (0, 1].")
+    if args.model_rate < 1.0 and (args.spa_hfl or args.spc or args.pattern_weighted_residual_heads):
+        raise ValueError("--model_rate < 1 is currently supported for the plain HeteroFL baseline only.")
     if args.residual_head_scale < 0.0:
         raise ValueError("--residual_head_scale must be non-negative.")
     return args
@@ -903,7 +1015,7 @@ def main() -> None:
             project=args.wandb_project,
             name=(
                 f"flwr-hetclient-{args.cid}-{args.model_name}-L{args.local_num_layers}"
-                f"{'-pwrh' if args.pattern_weighted_residual_heads else '-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}"
+                f"{'-pwrh' if args.pattern_weighted_residual_heads else '-spc' if args.spc else '-spa' if args.spa_hfl else '-fedprox' if args.fedprox_mu > 0.0 else '-inclusive-fl' if args.inclusive_fl else '-hetero-fedavg' if args.hetero_fedavg else '-hfl'}"
             ),
             mode="online",
         )
@@ -913,10 +1025,14 @@ def main() -> None:
                 "model_name": args.model_name,
                 "local_num_layers": args.local_num_layers,
                 "global_num_layers": args.global_num_layers,
+                "model_rate": args.model_rate,
+                "hetero_fedavg": args.hetero_fedavg,
+                "inclusive_fl": args.inclusive_fl,
                 "spa_hfl": args.spa_hfl,
                 "spc": args.spc,
                 "pattern_weighted_residual_heads": args.pattern_weighted_residual_heads,
                 "num_residual_heads": args.num_residual_heads,
+                "fedprox_mu": args.fedprox_mu,
             },
             allow_val_change=True,
         )
@@ -929,6 +1045,7 @@ def main() -> None:
         out_dim=out_dim,
         local_num_layers=args.local_num_layers,
         global_num_layers=args.global_num_layers,
+        model_rate=args.model_rate,
     )
     if args.pattern_weighted_residual_heads:
         adapter.enable_pattern_weighted_residual_heads(

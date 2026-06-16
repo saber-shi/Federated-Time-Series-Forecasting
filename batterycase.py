@@ -22,6 +22,11 @@ env = gp.Env(params=params)
 PREDICTION_METHOD_ALIASES = {
 	"plain": "plain_heterofl",
 	"plain_heterofl": "plain_heterofl",
+	"fedavg": "hetero_fedavg",
+	"hetero_fedavg": "hetero_fedavg",
+	"inclusive": "inclusive_fl",
+	"inclusive_fl": "inclusive_fl",
+	"fedprox": "fedprox",
 	"pwrh": "pwrh",
 	"spa": "spa_hfl",
 	"spa_hfl": "spa_hfl",
@@ -511,8 +516,8 @@ def main(argv: Iterable[str] | None = None) -> None:
 	parser.add_argument(
 		"--methods",
 		nargs="+",
-		default=["plain", "pwrh"],
-		help="Prediction methods to evaluate from --predictions_dir. Aliases include plain and pwrh.",
+		default=["hetero_fedavg", "inclusive_fl", "plain", "fedprox", "pwrh"],
+		help="Prediction methods to evaluate from --predictions_dir. Aliases include fedavg, inclusive, plain, fedprox, and pwrh.",
 	)
 	parser.add_argument(
 		"--prediction_target",

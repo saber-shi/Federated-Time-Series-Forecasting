@@ -33,9 +33,16 @@ SERVER_METRIC_FIELDNAMES = [
     "loss",
     "global_num_layers",
     "local_num_layers",
+    "model_rate",
+    "hetero_fedavg",
+    "inclusive_fl",
     "spa_hfl",
     "spc",
     "pattern_weighted_residual_heads",
+    "fedprox",
+    "fedprox_mu",
+    "inclusive_group_count",
+    "inclusive_beta",
     "mse",
     "rmse",
     "mae",
@@ -274,6 +281,9 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
 
     def __init__(self, use_wandb: bool = False, *args, **kwargs):
         self.spa_hfl = kwargs.pop("spa_hfl", False)
+        self.hetero_fedavg = kwargs.pop("hetero_fedavg", False)
+        self.inclusive_fl = kwargs.pop("inclusive_fl", False)
+        self.inclusive_beta = kwargs.pop("inclusive_beta", 0.5)
         self.spc = kwargs.pop("spc", False)
         self.pattern_weighted_residual_heads = kwargs.pop("pattern_weighted_residual_heads", False)
         self.align_dim = kwargs.pop("align_dim", 32)
@@ -321,6 +331,135 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             raise ValueError("num_residual_heads must be positive.")
         if self.pattern_weighted_residual_heads and self.residual_head_temperature <= 0.0:
             raise ValueError("residual_head_temperature must be positive.")
+        if not (0.0 <= self.inclusive_beta <= 1.0):
+            raise ValueError("inclusive_beta must be in [0, 1].")
+
+    def _aggregate_masked_layer_updates(
+        self,
+        split_index: int,
+        results: List[Tuple[ClientProxy, FitRes]],
+        previous_parameters: Optional[NDArrays],
+    ) -> Tuple[NDArrays, List[Tuple[int, Dict[str, Scalar]]]]:
+        if previous_parameters is None:
+            raise ValueError("Heterogeneous FedAvg requires initialized server parameters.")
+
+        numerators = [np.zeros_like(arr) for arr in previous_parameters[:split_index]]
+        denominators = [np.zeros_like(arr, dtype=np.float32) for arr in previous_parameters[:split_index]]
+        weighted_metrics: List[Tuple[int, Dict[str, Scalar]]] = []
+
+        for _, fit_res in results:
+            arrays = parameters_to_ndarrays(fit_res.parameters)
+            local_parameters = arrays[:split_index]
+            local_masks = arrays[split_index : 2 * split_index]
+            num_examples = fit_res.num_examples
+            for idx, (param, mask) in enumerate(zip(local_parameters, local_masks)):
+                update = (param - previous_parameters[idx]) * mask
+                numerators[idx] += num_examples * update
+                denominators[idx] += num_examples * mask.astype(np.float32, copy=False)
+            weighted_metrics.append((num_examples, fit_res.metrics))
+
+        aggregated: NDArrays = []
+        for idx in range(split_index):
+            previous = previous_parameters[idx]
+            denom = denominators[idx]
+            averaged_update = np.where(denom > 0, numerators[idx] / denom, 0.0)
+            aggregated.append((previous + averaged_update).astype(previous.dtype, copy=False))
+        return aggregated, weighted_metrics
+
+    def _aggregate_inclusive_fit(
+        self,
+        rnd: int,
+        results: List[Tuple[ClientProxy, FitRes]],
+    ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
+        previous_parameters = self.latest_parameters
+        if previous_parameters is None:
+            raise ValueError("InclusiveFL requires initialized server parameters.")
+
+        split_index = len(previous_parameters)
+        groups: Dict[Tuple[int, float], Dict[str, object]] = {}
+        weighted_metrics: List[Tuple[int, Dict[str, Scalar]]] = []
+
+        for _, fit_res in results:
+            arrays = parameters_to_ndarrays(fit_res.parameters)
+            local_parameters = arrays[:split_index]
+            local_masks = arrays[split_index : 2 * split_index]
+            metrics = fit_res.metrics
+            local_layers = int(metrics.get("local_num_layers", 1))
+            model_rate = round(float(metrics.get("model_rate", 1.0)), 6)
+            group_key = (local_layers, model_rate)
+            group = groups.setdefault(
+                group_key,
+                {
+                    "examples": 0,
+                    "numerators": [np.zeros_like(arr) for arr in previous_parameters],
+                    "denominators": [np.zeros_like(arr, dtype=np.float32) for arr in previous_parameters],
+                },
+            )
+            group["examples"] = int(group["examples"]) + fit_res.num_examples
+            numerators = group["numerators"]
+            denominators = group["denominators"]
+            for idx, (param, mask) in enumerate(zip(local_parameters, local_masks)):
+                numerators[idx] += fit_res.num_examples * param * mask
+                denominators[idx] += fit_res.num_examples * mask.astype(np.float32, copy=False)
+            weighted_metrics.append((fit_res.num_examples, metrics))
+
+        group_states: Dict[Tuple[int, float], Dict[str, object]] = {}
+        for group_key, group in groups.items():
+            params: NDArrays = []
+            masks: NDArrays = []
+            for idx, previous in enumerate(previous_parameters):
+                denom = group["denominators"][idx]
+                mask = (denom > 0).astype(np.float32, copy=False)
+                aggregate = previous.copy()
+                np.divide(group["numerators"][idx], denom, out=aggregate, where=denom > 0)
+                params.append(aggregate.astype(previous.dtype, copy=False))
+                masks.append(mask)
+            group_states[group_key] = {
+                "examples": int(group["examples"]),
+                "params": params,
+                "masks": masks,
+            }
+
+        sorted_keys = sorted(group_states, key=lambda key: (key[0], key[1]))
+        for pos, group_key in enumerate(sorted_keys[:-1]):
+            larger_key = sorted_keys[pos + 1]
+            current = group_states[group_key]
+            larger = group_states[larger_key]
+            for idx in range(split_index):
+                overlap = (current["masks"][idx] > 0) & (larger["masks"][idx] > 0)
+                if np.any(overlap):
+                    blended = current["params"][idx].copy()
+                    blended[overlap] = (
+                        self.inclusive_beta * larger["params"][idx][overlap]
+                        + (1.0 - self.inclusive_beta) * current["params"][idx][overlap]
+                    )
+                    current["params"][idx] = blended.astype(previous_parameters[idx].dtype, copy=False)
+
+        final_numerators = [np.zeros_like(arr) for arr in previous_parameters]
+        final_denominators = [np.zeros_like(arr, dtype=np.float32) for arr in previous_parameters]
+        for group in group_states.values():
+            examples = int(group["examples"])
+            for idx in range(split_index):
+                final_numerators[idx] += examples * group["params"][idx] * group["masks"][idx]
+                final_denominators[idx] += examples * group["masks"][idx].astype(np.float32, copy=False)
+
+        aggregated: NDArrays = []
+        for idx, previous in enumerate(previous_parameters):
+            denom = final_denominators[idx]
+            aggregate = previous.copy()
+            np.divide(final_numerators[idx], denom, out=aggregate, where=denom > 0)
+            aggregated.append(aggregate.astype(previous.dtype, copy=False))
+
+        self.latest_parameters = aggregated
+        metrics = _weighted_numeric_metrics(weighted_metrics)
+        metrics["inclusive_group_count"] = float(len(group_states))
+        metrics["inclusive_beta"] = float(self.inclusive_beta)
+        if self.use_wandb and metrics:
+            log_data = {f"server/train_{key}": float(value) for key, value in metrics.items()}
+            log_data["round"] = rnd
+            wandb.log(log_data, step=rnd, commit=False)
+        self._append_metric_row(rnd, "train", metrics)
+        return ndarrays_to_parameters(list(aggregated)), metrics
 
     def _append_metric_row(self, rnd: int, split: str, metrics: Dict[str, Scalar]) -> None:
         if not self.metrics_log_path:
@@ -807,6 +946,9 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         if self.spc:
             return self._aggregate_spc_fit(rnd, results)
 
+        if self.inclusive_fl:
+            return self._aggregate_inclusive_fit(rnd, results)
+
         split_index = None
         previous_parameters = self.latest_parameters
         weighted_metrics: List[Tuple[int, Dict[str, Scalar]]] = []
@@ -829,6 +971,22 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
                     split_index = len(arrays) // 2
                 numerators = [np.zeros_like(arr) for arr in arrays[:split_index]]
                 denominators = [np.zeros_like(arr, dtype=np.float32) for arr in arrays[:split_index]]
+
+            if self.hetero_fedavg:
+                assert split_index is not None
+                aggregated, weighted_metrics = self._aggregate_masked_layer_updates(
+                    split_index=split_index,
+                    results=results,
+                    previous_parameters=previous_parameters,
+                )
+                self.latest_parameters = aggregated
+                metrics = _weighted_numeric_metrics(weighted_metrics)
+                if self.use_wandb and metrics:
+                    log_data = {f"server/train_{key}": float(value) for key, value in metrics.items()}
+                    log_data["round"] = rnd
+                    wandb.log(log_data, step=rnd, commit=False)
+                self._append_metric_row(rnd, "train", metrics)
+                return ndarrays_to_parameters(list(aggregated)), metrics
 
             local_parameters = arrays[:split_index]
             local_masks = arrays[split_index : 2 * split_index]
@@ -995,6 +1153,14 @@ def parse_args() -> argparse.Namespace:
         help="Weights & Biases entity (team/user)",
     )
     parser.add_argument("--spa_hfl", action="store_true", default=False, help="Enable SPA-HFL aggregation state")
+    parser.add_argument(
+        "--hetero_fedavg",
+        action="store_true",
+        default=False,
+        help="Use heterogeneous FedAvg aggregation over sample-weighted layer updates/deltas.",
+    )
+    parser.add_argument("--inclusive_fl", action="store_true", default=False, help="Enable InclusiveFL group transfer aggregation.")
+    parser.add_argument("--inclusive_beta", type=float, default=0.5, help="InclusiveFL blend weight for larger-model shared knowledge.")
     parser.add_argument("--spc", action="store_true", default=False, help="Enable SPC-HeteroFL clustered heads")
     parser.add_argument(
         "--pattern_weighted_residual_heads",
@@ -1045,12 +1211,16 @@ def parse_args() -> argparse.Namespace:
     mode_count = sum(
         [
             bool(args.spa_hfl),
+            bool(args.hetero_fedavg),
+            bool(args.inclusive_fl),
             bool(args.spc),
             bool(args.pattern_weighted_residual_heads),
         ]
     )
     if mode_count > 1:
-        raise ValueError("--spa_hfl, --spc, and --pattern_weighted_residual_heads are mutually exclusive modes.")
+        raise ValueError("--inclusive_fl, --hetero_fedavg, --spa_hfl, --spc, and --pattern_weighted_residual_heads are mutually exclusive modes.")
+    if not (0.0 <= args.inclusive_beta <= 1.0):
+        raise ValueError("--inclusive_beta must be in [0, 1].")
     if args.spc_cluster_count <= 0:
         raise ValueError("--spc_cluster_count must be positive.")
     if args.num_residual_heads <= 0:
@@ -1085,7 +1255,7 @@ def main() -> None:
             project=args.wandb_project,
             name=(
                 f"flwr-hetero-server"
-                f"{'-pwrh' if args.pattern_weighted_residual_heads else '-spc' if args.spc else '-spa' if args.spa_hfl else 'hfl'}"
+                f"{'-pwrh' if args.pattern_weighted_residual_heads else '-spc' if args.spc else '-spa' if args.spa_hfl else '-inclusive-fl' if args.inclusive_fl else '-hetero-fedavg' if args.hetero_fedavg else 'hfl'}"
             ),
             mode="online",
         )
@@ -1102,8 +1272,15 @@ def main() -> None:
                     if args.spc
                     else "spa_hfl_masked_fedavg"
                     if args.spa_hfl
+                    else "inclusive_fl_group_transfer"
+                    if args.inclusive_fl
+                    else "heterogeneous_fedavg_layer_updates"
+                    if args.hetero_fedavg
                     else "heterofl_masked_fedavg"
                 ),
+                "hetero_fedavg": args.hetero_fedavg,
+                "inclusive_fl": args.inclusive_fl,
+                "inclusive_beta": args.inclusive_beta,
                 "spa_hfl": args.spa_hfl,
                 "spc": args.spc,
                 "pattern_weighted_residual_heads": args.pattern_weighted_residual_heads,
@@ -1118,6 +1295,9 @@ def main() -> None:
     strategy = WandbHeteroFedAvg(
         use_wandb=getattr(args, "wandb", False),
         spa_hfl=args.spa_hfl,
+        hetero_fedavg=args.hetero_fedavg,
+        inclusive_fl=args.inclusive_fl,
+        inclusive_beta=args.inclusive_beta,
         spc=args.spc,
         pattern_weighted_residual_heads=args.pattern_weighted_residual_heads,
         align_dim=args.align_dim,

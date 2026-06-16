@@ -5,10 +5,15 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="$ROOT_DIR/benchmark_logs"
 DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed.csv"
 PREDICTION_STEPS=4
+HETERO_FEDAVG_PORT=8089
+INCLUSIVE_FL_PORT=8088
+INCLUSIVE_BETA=0.5
 PLAIN_PORT=8090
 SPA_PORT=8091
 SPC_BASE_PORT=8092
 SPC_CLUSTER_COUNTS=(2 4)
+FEDPROX_PORT=8095
+FEDPROX_MU=0.01
 PWRH_PORT=8096
 PWRH_NUM_RESIDUAL_HEADS=6
 PWRH_TEMPERATURE=0.05
@@ -35,6 +40,102 @@ CLIENT_LAYERS=(
   3
 )
 
+CLIENT_MODEL_RATES=(
+  0.25
+  0.25
+  0.50
+  0.50
+  1.00
+  1.00
+)
+
+echo "Starting heterogeneous FedAvg benchmark server..."
+python3 "$ROOT_DIR/server-hetero.py" \
+  --server_address 127.0.0.1:"$HETERO_FEDAVG_PORT" \
+  --rounds 50 \
+  --min_fit_clients 6 \
+  --min_evaluate_clients 6 \
+  --min_available_clients 6 \
+  --model_name lstm \
+  --input_dim 9 \
+  --out_dim 4 \
+  --global_num_layers 3 \
+  --hetero_fedavg \
+  --metrics_log_path "$LOG_DIR/hetero_fedavg_server_metrics.csv" &
+SERVER_PID=$!
+sleep 3
+
+CLIENT_PIDS=()
+for idx in "${!CLIENT_CIDS[@]}"; do
+  cid="${CLIENT_CIDS[$idx]}"
+  layers="${CLIENT_LAYERS[$idx]}"
+  model_rate="${CLIENT_MODEL_RATES[$idx]}"
+  python3 "$ROOT_DIR/client-hetero.py" \
+    --server_address 127.0.0.1:"$HETERO_FEDAVG_PORT" \
+    --cid "$cid" \
+    --data_path "$DATA_PATH" \
+    --model_name lstm \
+    --prediction_steps "$PREDICTION_STEPS" \
+    --local_num_layers "$layers" \
+    --global_num_layers 3 \
+    --model_rate "$model_rate" \
+    --epochs 5 \
+    --hetero_fedavg \
+    --wandb \
+    --metrics_log_path "$LOG_DIR/hetero_fedavg_client_${cid}_L${layers}_metrics.csv" \
+    --batch_size 64 &
+  CLIENT_PIDS+=($!)
+done
+
+for pid in "${CLIENT_PIDS[@]}"; do
+  wait "$pid"
+done
+wait $SERVER_PID
+
+echo "Starting InclusiveFL benchmark server..."
+python3 "$ROOT_DIR/server-hetero.py" \
+  --server_address 127.0.0.1:"$INCLUSIVE_FL_PORT" \
+  --rounds 50 \
+  --min_fit_clients 6 \
+  --min_evaluate_clients 6 \
+  --min_available_clients 6 \
+  --model_name lstm \
+  --input_dim 9 \
+  --out_dim 4 \
+  --global_num_layers 3 \
+  --inclusive_fl \
+  --inclusive_beta "$INCLUSIVE_BETA" \
+  --metrics_log_path "$LOG_DIR/inclusive_fl_server_metrics.csv" &
+SERVER_PID=$!
+sleep 3
+
+CLIENT_PIDS=()
+for idx in "${!CLIENT_CIDS[@]}"; do
+  cid="${CLIENT_CIDS[$idx]}"
+  layers="${CLIENT_LAYERS[$idx]}"
+  model_rate="${CLIENT_MODEL_RATES[$idx]}"
+  python3 "$ROOT_DIR/client-hetero.py" \
+    --server_address 127.0.0.1:"$INCLUSIVE_FL_PORT" \
+    --cid "$cid" \
+    --data_path "$DATA_PATH" \
+    --model_name lstm \
+    --prediction_steps "$PREDICTION_STEPS" \
+    --local_num_layers "$layers" \
+    --global_num_layers 3 \
+    --model_rate "$model_rate" \
+    --epochs 5 \
+    --inclusive_fl \
+    --wandb \
+    --metrics_log_path "$LOG_DIR/inclusive_fl_client_${cid}_L${layers}_metrics.csv" \
+    --batch_size 64 &
+  CLIENT_PIDS+=($!)
+done
+
+for pid in "${CLIENT_PIDS[@]}"; do
+  wait "$pid"
+done
+wait $SERVER_PID
+
 echo "Starting plain HeteroFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$PLAIN_PORT" \
@@ -54,6 +155,7 @@ CLIENT_PIDS=()
 for idx in "${!CLIENT_CIDS[@]}"; do
   cid="${CLIENT_CIDS[$idx]}"
   layers="${CLIENT_LAYERS[$idx]}"
+  model_rate="${CLIENT_MODEL_RATES[$idx]}"
   python3 "$ROOT_DIR/client-hetero.py" \
     --server_address 127.0.0.1:"$PLAIN_PORT" \
     --cid "$cid" \
@@ -62,9 +164,50 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --prediction_steps "$PREDICTION_STEPS" \
     --local_num_layers "$layers" \
     --global_num_layers 3 \
+    --model_rate "$model_rate" \
     --epochs 5 \
     --wandb \
     --metrics_log_path "$LOG_DIR/plain_heterofl_client_${cid}_L${layers}_metrics.csv" \
+    --batch_size 64 &
+  CLIENT_PIDS+=($!)
+done
+
+for pid in "${CLIENT_PIDS[@]}"; do
+  wait "$pid"
+done
+wait $SERVER_PID
+
+echo "Starting FedProx benchmark server..."
+python3 "$ROOT_DIR/server-hetero.py" \
+  --server_address 127.0.0.1:"$FEDPROX_PORT" \
+  --rounds 50 \
+  --min_fit_clients 6 \
+  --min_evaluate_clients 6 \
+  --min_available_clients 6 \
+  --model_name lstm \
+  --input_dim 9 \
+  --out_dim 4 \
+  --global_num_layers 3 \
+  --metrics_log_path "$LOG_DIR/fedprox_server_metrics.csv" &
+SERVER_PID=$!
+sleep 3
+
+CLIENT_PIDS=()
+for idx in "${!CLIENT_CIDS[@]}"; do
+  cid="${CLIENT_CIDS[$idx]}"
+  layers="${CLIENT_LAYERS[$idx]}"
+  python3 "$ROOT_DIR/client-hetero.py" \
+    --server_address 127.0.0.1:"$FEDPROX_PORT" \
+    --cid "$cid" \
+    --data_path "$DATA_PATH" \
+    --model_name lstm \
+    --prediction_steps "$PREDICTION_STEPS" \
+    --local_num_layers "$layers" \
+    --global_num_layers 3 \
+    --epochs 5 \
+    --fedprox_mu "$FEDPROX_MU" \
+    --wandb \
+    --metrics_log_path "$LOG_DIR/fedprox_client_${cid}_L${layers}_metrics.csv" \
     --batch_size 64 &
   CLIENT_PIDS+=($!)
 done
@@ -228,7 +371,10 @@ done
 wait $SERVER_PID
 
 echo "Benchmark complete."
+echo "Heterogeneous FedAvg metrics: $LOG_DIR/hetero_fedavg_server_metrics.csv"
+echo "InclusiveFL metrics: $LOG_DIR/inclusive_fl_server_metrics.csv"
 echo "Plain metrics: $LOG_DIR/plain_heterofl_server_metrics.csv"
+echo "FedProx metrics: $LOG_DIR/fedprox_server_metrics.csv"
 # echo "SPA-HFL metrics: $LOG_DIR/spa_hfl_server_metrics.csv"
 # for SPC_CLUSTER_COUNT in "${SPC_CLUSTER_COUNTS[@]}"; do
 #   echo "SPC-HeteroFL k=${SPC_CLUSTER_COUNT} metrics: $LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_server_metrics.csv"

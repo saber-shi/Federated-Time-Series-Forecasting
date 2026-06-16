@@ -10,7 +10,6 @@ parent = Path(__file__).resolve().parents[2]
 if parent not in sys.path:
     sys.path.insert(0, str(parent))
 
-import copy
 from logging import INFO
 from typing import Tuple, List, Union
 
@@ -52,13 +51,13 @@ def train(model: torch.nn.Module,
             cb_tracker = CarbonTracker(epochs=epochs, components="all", verbose=1)
         except ImportError:
             pass
+    model.to(device)
     optimizer = get_optim(model, optimizer, lr)
     criterion = get_criterion(criterion)
-    global_weight_collector = copy.deepcopy(list(model.parameters()))
+    global_weight_collector = [param.detach().clone() for param in model.parameters()]
     for epoch in range(epochs):
         if use_carbontracker and cb_tracker is not None:
             cb_tracker.epoch_start()
-        model.to(device)
         model.train()
         epoch_loss = []
         for x, exogenous, y_hist, y in train_loader:

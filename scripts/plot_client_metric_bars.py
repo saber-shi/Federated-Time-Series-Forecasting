@@ -2,7 +2,7 @@
 import argparse
 import csv
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import matplotlib
 
@@ -12,22 +12,31 @@ import matplotlib.pyplot as plt
 
 METRICS = ["loss", "mse", "rmse", "mae", "r2", "nrmse"]
 METHOD_PATTERNS = {
+    "hetero_fedavg": "hetero_fedavg_client_*_metrics.csv",
+    "inclusive_fl": "inclusive_fl_client_*_metrics.csv",
     "plain": "plain_heterofl_client_*_metrics.csv",
+    "fedprox": "fedprox_client_*_metrics.csv",
     "pwrh": "pwrh_client_*_metrics.csv",
 }
 METHOD_LABELS = {
+    "hetero_fedavg": "Hetero FedAvg",
+    "inclusive_fl": "InclusiveFL",
     "plain": "Plain HeteroFL",
+    "fedprox": "FedProx",
     "pwrh": "PWRH",
 }
 METHOD_COLORS = {
+    "hetero_fedavg": "#7B2CBF",
+    "inclusive_fl": "#F2C14E",
     "plain": "#2E86AB",
+    "fedprox": "#6A994E",
     "pwrh": "#E07A5F",
 }
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Plot final validation client metrics as bar charts for plain HeteroFL vs PWRH."
+        description="Plot final validation client metrics as bar charts for heterogeneous FedAvg, InclusiveFL, HeteroFL, FedProx, and PWRH."
     )
     parser.add_argument("--log_dir", type=str, default="benchmark_logs")
     parser.add_argument("--output_dir", type=str, default="benchmark_logs/figures/client_metric_bars")
@@ -68,31 +77,24 @@ def ordered_clients(*method_results: Dict[str, Dict[str, float]]) -> List[str]:
 def plot_metric(
     metric: str,
     clients: List[str],
-    plain_results: Dict[str, Dict[str, float]],
-    pwrh_results: Dict[str, Dict[str, float]],
+    method_results: Dict[str, Dict[str, Dict[str, float]]],
     output_dir: Path,
 ) -> Path:
     x_positions = list(range(len(clients)))
-    width = 0.38
-
-    plain_values = [plain_results[cid][metric] for cid in clients]
-    pwrh_values = [pwrh_results[cid][metric] for cid in clients]
+    methods = list(method_results.keys())
+    width = min(0.28, 0.8 / max(1, len(methods)))
 
     fig, ax = plt.subplots(figsize=(max(10, len(clients) * 1.2), 6))
-    ax.bar(
-        [x - width / 2 for x in x_positions],
-        plain_values,
-        width=width,
-        label=METHOD_LABELS["plain"],
-        color=METHOD_COLORS["plain"],
-    )
-    ax.bar(
-        [x + width / 2 for x in x_positions],
-        pwrh_values,
-        width=width,
-        label=METHOD_LABELS["pwrh"],
-        color=METHOD_COLORS["pwrh"],
-    )
+    for idx, method in enumerate(methods):
+        offset = (idx - (len(methods) - 1) / 2) * width
+        values = [method_results[method][cid][metric] for cid in clients]
+        ax.bar(
+            [x + offset for x in x_positions],
+            values,
+            width=width,
+            label=METHOD_LABELS[method],
+            color=METHOD_COLORS[method],
+        )
 
     ax.set_title(f"Final Validation {metric.upper()} by Client")
     ax.set_xlabel("Client ID")
@@ -110,21 +112,23 @@ def plot_metric(
 
 
 def validate_results(
-    plain_results: Dict[str, Dict[str, float]],
-    pwrh_results: Dict[str, Dict[str, float]],
-) -> Tuple[Dict[str, Dict[str, float]], Dict[str, Dict[str, float]]]:
-    if not plain_results:
-        raise ValueError("No plain client metric files were found.")
-    if not pwrh_results:
-        raise ValueError("No PWRH client metric files were found.")
-    missing_in_plain = sorted(set(pwrh_results) - set(plain_results))
-    missing_in_pwrh = sorted(set(plain_results) - set(pwrh_results))
-    if missing_in_plain or missing_in_pwrh:
-        raise ValueError(
-            "Client mismatch between methods. "
-            f"Missing in plain: {missing_in_plain}. Missing in PWRH: {missing_in_pwrh}."
-        )
-    return plain_results, pwrh_results
+    method_results: Dict[str, Dict[str, Dict[str, float]]],
+) -> Dict[str, Dict[str, Dict[str, float]]]:
+    for method, results in method_results.items():
+        if not results:
+            raise ValueError(f"No {METHOD_LABELS[method]} client metric files were found.")
+    reference_method = next(iter(method_results))
+    reference_clients = set(method_results[reference_method])
+    for method, results in method_results.items():
+        missing_in_reference = sorted(set(results) - reference_clients)
+        missing_in_method = sorted(reference_clients - set(results))
+        if missing_in_reference or missing_in_method:
+            raise ValueError(
+                "Client mismatch between methods. "
+                f"{method} has extra clients: {missing_in_reference}. "
+                f"{method} is missing clients: {missing_in_method}."
+            )
+    return method_results
 
 
 def main() -> None:
@@ -133,14 +137,16 @@ def main() -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    plain_results = collect_method_results(log_dir, "plain")
-    pwrh_results = collect_method_results(log_dir, "pwrh")
-    plain_results, pwrh_results = validate_results(plain_results, pwrh_results)
-    clients = ordered_clients(plain_results, pwrh_results)
+    method_results = {
+        method: collect_method_results(log_dir, method)
+        for method in METHOD_PATTERNS
+    }
+    method_results = validate_results(method_results)
+    clients = ordered_clients(*method_results.values())
 
     saved_paths = []
     for metric in args.metrics:
-        saved_paths.append(plot_metric(metric, clients, plain_results, pwrh_results, output_dir))
+        saved_paths.append(plot_metric(metric, clients, method_results, output_dir))
 
     print("Saved client comparison figures:")
     for path in saved_paths:

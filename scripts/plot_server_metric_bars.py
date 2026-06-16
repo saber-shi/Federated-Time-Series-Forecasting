@@ -13,22 +13,31 @@ import matplotlib.pyplot as plt
 AVAILABLE_METRICS = ["loss", "mse", "rmse", "mae", "r2", "nrmse"]
 DEFAULT_METRICS = ["mse", "rmse", "mae", "nrmse"]
 SERVER_FILES = {
+    "hetero_fedavg": "hetero_fedavg_server_metrics.csv",
+    "inclusive_fl": "inclusive_fl_server_metrics.csv",
     "plain": "plain_heterofl_server_metrics.csv",
+    "fedprox": "fedprox_server_metrics.csv",
     "pwrh": "pwrh_server_metrics.csv",
 }
 METHOD_LABELS = {
+    "hetero_fedavg": "Hetero FedAvg",
+    "inclusive_fl": "InclusiveFL",
     "plain": "Plain HeteroFL",
+    "fedprox": "FedProx",
     "pwrh": "PWRH",
 }
 METHOD_COLORS = {
+    "hetero_fedavg": "#7B2CBF",
+    "inclusive_fl": "#F2C14E",
     "plain": "#2E86AB",
+    "fedprox": "#6A994E",
     "pwrh": "#E07A5F",
 }
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Plot final validation server metrics in one bar chart for plain HeteroFL vs PWRH."
+        description="Plot final validation server metrics in one bar chart for heterogeneous FedAvg, InclusiveFL, HeteroFL, FedProx, and PWRH."
     )
     parser.add_argument("--log_dir", type=str, default="benchmark_logs")
     parser.add_argument("--output_path", type=str, default="benchmark_logs/figures/server_metric_bars.png")
@@ -63,10 +72,12 @@ def collect_server_results(log_dir: Path, metrics: List[str]) -> Dict[str, Dict[
 
 def plot_server_metric_bars(results: Dict[str, Dict[str, float]], metrics: List[str], output_path: Path) -> Path:
     x_positions = list(range(len(metrics)))
-    width = 0.38
+    methods = list(results.keys())
+    width = min(0.28, 0.8 / max(1, len(methods)))
 
     fig, ax = plt.subplots(figsize=(max(9, len(metrics) * 1.2), 6))
-    for offset, method in [(-width / 2, "plain"), (width / 2, "pwrh")]:
+    for idx, method in enumerate(methods):
+        offset = (idx - (len(methods) - 1) / 2) * width
         values = [results[method][metric] for metric in metrics]
         ax.bar(
             [x + offset for x in x_positions],
