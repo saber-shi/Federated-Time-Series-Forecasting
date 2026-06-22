@@ -1,0 +1,109 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            hy922amnspf4bgbsr75uz5mwa1eozboz:
+                args:
+                    - --server_address
+                    - 127.0.0.1:8096
+                    - --rounds
+                    - "100"
+                    - --min_fit_clients
+                    - "6"
+                    - --min_evaluate_clients
+                    - "6"
+                    - --min_available_clients
+                    - "6"
+                    - --model_name
+                    - lstm
+                    - --input_dim
+                    - "9"
+                    - --out_dim
+                    - "4"
+                    - --global_num_layers
+                    - "3"
+                    - --pattern_weighted_residual_heads
+                    - --num_residual_heads
+                    - "6"
+                    - --residual_head_temperature
+                    - "0.1"
+                    - --residual_head_init_scale
+                    - "0.01"
+                    - --residual_head_server_weight_power
+                    - "0.0"
+                    - --wandb
+                    - --metrics_log_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs_l2_2months_noscale_baselines/pwrh_server_metrics.csv
+                    - --residual_head_weight_log_path
+                    - /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs_l2_2months_noscale_baselines/pwrh_residual_head_weights.csv
+                codePath: server-hetero.py
+                codePathLocal: server-hetero.py
+                cpu_count: 12
+                cpu_count_logical: 12
+                disk:
+                    /:
+                        total: "60725108736"
+                        used: "40091070464"
+                email: shisiping1992@gmail.com
+                executable: /home/hkuiot/miniconda3/envs/fed/bin/python3
+                git:
+                    commit: b8365eb21c03f3a4217779b54558edee2ec35d6c
+                    remote: https://github.com/saber-shi/Federated-Time-Series-Forecasting.git
+                host: hkuiot-orin-1
+                memory:
+                    total: "65853022208"
+                os: Linux-5.10.120-tegra-aarch64-with-glibc2.26
+                program: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting/server-hetero.py
+                python: CPython 3.8.20
+                root: /home/hkuiot/Desktop/Federated-Time-Series-Forecasting
+                startedAt: "2026-06-22T10:05:05.714317Z"
+                writerId: hy922amnspf4bgbsr75uz5mwa1eozboz
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 13
+                - 61
+            "4": 3.8.20
+            "5": 0.24.2
+            "12": 0.24.2
+            "13": linux-aarch64
+aggregation:
+    value: pattern_weighted_residual_heads
+hetero_fedavg:
+    value: false
+inclusive_beta:
+    value: 0.5
+inclusive_fl:
+    value: false
+min_available_clients:
+    value: 6
+min_evaluate_clients:
+    value: 6
+min_fit_clients:
+    value: 6
+num_residual_heads:
+    value: 6
+pattern_cluster_count:
+    value: 1
+pattern_weighted_residual_heads:
+    value: true
+rounds:
+    value: 100
+spa_hfl:
+    value: false
+spc:
+    value: false
+spc_cluster_count:
+    value: 2
+strict_synchronous:
+    value: true

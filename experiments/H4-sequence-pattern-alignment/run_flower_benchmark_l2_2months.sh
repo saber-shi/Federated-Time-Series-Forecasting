@@ -2,10 +2,10 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-LOG_DIR="$ROOT_DIR/benchmark_logs_l2_2months_noscale"
+LOG_DIR="$ROOT_DIR/benchmark_logs_l2_2months_noscale_baselines"
 DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed-l2-2months.csv"
-MODEL_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months"
-PREDICTION_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months"
+MODEL_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months_baselines"
+PREDICTION_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months_baselines"
 PREDICTION_STEPS=4
 HETERO_FEDAVG_PORT=8089
 INCLUSIVE_FL_PORT=8088
@@ -54,7 +54,7 @@ CLIENT_MODEL_RATES=(
 echo "Starting heterogeneous FedAvg benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$HETERO_FEDAVG_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
@@ -99,7 +99,7 @@ wait $SERVER_PID
 echo "Starting InclusiveFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$INCLUSIVE_FL_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
@@ -145,7 +145,7 @@ wait $SERVER_PID
 echo "Starting plain HeteroFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$PLAIN_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
@@ -188,7 +188,7 @@ wait $SERVER_PID
 echo "Starting FedProx benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$FEDPROX_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
@@ -227,115 +227,10 @@ for pid in "${CLIENT_PIDS[@]}"; do
 done
 wait $SERVER_PID
 
-# echo "Starting SPA-HFL benchmark server..."
-# python3 "$ROOT_DIR/server-hetero.py" \
-#   --server_address 127.0.0.1:"$SPA_PORT" \
-#   --rounds 50 \
-#   --min_fit_clients 6 \
-#   --min_evaluate_clients 6 \
-#   --min_available_clients 6 \
-#   --model_name lstm \
-#   --input_dim 9 \
-#   --out_dim 4 \
-#   --global_num_layers 3 \
-#   --spa_hfl \
-#   --align_dim 32 \
-#   --pattern_cluster_count 3 \
-#   --pattern_cluster_iters 10 \
-#   --wandb \
-#   --metrics_log_path "$LOG_DIR/spa_hfl_server_metrics.csv" &
-# SERVER_PID=$!
-# sleep 3
-
-# CLIENT_PIDS=()
-# for idx in "${!CLIENT_CIDS[@]}"; do
-#   cid="${CLIENT_CIDS[$idx]}"
-#   layers="${CLIENT_LAYERS[$idx]}"
-#   python3 "$ROOT_DIR/client-hetero.py" \
-#     --server_address 127.0.0.1:"$SPA_PORT" \
-#     --cid "$cid" \
-#     --data_path "$DATA_PATH" \
-#     --model_name lstm \
-#     --prediction_steps "$PREDICTION_STEPS" \
-#     --local_num_layers "$layers" \
-#     --global_num_layers 3 \
-#     --epochs 5 \
-#     --batch_size 64 \
-#     --spa_hfl \
-#     --align_dim 32 \
-#     --wandb \
-#     --metrics_log_path "$LOG_DIR/spa_hfl_client_${cid}_L${layers}_metrics.csv" \
-#     --model_save_path "$MODEL_SAVE_DIR/spa_hfl_{cid}_{model_name}_final.pt" \
-#     --prediction_save_path "$PREDICTION_SAVE_DIR/spa_hfl_{cid}_{model_name}_last_{num_lags}.csv" \
-#     --lambda_align 0.005 \
-#     --lambda_cons 0 &
-#   CLIENT_PIDS+=($!)
-# done
-
-# for pid in "${CLIENT_PIDS[@]}"; do
-#   wait "$pid"
-# done
-# wait $SERVER_PID
-
-# for cluster_idx in "${!SPC_CLUSTER_COUNTS[@]}"; do
-#   SPC_CLUSTER_COUNT="${SPC_CLUSTER_COUNTS[$cluster_idx]}"
-#   SPC_PORT=$((SPC_BASE_PORT + cluster_idx))
-
-#   echo "Starting SPC-HeteroFL benchmark server with ${SPC_CLUSTER_COUNT} clusters..."
-#   python3 "$ROOT_DIR/server-hetero.py" \
-#     --server_address 127.0.0.1:"$SPC_PORT" \
-#     --rounds 50 \
-#     --min_fit_clients 6 \
-#     --min_evaluate_clients 6 \
-#     --min_available_clients 6 \
-#     --model_name lstm \
-#     --input_dim 9 \
-#     --out_dim 4 \
-#     --global_num_layers 3 \
-#     --spc \
-#     --spc_cluster_count "$SPC_CLUSTER_COUNT" \
-#     --spc_cluster_iters 10 \
-#     --wandb \
-#     --metrics_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_server_metrics.csv" \
-#     --spc_assignment_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_assignments.csv" &
-#   SERVER_PID=$!
-#   sleep 3
-
-#   CLIENT_PIDS=()
-#   for idx in "${!CLIENT_CIDS[@]}"; do
-#     cid="${CLIENT_CIDS[$idx]}"
-#     layers="${CLIENT_LAYERS[$idx]}"
-#     python3 "$ROOT_DIR/client-hetero.py" \
-#       --server_address 127.0.0.1:"$SPC_PORT" \
-#       --cid "$cid" \
-#       --data_path "$DATA_PATH" \
-#       --model_name lstm \
-#       --prediction_steps "$PREDICTION_STEPS" \
-#       --local_num_layers "$layers" \
-#       --global_num_layers 3 \
-#       --epochs 5 \
-#       --batch_size 64 \
-#       --spc \
-#       --spc_cluster_count "$SPC_CLUSTER_COUNT" \
-#       --spc_pattern_source y_hist \
-#       --wandb \
-#       --metrics_log_path "$LOG_DIR/spc_k${SPC_CLUSTER_COUNT}_client_${cid}_L${layers}_metrics.csv" \
-#       --model_save_path "$MODEL_SAVE_DIR/spc_k${SPC_CLUSTER_COUNT}_{cid}_{model_name}_final.pt" \
-#       --prediction_save_path "$PREDICTION_SAVE_DIR/spc_k${SPC_CLUSTER_COUNT}_{cid}_{model_name}_last_{num_lags}.csv" &
-#     CLIENT_PIDS+=($!)
-#   done
-
-#   for pid in "${CLIENT_PIDS[@]}"; do
-#     wait "$pid"
-#   done
-#   wait $SERVER_PID
-# done
-
-
 echo "Starting Pattern-Weighted Residual Heads benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$PWRH_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \

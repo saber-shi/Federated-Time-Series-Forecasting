@@ -1,0 +1,12 @@
+{"time":"2026-06-21T22:12:14.932350496+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
+{"time":"2026-06-21T22:12:15.312703134+08:00","level":"INFO","msg":"stream: created new stream","id":"ejml12nw"}
+{"time":"2026-06-21T22:12:15.312964228+08:00","level":"INFO","msg":"handler: started","stream_id":"ejml12nw"}
+{"time":"2026-06-21T22:12:15.313740021+08:00","level":"INFO","msg":"stream: started","id":"ejml12nw"}
+{"time":"2026-06-21T22:12:15.314417251+08:00","level":"INFO","msg":"writer: started","stream_id":"ejml12nw"}
+{"time":"2026-06-21T22:12:15.314447812+08:00","level":"INFO","msg":"sender: started","stream_id":"ejml12nw"}
+{"time":"2026-06-21T22:16:53.231628381+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-06-21T22:16:53.598745668+08:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2026-06-21T22:16:53.61442415+08:00","level":"INFO","msg":"stream: closing","id":"ejml12nw"}
+{"time":"2026-06-21T22:16:53.614739451+08:00","level":"INFO","msg":"handler: closed","stream_id":"ejml12nw"}
+{"time":"2026-06-21T22:16:53.615368197+08:00","level":"INFO","msg":"sender: closed","stream_id":"ejml12nw"}
+{"time":"2026-06-21T22:16:53.615641705+08:00","level":"INFO","msg":"stream: closed","id":"ejml12nw"}

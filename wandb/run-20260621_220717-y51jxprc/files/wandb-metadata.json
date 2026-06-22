@@ -1,0 +1,58 @@
+{
+  "os": "Linux-5.10.120-tegra-aarch64-with-glibc2.26",
+  "python": "CPython 3.8.20",
+  "startedAt": "2026-06-21T14:07:17.801457Z",
+  "args": [
+    "--server_address",
+    "127.0.0.1:8088",
+    "--cid",
+    "12163-0",
+    "--data_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed-l2-2months.csv",
+    "--model_name",
+    "lstm",
+    "--prediction_steps",
+    "4",
+    "--local_num_layers",
+    "1",
+    "--global_num_layers",
+    "3",
+    "--model_rate",
+    "0.25",
+    "--epochs",
+    "5",
+    "--inclusive_fl",
+    "--wandb",
+    "--metrics_log_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/benchmark_logs_l2_2months_noscale_baselines/inclusive_fl_client_12163-0_L1_metrics.csv",
+    "--model_save_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months/inclusive_fl_{cid}_{model_name}_final.pt",
+    "--prediction_save_path",
+    "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months/inclusive_fl_{cid}_{model_name}_last_{num_lags}.csv",
+    "--batch_size",
+    "64"
+  ],
+  "program": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/client-hetero.py",
+  "codePath": "client-hetero.py",
+  "codePathLocal": "client-hetero.py",
+  "git": {
+    "remote": "https://github.com/saber-shi/Federated-Time-Series-Forecasting.git",
+    "commit": "b8365eb21c03f3a4217779b54558edee2ec35d6c"
+  },
+  "email": "shisiping1992@gmail.com",
+  "root": "/home/hkuiot/Desktop/Federated-Time-Series-Forecasting",
+  "host": "hkuiot-orin-1",
+  "executable": "/home/hkuiot/miniconda3/envs/fed/bin/python3",
+  "cpu_count": 12,
+  "cpu_count_logical": 12,
+  "disk": {
+    "/": {
+      "total": "60725108736",
+      "used": "40530108416"
+    }
+  },
+  "memory": {
+    "total": "65853022208"
+  },
+  "writerId": "i1tojthts93r3c7dlu2f2dxohdfwnecs"
+}
