@@ -3,3 +3,4 @@ dataset/5G-weekend-1d.csv
 benchmark_logs_3
 benchmark_logs_2_4
 benchmark_logs_noscale
+wandb/

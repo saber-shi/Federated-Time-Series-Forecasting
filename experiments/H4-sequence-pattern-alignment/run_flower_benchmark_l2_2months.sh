@@ -161,7 +161,6 @@ CLIENT_PIDS=()
 for idx in "${!CLIENT_CIDS[@]}"; do
   cid="${CLIENT_CIDS[$idx]}"
   layers="${CLIENT_LAYERS[$idx]}"
-  model_rate="${CLIENT_MODEL_RATES[$idx]}"
   python3 "$ROOT_DIR/client-hetero.py" \
     --server_address 127.0.0.1:"$PLAIN_PORT" \
     --cid "$cid" \
@@ -170,7 +169,6 @@ for idx in "${!CLIENT_CIDS[@]}"; do
     --prediction_steps "$PREDICTION_STEPS" \
     --local_num_layers "$layers" \
     --global_num_layers 3 \
-    --model_rate "$model_rate" \
     --epochs 5 \
     --wandb \
     --metrics_log_path "$LOG_DIR/plain_heterofl_client_${cid}_L${layers}_metrics.csv" \

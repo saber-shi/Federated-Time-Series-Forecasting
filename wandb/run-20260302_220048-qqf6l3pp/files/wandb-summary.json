@@ -1,1 +1,0 @@
-{"_runtime":492,"client/train_mae":0.027975168079137802,"client/train_r2":0.8392211290393484,"_timestamp":1.7724605424821463e+09,"_step":9,"client/train_mse":0.0016301216091960669,"client/train_rmse":0.04037476450948125,"client/train_nrmse":0.13967549970420826,"client/train_loss":1.2754900177791364e-05,"_wandb":{"runtime":492}}

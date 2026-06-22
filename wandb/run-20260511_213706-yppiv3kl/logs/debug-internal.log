@@ -1,6 +1,0 @@
-{"time":"2026-05-11T21:37:06.671588291+08:00","level":"INFO","msg":"stream: starting","core version":"0.24.2"}
-{"time":"2026-05-11T21:37:07.017060172+08:00","level":"INFO","msg":"stream: created new stream","id":"yppiv3kl"}
-{"time":"2026-05-11T21:37:07.017147905+08:00","level":"INFO","msg":"handler: started","stream_id":"yppiv3kl"}
-{"time":"2026-05-11T21:37:07.017325253+08:00","level":"INFO","msg":"stream: started","id":"yppiv3kl"}
-{"time":"2026-05-11T21:37:07.017351944+08:00","level":"INFO","msg":"writer: started","stream_id":"yppiv3kl"}
-{"time":"2026-05-11T21:37:07.017377925+08:00","level":"INFO","msg":"sender: started","stream_id":"yppiv3kl"}

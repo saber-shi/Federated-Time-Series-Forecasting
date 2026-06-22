@@ -1,1 +1,0 @@
-{"client/train_mae":0.02810771018266678,"client/train_nrmse":0.14055955327675188,"_wandb":{"runtime":63},"client/train_r2":0.8357787897971696,"client/train_rmse":0.04071125275649583,"client/train_loss":1.2968588712977446e-05,"_runtime":63,"_step":9,"_timestamp":1.772367139282594e+09,"client/train_mse":0.0016574061010032892}

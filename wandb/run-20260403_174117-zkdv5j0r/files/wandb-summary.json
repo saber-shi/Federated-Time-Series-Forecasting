@@ -1,1 +1,0 @@
-{"_step":0,"client/spa_hfl":0,"client/val_mse":0.05706386640667915,"client/local_num_layers":2,"client/val_loss":0.0009016653588362068,"client/val_mae":0.19062377512454987,"client/val_r2":-4.623418396117126,"_timestamp":1.7752095534145656e+09,"_runtime":347,"client/val_nrmse":0.5890218695220326,"client/val_rmse":0.23888044375100936,"_wandb":{"runtime":347},"round":0}
