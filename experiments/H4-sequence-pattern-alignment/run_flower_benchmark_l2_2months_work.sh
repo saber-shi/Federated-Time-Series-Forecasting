@@ -2,10 +2,10 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-LOG_DIR="$ROOT_DIR/benchmark_logs_l2_2months_noscale"
+LOG_DIR="$ROOT_DIR/benchmark_logs_l2_2months_noscale_baselines"
 DATA_PATH="$ROOT_DIR/dataset/5G-2y-firstcell-6stations-medium-mixed-l2-2months.csv"
-MODEL_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months"
-PREDICTION_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months"
+MODEL_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_models_l2_2months_baselines"
+PREDICTION_SAVE_DIR="$ROOT_DIR/experiments/H4-sequence-pattern-alignment/saved_predictions_l2_2months_baselines"
 PREDICTION_STEPS=4
 PLAIN_PORT=8090
 SPA_PORT=8091
@@ -40,7 +40,7 @@ CLIENT_LAYERS=(
 echo "Starting plain HeteroFL benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$PLAIN_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
@@ -186,7 +186,7 @@ wait $SERVER_PID
 echo "Starting Pattern-Weighted Residual Heads benchmark server..."
 python3 "$ROOT_DIR/server-hetero.py" \
   --server_address 127.0.0.1:"$PWRH_PORT" \
-  --rounds 50 \
+  --rounds 100 \
   --min_fit_clients 6 \
   --min_evaluate_clients 6 \
   --min_available_clients 6 \
