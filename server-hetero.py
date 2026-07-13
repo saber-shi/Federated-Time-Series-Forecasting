@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import time
 from numbers import Number
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -31,6 +32,7 @@ SERVER_METRIC_FIELDNAMES = [
     "round",
     "split",
     "loss",
+    "forecast_accuracy",
     "global_num_layers",
     "local_num_layers",
     "model_rate",
@@ -48,6 +50,9 @@ SERVER_METRIC_FIELDNAMES = [
     "mae",
     "r2",
     "nrmse",
+    "round_train_time_seconds",
+    "round_evaluate_time_seconds",
+    "round_time_seconds",
     "align_train_loss",
     "align_train_rmse",
     "latent_mean_norm",
@@ -301,6 +306,8 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         self.residual_head_server_weight_power = kwargs.pop("residual_head_server_weight_power", 0.0)
         self.reference_keys = kwargs.pop("reference_keys", None)
         self.metrics_log_path = kwargs.pop("metrics_log_path", "")
+        self.round_start_times: Dict[int, float] = {}
+        self.round_evaluate_start_times: Dict[int, float] = {}
         super().__init__(*args, **kwargs)
         self.use_wandb = use_wandb and wandb is not None
         self.latest_parameters: Optional[NDArrays] = None
@@ -333,6 +340,16 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             raise ValueError("residual_head_temperature must be positive.")
         if not (0.0 <= self.inclusive_beta <= 1.0):
             raise ValueError("inclusive_beta must be in [0, 1].")
+
+    def configure_fit(self, server_round, parameters, client_manager):  # type: ignore[override]
+        """Start the wall-clock timer immediately before a round is sent to clients."""
+        self.round_start_times[int(server_round)] = time.perf_counter()
+        return super().configure_fit(server_round, parameters, client_manager)
+
+    def configure_evaluate(self, server_round, parameters, client_manager):  # type: ignore[override]
+        """Start the evaluation-phase timer before requests are sent to clients."""
+        self.round_evaluate_start_times[int(server_round)] = time.perf_counter()
+        return super().configure_evaluate(server_round, parameters, client_manager)
 
     def _aggregate_masked_layer_updates(
         self,
@@ -1090,7 +1107,15 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         return ndarrays_to_parameters(payload), metrics
 
     def aggregate_evaluate(self, rnd, results, failures):  # type: ignore[override]
+        evaluate_start_time = self.round_evaluate_start_times.pop(int(rnd), time.perf_counter())
         aggregated_loss, metrics = super().aggregate_evaluate(rnd, results, failures)
+        evaluate_time = time.perf_counter() - evaluate_start_time
+        round_start_time = self.round_start_times.pop(int(rnd), None)
+        round_time = time.perf_counter() - round_start_time if round_start_time is not None else evaluate_time
+        if metrics is None:
+            metrics = {}
+        metrics["round_evaluate_time_seconds"] = float(evaluate_time)
+        metrics["round_time_seconds"] = float(round_time)
         if self.use_wandb and aggregated_loss is not None:
             log_data = {"server/val_loss": float(aggregated_loss)}
             if metrics is not None:

@@ -45,16 +45,24 @@ CLIENT_METRIC_FIELDNAMES = [
     "fedprox",
     "fedprox_mu",
     "loss",
+    "forecast_accuracy",
     "mse",
     "rmse",
     "mae",
     "r2",
     "nrmse",
     "round_train_time_seconds",
+    "round_evaluate_time_seconds",
+    "round_total_time_seconds",
     "align_train_loss",
     "align_train_rmse",
     "latent_mean_norm",
 ]
+
+
+def forecast_accuracy_from_nrmse(nrmse: float) -> float:
+    """Return bounded normalized forecast accuracy, where 1.0 is best."""
+    return float(min(1.0, max(0.0, 1.0 - float(nrmse))))
 
 
 def seed_all(seed: int) -> None:
@@ -445,6 +453,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
         self.criterion = get_criterion(args.criterion)
         self.wandb_round = 0
+        self.round_start_times: Dict[int, float] = {}
         self.model = self.adapter.local_model.to(self.device)
         self.projector = AlignmentProjector(input_dim=self.model.hidden_dim, align_dim=args.align_dim).to(self.device)
 
@@ -454,6 +463,8 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         loss: float,
         metrics: Dict[str, float],
         round_train_time_seconds: float = None,
+        round_evaluate_time_seconds: float = None,
+        round_total_time_seconds: float = None,
         alignment_metrics: Dict[str, float] = None,
         alignment_stats: Dict[str, np.ndarray] = None,
     ) -> None:
@@ -483,6 +494,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
                 "fedprox": 1.0 if getattr(self.args, "fedprox_mu", 0.0) > 0.0 else 0.0,
                 "fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
                 "loss": float(loss),
+                "forecast_accuracy": float(metrics["forecast_accuracy"]),
                 "mse": float(metrics["mse"]),
                 "rmse": float(metrics["rmse"]),
                 "mae": float(metrics["mae"]),
@@ -492,6 +504,10 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         )
         if round_train_time_seconds is not None:
             row["round_train_time_seconds"] = float(round_train_time_seconds)
+        if round_evaluate_time_seconds is not None:
+            row["round_evaluate_time_seconds"] = float(round_evaluate_time_seconds)
+        if round_total_time_seconds is not None:
+            row["round_total_time_seconds"] = float(round_total_time_seconds)
         if alignment_metrics is not None:
             row["align_train_loss"] = float(alignment_metrics["train_loss"])
             row["align_train_rmse"] = float(alignment_metrics["train_rmse"])
@@ -613,6 +629,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         self.current_global_centroid = centroid
 
     def fit(self, parameters, config):  # type: ignore[override]
+        self.round_start_times[self.wandb_round + 1] = time.perf_counter()
         if parameters is not None:
             self._set_parameters(parameters)
 
@@ -683,6 +700,9 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
 
         metrics = {
             "cid": str(self.cid),
+            "loss": float(loss),
+            "forecast_accuracy": forecast_accuracy_from_nrmse(nrmse),
+            "round_train_time_seconds": float(round_train_time),
             "mse": float(mse),
             "rmse": float(rmse),
             "mae": float(mae),
@@ -718,6 +738,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         if wandb is not None and getattr(self.args, "wandb", False):
             log_data = {
                 "client/train_loss": float(loss),
+                "client/train_forecast_accuracy": float(metrics["forecast_accuracy"]),
                 "client/train_mse": float(mse),
                 "client/train_rmse": float(rmse),
                 "client/train_mae": float(mae),
@@ -770,6 +791,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
         return payload, len(self.train_loader.dataset), metrics
 
     def evaluate(self, parameters, config):  # type: ignore[override]
+        evaluate_start_time = time.perf_counter()
         if parameters is not None:
             self._set_parameters(parameters)
 
@@ -790,6 +812,7 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             )
 
         metrics = {
+            "forecast_accuracy": forecast_accuracy_from_nrmse(nrmse),
             "mse": float(mse),
             "rmse": float(rmse),
             "mae": float(mae),
@@ -808,17 +831,36 @@ class FlowerHeteroTimeSeriesClient(fl.client.NumPyClient):
             "fedprox_mu": float(getattr(self.args, "fedprox_mu", 0.0)),
         }
 
-        self._append_metric_row(split="val", loss=float(loss), metrics=metrics)
+        round_evaluate_time = time.perf_counter() - evaluate_start_time
+        round_start_time = self.round_start_times.pop(self.wandb_round, None)
+        round_total_time = (
+            time.perf_counter() - round_start_time
+            if round_start_time is not None
+            else round_evaluate_time
+        )
+        metrics["round_evaluate_time_seconds"] = float(round_evaluate_time)
+        metrics["round_total_time_seconds"] = float(round_total_time)
+
+        self._append_metric_row(
+            split="val",
+            loss=float(loss),
+            metrics=metrics,
+            round_evaluate_time_seconds=round_evaluate_time,
+            round_total_time_seconds=round_total_time,
+        )
 
         if wandb is not None and getattr(self.args, "wandb", False):
             wandb.log(
                 {
                     "client/val_loss": float(loss),
+                    "client/val_forecast_accuracy": float(metrics["forecast_accuracy"]),
                     "client/val_mse": float(mse),
                     "client/val_rmse": float(rmse),
                     "client/val_mae": float(mae),
                     "client/val_r2": float(r2),
                     "client/val_nrmse": float(nrmse),
+                    "client/round_evaluate_time_seconds": float(round_evaluate_time),
+                    "client/round_total_time_seconds": float(round_total_time),
                     "client/local_num_layers": int(self.args.local_num_layers),
                     "client/model_rate": float(self.args.model_rate),
                     "client/hetero_fedavg": 1.0 if getattr(self.args, "hetero_fedavg", False) else 0.0,
