@@ -18,6 +18,12 @@ PREDICTION_STEPS="${PREDICTION_STEPS:-4}"
 BASE_PORT="${BASE_PORT:-8100}"
 SERVER_STARTUP_SECONDS="${SERVER_STARTUP_SECONDS:-3}"
 
+# Total attempts per (beta, method) run, including the first. A run only
+# retries after a genuine failure (a client/server that did not exit
+# cleanly), not after the benign post-shutdown gRPC teardown crash handled
+# in run_method. Set to 1 to disable retries.
+RUN_METHOD_MAX_ATTEMPTS="${RUN_METHOD_MAX_ATTEMPTS:-2}"
+
 # Clients are assigned round-robin across these physical GPU IDs. By default,
 # all 6 clients share GPU 0.
 read -r -a GPU_IDS <<< "${GPU_IDS:-0}"
@@ -147,6 +153,7 @@ printf '%s\n' \
   "layer_1_model_rate=0.25 for heterogeneous FedAvg and InclusiveFL" \
   "layer_3_model_rate=1.0 for heterogeneous FedAvg and InclusiveFL" \
   "inclusive_transfer_beta=$INCLUSIVE_TRANSFER_BETA" \
+  "run_method_max_attempts=$RUN_METHOD_MAX_ATTEMPTS" \
   "forecast_accuracy_definition=min(1, max(0, 1 - NRMSE))" \
   "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf unknown)" \
   > "$RUN_DIR/run_config.txt"
@@ -160,6 +167,7 @@ done
 
 SERVER_PID=""
 CLIENT_PIDS=()
+CLIENT_LOGS=()
 
 cleanup() {
   local exit_code=$?
@@ -172,6 +180,25 @@ cleanup() {
   exit "$exit_code"
 }
 trap cleanup EXIT INT TERM
+
+# Both server and client metrics CSVs are opened in append mode, so a failed
+# attempt's partial rows must be moved out of the way before a retry, or the
+# retry's rows would silently mix with stale ones in the same file. Moves
+# (not deletes) so a failure can still be inspected after the fact.
+archive_failed_method_outputs() {
+  local beta_dir="$1"
+  local method="$2"
+  local attempt="$3"
+  local archive_dir="$beta_dir/failed_attempts/${method}_attempt${attempt}"
+
+  mkdir -p "$archive_dir"
+  shopt -s nullglob
+  local f
+  for f in "$beta_dir/metrics/${method}_"* "$beta_dir/raw_logs/${method}_"*; do
+    mv "$f" "$archive_dir/"
+  done
+  shopt -u nullglob
+}
 
 run_method() {
   local model_beta="$1"
@@ -260,6 +287,7 @@ run_method() {
       rate_args=(--model_rate "$model_rate")
     fi
 
+    local client_log="$raw_log_dir/${method}_client_${cid}_L${layers}.log"
     echo "  client=$cid layers=$layers gpu=$gpu_id"
     CUDA_VISIBLE_DEVICES="$gpu_id" python3 "$ROOT_DIR/client-hetero.py" \
       --server_address "127.0.0.1:$port" \
@@ -276,16 +304,48 @@ run_method() {
       --no_save_artifacts \
       "${client_args[@]}" \
       --metrics_log_path "$metrics_dir/${method}_client_${cid}_L${layers}_metrics.csv" \
-      > "$raw_log_dir/${method}_client_${cid}_L${layers}.log" 2>&1 &
+      > "$client_log" 2>&1 &
     CLIENT_PIDS+=("$!")
+    CLIENT_LOGS+=("$client_log")
   done
 
-  for pid in "${CLIENT_PIDS[@]}"; do
-    wait "$pid"
+  # A client process can occasionally SIGABRT during gRPC's C-core thread
+  # teardown (a known grpcio race: "Check failed: state_ == FAILED" in
+  # thd.h) after it has already finished training and logged its clean
+  # disconnect. That crash is cosmetic, but under `set -e` a naive `wait`
+  # would otherwise kill the whole multi-hour sweep over it. Only treat a
+  # nonzero exit as a real failure if the client's own log shows it did not
+  # get to disconnect cleanly.
+  local run_failed=0
+  for i in "${!CLIENT_PIDS[@]}"; do
+    local pid="${CLIENT_PIDS[$i]}"
+    local client_log="${CLIENT_LOGS[$i]}"
+    local status=0
+    wait "$pid" || status=$?
+    if [[ "$status" -ne 0 ]]; then
+      if grep -q "Disconnect and shut down" "$client_log"; then
+        echo "[$(timestamp)] WARNING: client pid $pid exited $status after a clean disconnect (benign post-shutdown crash); log: $client_log" >&2
+      else
+        echo "[$(timestamp)] ERROR: client pid $pid exited $status before disconnecting cleanly; log: $client_log" >&2
+        run_failed=1
+      fi
+    fi
   done
   CLIENT_PIDS=()
-  wait "$SERVER_PID"
+  CLIENT_LOGS=()
+
+  local server_status=0
+  wait "$SERVER_PID" || server_status=$?
   SERVER_PID=""
+  if [[ "$server_status" -ne 0 ]]; then
+    echo "[$(timestamp)] ERROR: server exited $server_status; log: $raw_log_dir/${method}_server.log" >&2
+    run_failed=1
+  fi
+
+  if [[ "$run_failed" -ne 0 ]]; then
+    echo "[$(timestamp)] FAILED beta=$model_beta, method=$method" >&2
+    return 1
+  fi
   echo "[$(timestamp)] completed beta=$model_beta, method=$method"
 }
 
@@ -310,7 +370,22 @@ for model_beta in "${MODEL_BETAS[@]}"; do
   done
 
   for method in "${METHODS[@]}"; do
-    run_method "$model_beta" "$num_three" "$method" "$((BASE_PORT + experiment_index))"
+    attempt=1
+    while true; do
+      # Offset the port per attempt so a retry doesn't race the previous
+      # attempt's server/clients for the same socket while they exit.
+      port="$((BASE_PORT + experiment_index + (attempt - 1) * 1000))"
+      if run_method "$model_beta" "$num_three" "$method" "$port"; then
+        break
+      fi
+      if (( attempt >= RUN_METHOD_MAX_ATTEMPTS )); then
+        echo "[$(timestamp)] giving up on beta=$model_beta, method=$method after $attempt attempt(s)" >&2
+        exit 1
+      fi
+      echo "[$(timestamp)] beta=$model_beta, method=$method failed on attempt $attempt; archiving partial output and retrying" >&2
+      archive_failed_method_outputs "$beta_dir" "$method" "$attempt"
+      attempt=$((attempt + 1))
+    done
     experiment_index=$((experiment_index + 1))
   done
 done
