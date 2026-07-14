@@ -1,0 +1,2 @@
+round,split,cid,local_num_layers,global_num_layers,model_rate,hetero_fedavg,inclusive_fl,spa_hfl,spc,pattern_weighted_residual_heads,fedprox,fedprox_mu,loss,mse,rmse,mae,r2,nrmse,round_train_time_seconds,align_train_loss,align_train_rmse,latent_mean_norm
+0,val,12163-0,1,3,0.25,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.008054069828886522,0.47589796781539917,0.6898535843317762,0.676866888999939,-26.987234041397503,0.9570282683766133,,,,
