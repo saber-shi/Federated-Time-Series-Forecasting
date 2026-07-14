@@ -15,9 +15,18 @@ ROUNDS="${ROUNDS:-100}"
 EPOCHS="${EPOCHS:-5}"
 BATCH_SIZE="${BATCH_SIZE:-64}"
 PREDICTION_STEPS="${PREDICTION_STEPS:-4}"
-ENABLE_WANDB="${ENABLE_WANDB:-0}"
 BASE_PORT="${BASE_PORT:-8100}"
 SERVER_STARTUP_SECONDS="${SERVER_STARTUP_SECONDS:-3}"
+
+# Clients are assigned round-robin across these physical GPU IDs. With the
+# default four GPUs, the 10 clients are split 3/3/2/2 across GPUs 0/1/2/3.
+read -r -a GPU_IDS <<< "${GPU_IDS:-0 1 2 3}"
+NUM_GPUS="${#GPU_IDS[@]}"
+
+# This sweep writes local CSV metrics and raw process logs. Keep W&B disabled
+# even when the surrounding shell environment has W&B configured.
+export WANDB_MODE=disabled
+export WANDB_DISABLED=true
 
 # InclusiveFL's transfer coefficient is distinct from the model-heterogeneity beta.
 INCLUSIVE_TRANSFER_BETA="${INCLUSIVE_TRANSFER_BETA:-0.5}"
@@ -71,6 +80,16 @@ if [[ "$NUM_CLIENTS" -ne 10 ]]; then
   echo "This sweep requires exactly 10 configured clients; found $NUM_CLIENTS." >&2
   exit 1
 fi
+if [[ "$NUM_GPUS" -eq 0 ]]; then
+  echo "GPU_IDS must contain at least one GPU ID." >&2
+  exit 1
+fi
+for gpu_id in "${GPU_IDS[@]}"; do
+  if [[ ! "$gpu_id" =~ ^[0-9]+$ ]]; then
+    echo "Invalid GPU ID '$gpu_id'. GPU_IDS must be a space-separated list of non-negative integers." >&2
+    exit 1
+  fi
+done
 
 python3 - "$DATA_PATH" "${CLIENT_CIDS[@]}" <<'PY'
 import csv
@@ -114,11 +133,6 @@ done
 
 mkdir -p "$RUN_DIR"
 
-WANDB_ARGS=()
-if [[ "$ENABLE_WANDB" == "1" ]]; then
-  WANDB_ARGS=(--wandb)
-fi
-
 printf '%s\n' \
   "run_name=$RUN_NAME" \
   "started_at=$(timestamp)" \
@@ -130,6 +144,10 @@ printf '%s\n' \
   "epochs=$EPOCHS" \
   "batch_size=$BATCH_SIZE" \
   "prediction_steps=$PREDICTION_STEPS" \
+  "gpu_ids=${GPU_IDS[*]}" \
+  "gpu_assignment=round-robin by client order" \
+  "wandb=disabled" \
+  "saved_results=CSV metrics and raw process logs" \
   "clients=${CLIENT_CIDS[*]}" \
   "assignment_rule=first 10*beta clients use 3 layers; remaining clients use 1 layer" \
   "layer_1_model_rate=0.25 for heterogeneous FedAvg and InclusiveFL" \
@@ -169,12 +187,10 @@ run_method() {
   local beta_dir="$RUN_DIR/beta_${model_beta}"
   local metrics_dir="$beta_dir/metrics"
   local raw_log_dir="$beta_dir/raw_logs"
-  local model_save_dir="$beta_dir/models"
-  local prediction_save_dir="$beta_dir/predictions"
   local server_args=()
   local client_args=()
 
-  mkdir -p "$metrics_dir" "$raw_log_dir" "$model_save_dir" "$prediction_save_dir"
+  mkdir -p "$metrics_dir" "$raw_log_dir"
 
   case "$method" in
     hetero_fedavg)
@@ -228,7 +244,6 @@ run_method() {
     --out_dim 4 \
     --global_num_layers 3 \
     "${server_args[@]}" \
-    "${WANDB_ARGS[@]}" \
     --metrics_log_path "$metrics_dir/${method}_server_metrics.csv" \
     > "$raw_log_dir/${method}_server.log" 2>&1 &
   SERVER_PID=$!
@@ -240,6 +255,7 @@ run_method() {
     local layers=1
     local model_rate=0.25
     local rate_args=()
+    local gpu_id="${GPU_IDS[$((idx % NUM_GPUS))]}"
 
     if (( idx < num_three )); then
       layers=3
@@ -249,7 +265,8 @@ run_method() {
       rate_args=(--model_rate "$model_rate")
     fi
 
-    python3 "$ROOT_DIR/client-hetero.py" \
+    echo "  client=$cid layers=$layers gpu=$gpu_id"
+    CUDA_VISIBLE_DEVICES="$gpu_id" python3 "$ROOT_DIR/client-hetero.py" \
       --server_address "127.0.0.1:$port" \
       --cid "$cid" \
       --data_path "$DATA_PATH" \
@@ -260,11 +277,10 @@ run_method() {
       "${rate_args[@]}" \
       --epochs "$EPOCHS" \
       --batch_size "$BATCH_SIZE" \
+      --require_cuda \
+      --no_save_artifacts \
       "${client_args[@]}" \
-      "${WANDB_ARGS[@]}" \
       --metrics_log_path "$metrics_dir/${method}_client_${cid}_L${layers}_metrics.csv" \
-      --model_save_path "$model_save_dir/${method}_{cid}_{model_name}_final.pt" \
-      --prediction_save_path "$prediction_save_dir/${method}_{cid}_{model_name}_last_{num_lags}.csv" \
       > "$raw_log_dir/${method}_client_${cid}_L${layers}.log" 2>&1 &
     CLIENT_PIDS+=("$!")
   done
@@ -284,7 +300,7 @@ for model_beta in "${MODEL_BETAS[@]}"; do
   beta_dir="$RUN_DIR/beta_${model_beta}"
   mkdir -p "$beta_dir"
 
-  printf 'cid,local_num_layers,model_rate\n' > "$beta_dir/client_assignment.csv"
+  printf 'cid,local_num_layers,model_rate,gpu_id\n' > "$beta_dir/client_assignment.csv"
   for idx in "${!CLIENT_CIDS[@]}"; do
     layers=1
     model_rate=0.25
@@ -292,7 +308,8 @@ for model_beta in "${MODEL_BETAS[@]}"; do
       layers=3
       model_rate=1.0
     fi
-    printf '%s,%d,%s\n' "${CLIENT_CIDS[$idx]}" "$layers" "$model_rate" \
+    gpu_id="${GPU_IDS[$((idx % NUM_GPUS))]}"
+    printf '%s,%d,%s,%s\n' "${CLIENT_CIDS[$idx]}" "$layers" "$model_rate" "$gpu_id" \
       >> "$beta_dir/client_assignment.csv"
   done
 

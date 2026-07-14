@@ -933,6 +933,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--cuda", dest="cuda", action="store_true", default=True)
     parser.add_argument("--no_cuda", dest="cuda", action="store_false", help="Disable CUDA and run this client on CPU")
+    parser.add_argument(
+        "--require_cuda",
+        action="store_true",
+        default=False,
+        help="Fail instead of falling back to CPU when CUDA is unavailable.",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--use_carbontracker", action="store_true", default=False)
     parser.add_argument(
@@ -999,6 +1005,12 @@ def parse_args() -> argparse.Namespace:
         default="./saved_predictions/{cid}_{model_name}_last_{num_lags}.csv",
         help="Output path template for final predictions CSV.",
     )
+    parser.add_argument(
+        "--no_save_artifacts",
+        action="store_true",
+        default=False,
+        help="Do not save the final client model or prediction CSV.",
+    )
 
     args = parser.parse_args()
 
@@ -1048,6 +1060,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.require_cuda and not torch.cuda.is_available():
+        raise RuntimeError("CUDA is required for this client, but no CUDA device is available.")
     seed_all(args.seed)
 
     wb_run = None
@@ -1109,11 +1123,12 @@ def main() -> None:
     client=client.to_client(),
     )
 
-    saved_path = save_client_model(client.model, args)
-    print(f"Saved final client model to: {saved_path}")
+    if not args.no_save_artifacts:
+        saved_path = save_client_model(client.model, args)
+        print(f"Saved final client model to: {saved_path}")
 
-    prediction_path = save_last_lags_predictions(client.model, client.device, args, prediction_artifacts)
-    print(f"Saved final predictions CSV to: {prediction_path}")
+        prediction_path = save_last_lags_predictions(client.model, client.device, args, prediction_artifacts)
+        print(f"Saved final predictions CSV to: {prediction_path}")
 
     if wb_run is not None:
         wandb.finish()
