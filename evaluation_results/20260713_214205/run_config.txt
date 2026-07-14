@@ -1,0 +1,14 @@
+run_name=20260713_214205
+started_at=2026-07-13T21:42:05+0800
+data_path=/home/hkuiot/Desktop/Federated-Time-Series-Forecasting/dataset/5G-2y-firstcell-6stations-medium-mixed-l2-2months.csv
+methods=hetero_fedavg inclusive_fl plain_heterofl fedprox pwrh
+rounds=100
+epochs=5
+batch_size=64
+prediction_steps=4
+clients=12162-0 12163-0 12164-0 12165-0 12166-0 12167-0
+client_layers=1 1 2 2 3 3
+client_model_rates=0.25 0.25 0.50 0.50 1.00 1.00
+forecast_accuracy_definition=min(1, max(0, 1 - NRMSE))
+git_commit=435d56bf5040a0315f0dceb060038f2cb434e8b1
+completed_at=2026-07-14T05:58:28+0800
