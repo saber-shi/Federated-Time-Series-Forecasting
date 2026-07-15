@@ -27,7 +27,7 @@ RUN_CONFIG_MAX_ATTEMPTS="${RUN_CONFIG_MAX_ATTEMPTS:-2}"
 
 # Override either space-separated list to restrict or extend the sweep.
 read -r -a PWRH_NUM_RESIDUAL_HEADS_VALUES <<< \
-  "${PWRH_NUM_RESIDUAL_HEADS_VALUES:-1 2 4 6 8}"
+  "${PWRH_NUM_RESIDUAL_HEADS_VALUES:-6}"
 read -r -a PWRH_HEAD_SCALE_VALUES <<< \
   "${PWRH_HEAD_SCALE_VALUES:-0.0 0.25 0.5 1.0 2.0}"
 

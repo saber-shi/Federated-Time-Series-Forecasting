@@ -1,0 +1,10 @@
+[92mINFO [0m:      Starting Flower server, config: num_rounds=100, no round_timeout
+[92mINFO [0m:      Flower ECE: gRPC server running (100 rounds), SSL is disabled
+[92mINFO [0m:      [INIT]
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1784116885.304363 3020832 fork_posix.cc:75] Other threads are currently calling into gRPC, skipping fork() handlers
+[92mINFO [0m:      Using initial global parameters provided by strategy
+[92mINFO [0m:      Starting evaluation of initial global parameters
+[92mINFO [0m:      Evaluation returned no results (`None`)
+[92mINFO [0m:      
+[92mINFO [0m:      [ROUND 1]

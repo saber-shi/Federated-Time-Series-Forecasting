@@ -1,0 +1,22 @@
+INFO logger 2026-07-15 20:01:29,080 | data_utils.py:28 | Reading 12162-0's data...
+INFO logger 2026-07-15 20:01:29,091 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-07-15 20:01:29,091 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-07-15 20:01:29,091 | data_utils.py:419 | 	Number of samples for validation:  288
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1784116891.368653 3021640 fork_posix.cc:75] Other threads are currently calling into gRPC, skipping fork() handlers
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 1138, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 1121, in main
+    fl.client.start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 576, in start_client_internal
+    delete_node()  # pylint: disable=not-callable
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/contextlib.py", line 120, in __exit__
+    next(self.gen)
+RuntimeError: generator raised StopIteration

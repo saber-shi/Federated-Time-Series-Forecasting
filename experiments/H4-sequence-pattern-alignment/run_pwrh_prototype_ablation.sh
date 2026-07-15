@@ -35,9 +35,10 @@ PWRH_SERVER_WEIGHT_POWER="${PWRH_SERVER_WEIGHT_POWER:-0.0}"
 PWRH_HEAD_SCALE="${PWRH_HEAD_SCALE:-1.0}"
 
 # adaptive: current PWRH; uniform: no prototype routing; frozen: initialize
+#adaptive uniform frozen random hard
 # once; random: fixed random prototypes; hard: nearest adaptive prototype.
 read -r -a PROTOTYPE_MODES <<< \
-  "${PROTOTYPE_MODES:-adaptive uniform frozen random hard}"
+  "${PROTOTYPE_MODES:-random hard}"
 
 CLIENT_CIDS=(12162-0 12163-0 12164-0 12165-0 12166-0 12167-0)
 CLIENT_LAYERS=(1 1 2 2 3 3)

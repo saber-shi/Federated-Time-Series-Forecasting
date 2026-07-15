@@ -1,0 +1,3 @@
+run_index,prototype_mode,port,result_directory
+0,random,8300,random
+1,hard,8301,hard

@@ -1,0 +1,5 @@
+run_index,prototype_mode,port,result_directory
+0,adaptive,8300,adaptive
+1,uniform,8301,uniform
+2,frozen,8302,frozen
+3,random,8303,random

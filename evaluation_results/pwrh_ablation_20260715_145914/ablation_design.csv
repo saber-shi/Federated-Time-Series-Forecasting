@@ -1,0 +1,6 @@
+run_index,num_residual_heads,head_scale,port,result_directory
+0,6,0.0,8200,heads_6_scale_0p0
+1,6,0.25,8201,heads_6_scale_0p25
+2,6,0.5,8202,heads_6_scale_0p5
+3,6,1.0,8203,heads_6_scale_1p0
+4,6,2.0,8204,heads_6_scale_2p0

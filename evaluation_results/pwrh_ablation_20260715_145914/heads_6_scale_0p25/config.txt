@@ -1,0 +1,3 @@
+num_residual_heads=6
+head_scale=0.25
+port=8201
