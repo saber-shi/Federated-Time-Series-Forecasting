@@ -60,6 +60,7 @@ SERVER_METRIC_FIELDNAMES = [
 
 SPC_ASSIGNMENT_FIELDNAMES = ["round", "client_id", "cluster_id"]
 RESIDUAL_HEAD_WEIGHT_FIELDNAMES = ["round", "client_id", "weights", "dominant_head_id", "entropy"]
+PWRH_PROTOTYPE_MODES = ("adaptive", "uniform", "frozen", "random", "hard")
 
 
 def _weighted_numeric_metrics(metrics: List[Tuple[int, Dict[str, Scalar]]]) -> Dict[str, float]:
@@ -304,6 +305,9 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
         self.residual_head_init_scale = kwargs.pop("residual_head_init_scale", 0.01)
         self.residual_head_weight_log_path = kwargs.pop("residual_head_weight_log_path", "")
         self.residual_head_server_weight_power = kwargs.pop("residual_head_server_weight_power", 0.0)
+        self.pwrh_prototype_mode = kwargs.pop("pwrh_prototype_mode", "adaptive")
+        self.pwrh_prototype_seed = kwargs.pop("pwrh_prototype_seed", 0)
+        self.pwrh_prototype_rng = np.random.default_rng(self.pwrh_prototype_seed)
         self.reference_keys = kwargs.pop("reference_keys", None)
         self.metrics_log_path = kwargs.pop("metrics_log_path", "")
         self.round_start_times: Dict[int, float] = {}
@@ -338,6 +342,11 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             raise ValueError("num_residual_heads must be positive.")
         if self.pattern_weighted_residual_heads and self.residual_head_temperature <= 0.0:
             raise ValueError("residual_head_temperature must be positive.")
+        if self.pwrh_prototype_mode not in PWRH_PROTOTYPE_MODES:
+            raise ValueError(
+                f"pwrh_prototype_mode must be one of {PWRH_PROTOTYPE_MODES}; "
+                f"got {self.pwrh_prototype_mode!r}."
+            )
         if not (0.0 <= self.inclusive_beta <= 1.0):
             raise ValueError("inclusive_beta must be in [0, 1].")
 
@@ -611,12 +620,7 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             return ndarrays_to_parameters([])
         real_cid = self.proxy_to_real_cid.get(client_proxy.cid, client_proxy.cid)
         descriptor = self.latest_client_pattern_descriptors.get(real_cid)
-        weights = compute_soft_head_weights(
-            pattern_descriptor=descriptor,
-            prototypes=self.latest_pwrh_prototypes,
-            temperature=self.residual_head_temperature,
-            num_heads=self.num_residual_heads,
-        )
+        weights = self._compute_pwrh_head_weights(descriptor)
         self.latest_client_residual_weights[real_cid] = weights
         payload = (
             list(self.latest_pwrh_backbone)
@@ -625,6 +629,58 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             + [weights]
         )
         return ndarrays_to_parameters(payload)
+
+    def _compute_pwrh_head_weights(self, descriptor: Optional[np.ndarray]) -> np.ndarray:
+        """Compute capacity-matched routing weights for the selected prototype ablation."""
+        uniform = np.full(self.num_residual_heads, 1.0 / self.num_residual_heads, dtype=np.float32)
+        if self.pwrh_prototype_mode == "uniform":
+            return uniform
+
+        weights = compute_soft_head_weights(
+            pattern_descriptor=descriptor,
+            prototypes=self.latest_pwrh_prototypes,
+            temperature=self.residual_head_temperature,
+            num_heads=self.num_residual_heads,
+        )
+        if (
+            self.pwrh_prototype_mode == "hard"
+            and descriptor is not None
+            and self.latest_pwrh_prototypes is not None
+            and len(self.latest_pwrh_prototypes) >= self.num_residual_heads
+        ):
+            hard_weights = np.zeros(self.num_residual_heads, dtype=np.float32)
+            hard_weights[int(np.argmax(weights))] = 1.0
+            return hard_weights
+        return weights
+
+    def _update_pwrh_prototypes(
+        self,
+        descriptor_results: List[Tuple[np.ndarray, np.ndarray, int]],
+    ) -> None:
+        """Update, freeze, randomize, or omit prototypes according to the ablation mode."""
+        mode = self.pwrh_prototype_mode
+        if mode == "uniform":
+            self.latest_pwrh_prototypes = None
+            return
+        if mode == "frozen" and self.latest_pwrh_prototypes is not None:
+            return
+        if mode == "random":
+            if self.latest_pwrh_prototypes is None and descriptor_results:
+                descriptor_dim = int(np.asarray(descriptor_results[0][0]).size)
+                self.latest_pwrh_prototypes = [
+                    _normalize_np_vector(
+                        self.pwrh_prototype_rng.normal(size=descriptor_dim).astype(np.float32)
+                    )
+                    for _ in range(self.num_residual_heads)
+                ]
+            return
+
+        # "adaptive" and "hard" update every round; "frozen" initializes once.
+        self.latest_pwrh_prototypes = update_residual_head_prototypes(
+            descriptor_results=descriptor_results,
+            previous_prototypes=self.latest_pwrh_prototypes,
+            num_heads=self.num_residual_heads,
+        )
 
     def _build_spa_payload_for_client(self, client_proxy: ClientProxy) -> Parameters:
         payload = list(self.latest_parameters or [])
@@ -886,12 +942,7 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             real_cid = str(fit_res.metrics.get("cid", client_proxy.cid))
             self.proxy_to_real_cid[client_proxy.cid] = real_cid
             self.latest_client_pattern_descriptors[real_cid] = pattern_mean
-            weights = compute_soft_head_weights(
-                pattern_descriptor=pattern_mean,
-                prototypes=self.latest_pwrh_prototypes,
-                temperature=self.residual_head_temperature,
-                num_heads=num_heads,
-            )
+            weights = self._compute_pwrh_head_weights(pattern_mean)
             weights_by_client[real_cid] = weights
             self.latest_client_residual_weights[real_cid] = weights
 
@@ -921,11 +972,7 @@ class WandbHeteroFedAvg(fl.server.strategy.FedAvg):
             head_param_count=head_count,
             server_weight_power=self.residual_head_server_weight_power,
         )
-        self.latest_pwrh_prototypes = update_residual_head_prototypes(
-            descriptor_results=descriptor_results,
-            previous_prototypes=self.latest_pwrh_prototypes,
-            num_heads=num_heads,
-        )
+        self._update_pwrh_prototypes(descriptor_results)
         print(
             f"[PWRH][Round {rnd}] weights: "
             f"{ {cid: weights.tolist() for cid, weights in sorted(weights_by_client.items())} }"
@@ -1165,6 +1212,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input_dim", type=int, default=9, help="Number of input features used by each client model")
     parser.add_argument("--out_dim", type=int, default=4, help="Number of forecast outputs")
     parser.add_argument("--global_num_layers", type=int, default=3, help="Number of layers in the global supernet")
+    parser.add_argument("--seed", type=int, default=0, help="Random seed for server model and PWRH initialization")
     parser.add_argument(
         "--wandb_project",
         type=str,
@@ -1221,6 +1269,22 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--residual_head_server_weight_power", type=float, default=0.0)
     parser.add_argument(
+        "--pwrh_prototype_mode",
+        type=str,
+        default="adaptive",
+        choices=PWRH_PROTOTYPE_MODES,
+        help=(
+            "Prototype-routing ablation: adaptive soft routing (default), uniform routing without "
+            "prototypes, frozen first-round prototypes, fixed random prototypes, or adaptive hard routing."
+        ),
+    )
+    parser.add_argument(
+        "--pwrh_prototype_seed",
+        type=int,
+        default=0,
+        help="Random seed used to construct fixed random PWRH prototypes.",
+    )
+    parser.add_argument(
         "--spc_assignment_log_path",
         type=str,
         default="",
@@ -1254,11 +1318,15 @@ def parse_args() -> argparse.Namespace:
         raise ValueError("--residual_head_temperature must be positive.")
     if args.residual_head_init_scale < 0.0:
         raise ValueError("--residual_head_init_scale must be non-negative.")
+    if args.seed < 0:
+        raise ValueError("--seed must be non-negative.")
     return args
 
 
 def main() -> None:
     args = parse_args()
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
     min_evaluate_clients = args.min_fit_clients if args.min_evaluate_clients is None else args.min_evaluate_clients
     initial_parameters = build_initial_parameters(
         model_name=args.model_name,
@@ -1312,6 +1380,9 @@ def main() -> None:
                 "pattern_cluster_count": args.pattern_cluster_count,
                 "spc_cluster_count": args.spc_cluster_count,
                 "num_residual_heads": args.num_residual_heads,
+                "pwrh_prototype_mode": args.pwrh_prototype_mode,
+                "pwrh_prototype_seed": args.pwrh_prototype_seed,
+                "seed": args.seed,
                 "strict_synchronous": True,
             },
             allow_val_change=True,
@@ -1338,6 +1409,8 @@ def main() -> None:
         residual_head_init_scale=args.residual_head_init_scale,
         residual_head_weight_log_path=args.residual_head_weight_log_path,
         residual_head_server_weight_power=args.residual_head_server_weight_power,
+        pwrh_prototype_mode=args.pwrh_prototype_mode,
+        pwrh_prototype_seed=args.pwrh_prototype_seed,
         reference_keys=reference_keys,
         metrics_log_path=args.metrics_log_path,
         fraction_fit=1.0,
