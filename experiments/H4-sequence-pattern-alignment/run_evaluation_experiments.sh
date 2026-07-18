@@ -28,6 +28,14 @@ PWRH_TEMPERATURE="${PWRH_TEMPERATURE:-0.1}"
 PWRH_INIT_SCALE="${PWRH_INIT_SCALE:-0.01}"
 PWRH_SERVER_WEIGHT_POWER="${PWRH_SERVER_WEIGHT_POWER:-0.0}"
 PWRH_HEAD_SCALE="${PWRH_HEAD_SCALE:-1.0}"
+PWRH_PROTOTYPE_MODE="${PWRH_PROTOTYPE_MODE:-adaptive}"
+PWRH_PROTOTYPE_SEED="${PWRH_PROTOTYPE_SEED:-0}"
+
+# Total attempts per method, including the first. A method only retries
+# after a genuine failure (a client/server that did not exit cleanly), not
+# after the benign post-shutdown gRPC teardown crash handled in run_method.
+# Set to 1 to disable retries.
+RUN_METHOD_MAX_ATTEMPTS="${RUN_METHOD_MAX_ATTEMPTS:-2}"
 
 # Override with, for example: METHODS="plain_heterofl fedprox"
 read -r -a METHODS <<< "${METHODS:-hetero_fedavg inclusive_fl plain_heterofl fedprox pwrh}"
@@ -70,12 +78,17 @@ printf '%s\n' \
   "clients=${CLIENT_CIDS[*]}" \
   "client_layers=${CLIENT_LAYERS[*]}" \
   "client_model_rates=${CLIENT_MODEL_RATES[*]}" \
+  "pwrh_prototype_mode=$PWRH_PROTOTYPE_MODE" \
+  "pwrh_prototype_seed=$PWRH_PROTOTYPE_SEED" \
+  "pwrh_server_weight_power=$PWRH_SERVER_WEIGHT_POWER" \
+  "run_method_max_attempts=$RUN_METHOD_MAX_ATTEMPTS" \
   "forecast_accuracy_definition=min(1, max(0, 1 - NRMSE))" \
   "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf unknown)" \
   > "$RUN_DIR/run_config.txt"
 
 SERVER_PID=""
 CLIENT_PIDS=()
+CLIENT_LOGS=()
 
 cleanup() {
   local exit_code=$?
@@ -88,6 +101,28 @@ cleanup() {
   exit "$exit_code"
 }
 trap cleanup EXIT INT TERM
+
+# A method's metrics CSVs and saved artifacts are opened/written in append or
+# overwrite-by-name mode, so a failed attempt's partial output must be moved
+# out of the way before a retry, or the retry's rows/files would silently mix
+# with stale ones. Moves (not deletes) so a failure can still be inspected.
+archive_failed_method_outputs() {
+  local method="$1"
+  local attempt="$2"
+  local archive_dir="$RUN_DIR/failed_attempts/${method}_attempt${attempt}"
+
+  mkdir -p "$archive_dir"
+  shopt -s nullglob
+  local f
+  for f in \
+    "$METRICS_DIR/${method}_"* \
+    "$RAW_LOG_DIR/${method}_"* \
+    "$MODEL_SAVE_DIR/${method}_"* \
+    "$PREDICTION_SAVE_DIR/${method}_"*; do
+    mv "$f" "$archive_dir/"
+  done
+  shopt -u nullglob
+}
 
 run_method() {
   local method="$1"
@@ -116,6 +151,8 @@ run_method() {
         --residual_head_temperature "$PWRH_TEMPERATURE"
         --residual_head_init_scale "$PWRH_INIT_SCALE"
         --residual_head_server_weight_power "$PWRH_SERVER_WEIGHT_POWER"
+        --pwrh_prototype_mode "$PWRH_PROTOTYPE_MODE"
+        --pwrh_prototype_seed "$PWRH_PROTOTYPE_SEED"
         --residual_head_weight_log_path "$METRICS_DIR/pwrh_residual_head_weights.csv"
       )
       client_args=(
@@ -152,11 +189,13 @@ run_method() {
   sleep 3
 
   CLIENT_PIDS=()
+  CLIENT_LOGS=()
   for idx in "${!CLIENT_CIDS[@]}"; do
     local cid="${CLIENT_CIDS[$idx]}"
     local layers="${CLIENT_LAYERS[$idx]}"
     local model_rate="${CLIENT_MODEL_RATES[$idx]}"
     local rate_args=()
+    local client_log="$RAW_LOG_DIR/${method}_client_${cid}_L${layers}.log"
     if [[ "$method" == "hetero_fedavg" || "$method" == "inclusive_fl" ]]; then
       rate_args=(--model_rate "$model_rate")
     fi
@@ -177,21 +216,69 @@ run_method() {
       --metrics_log_path "$METRICS_DIR/${method}_client_${cid}_L${layers}_metrics.csv" \
       --model_save_path "$MODEL_SAVE_DIR/${method}_{cid}_{model_name}_final.pt" \
       --prediction_save_path "$PREDICTION_SAVE_DIR/${method}_{cid}_{model_name}_last_{num_lags}.csv" \
-      > "$RAW_LOG_DIR/${method}_client_${cid}_L${layers}.log" 2>&1 &
+      > "$client_log" 2>&1 &
     CLIENT_PIDS+=("$!")
+    CLIENT_LOGS+=("$client_log")
   done
 
-  for pid in "${CLIENT_PIDS[@]}"; do
-    wait "$pid"
+  # A client process can occasionally SIGABRT during gRPC's C-core thread
+  # teardown (a known grpcio race: "Check failed: state_ == FAILED" in
+  # thd.h) after it has already finished training and logged its clean
+  # disconnect. That crash is cosmetic, but under `set -e` a naive `wait`
+  # would otherwise kill the whole multi-method evaluation run over it. Only
+  # treat a nonzero exit as a real failure if the client's own log shows it
+  # did not get to disconnect cleanly.
+  local run_failed=0
+  for i in "${!CLIENT_PIDS[@]}"; do
+    local pid="${CLIENT_PIDS[$i]}"
+    local client_log="${CLIENT_LOGS[$i]}"
+    local status=0
+    wait "$pid" || status=$?
+    if [[ "$status" -ne 0 ]]; then
+      if grep -q "Disconnect and shut down" "$client_log"; then
+        echo "[$(timestamp)] WARNING: client pid $pid exited $status after a clean disconnect (benign post-shutdown crash); log: $client_log" >&2
+      else
+        echo "[$(timestamp)] ERROR: client pid $pid exited $status before disconnecting cleanly; log: $client_log" >&2
+        run_failed=1
+      fi
+    fi
   done
   CLIENT_PIDS=()
-  wait "$SERVER_PID"
+  CLIENT_LOGS=()
+
+  local server_status=0
+  wait "$SERVER_PID" || server_status=$?
   SERVER_PID=""
+  if [[ "$server_status" -ne 0 ]]; then
+    echo "[$(timestamp)] ERROR: server exited $server_status; log: $RAW_LOG_DIR/${method}_server.log" >&2
+    run_failed=1
+  fi
+
+  if [[ "$run_failed" -ne 0 ]]; then
+    echo "[$(timestamp)] FAILED $method" >&2
+    return 1
+  fi
   echo "[$(timestamp)] Completed $method"
 }
 
 for idx in "${!METHODS[@]}"; do
-  run_method "${METHODS[$idx]}" "$((BASE_PORT + idx))"
+  method="${METHODS[$idx]}"
+  attempt=1
+  while true; do
+    # Offset the port per attempt so a retry doesn't race the previous
+    # attempt's server/clients for the same socket while they exit.
+    port="$((BASE_PORT + idx + (attempt - 1) * 1000))"
+    if run_method "$method" "$port"; then
+      break
+    fi
+    if (( attempt >= RUN_METHOD_MAX_ATTEMPTS )); then
+      echo "[$(timestamp)] giving up on $method after $attempt attempt(s)" >&2
+      exit 1
+    fi
+    echo "[$(timestamp)] $method failed on attempt $attempt; archiving partial output and retrying" >&2
+    archive_failed_method_outputs "$method" "$attempt"
+    attempt=$((attempt + 1))
+  done
 done
 
 printf 'completed_at=%s\n' "$(timestamp)" >> "$RUN_DIR/run_config.txt"

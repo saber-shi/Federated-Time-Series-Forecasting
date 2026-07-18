@@ -42,6 +42,8 @@ PWRH_TEMPERATURE="${PWRH_TEMPERATURE:-0.1}"
 PWRH_INIT_SCALE="${PWRH_INIT_SCALE:-0.01}"
 PWRH_SERVER_WEIGHT_POWER="${PWRH_SERVER_WEIGHT_POWER:-0.0}"
 PWRH_HEAD_SCALE="${PWRH_HEAD_SCALE:-1.0}"
+PWRH_PROTOTYPE_MODE="${PWRH_PROTOTYPE_MODE:-adaptive}"
+PWRH_PROTOTYPE_SEED="${PWRH_PROTOTYPE_SEED:-0}"
 
 # Both lists may be restricted for smoke tests through environment variables.
 read -r -a METHODS <<< "${METHODS:-hetero_fedavg inclusive_fl plain_heterofl fedprox pwrh}"
@@ -153,6 +155,9 @@ printf '%s\n' \
   "layer_1_model_rate=0.25 for heterogeneous FedAvg and InclusiveFL" \
   "layer_3_model_rate=1.0 for heterogeneous FedAvg and InclusiveFL" \
   "inclusive_transfer_beta=$INCLUSIVE_TRANSFER_BETA" \
+  "pwrh_prototype_mode=$PWRH_PROTOTYPE_MODE" \
+  "pwrh_prototype_seed=$PWRH_PROTOTYPE_SEED" \
+  "pwrh_server_weight_power=$PWRH_SERVER_WEIGHT_POWER" \
   "run_method_max_attempts=$RUN_METHOD_MAX_ATTEMPTS" \
   "forecast_accuracy_definition=min(1, max(0, 1 - NRMSE))" \
   "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf unknown)" \
@@ -235,6 +240,8 @@ run_method() {
         --residual_head_temperature "$PWRH_TEMPERATURE"
         --residual_head_init_scale "$PWRH_INIT_SCALE"
         --residual_head_server_weight_power "$PWRH_SERVER_WEIGHT_POWER"
+        --pwrh_prototype_mode "$PWRH_PROTOTYPE_MODE"
+        --pwrh_prototype_seed "$PWRH_PROTOTYPE_SEED"
         --residual_head_weight_log_path "$metrics_dir/pwrh_residual_head_weights.csv"
       )
       client_args=(

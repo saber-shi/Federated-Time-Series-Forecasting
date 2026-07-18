@@ -3,3 +3,4 @@ run_index,prototype_mode,port,result_directory
 1,uniform,8301,uniform
 2,frozen,8302,frozen
 3,random,8303,random
+4,hard,8304,hard
