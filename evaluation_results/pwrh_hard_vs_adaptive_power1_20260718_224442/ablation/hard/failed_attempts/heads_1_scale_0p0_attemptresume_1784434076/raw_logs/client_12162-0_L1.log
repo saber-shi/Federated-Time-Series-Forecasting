@@ -1,0 +1,36 @@
+INFO logger 2026-07-18 23:27:00,884 | data_utils.py:28 | Reading 12162-0's data...
+INFO logger 2026-07-18 23:27:00,895 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-07-18 23:27:00,895 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-07-18 23:27:00,895 | data_utils.py:419 | 	Number of samples for validation:  288
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1784388423.477733 3464424 fork_posix.cc:75] Other threads are currently calling into gRPC, skipping fork() handlers
+[92mINFO [0m:      
+[92mINFO [0m:      Received: train message abc4af1d-6cc0-44bf-8260-99f6639e71d4
+INFO logger 2026-07-18 23:27:04,085 | train_utils.py:97 | Epoch 1 [Train]: loss 0.16954848128888342, mse: 0.017143888399004936, rmse: 0.13093467225683553, mae 0.09963337332010269, r2: -0.4274203253451885, nrmse: 0.2241892039635047
+INFO logger 2026-07-18 23:27:04,086 | train_utils.py:99 | Epoch 1 [Test]: loss 0.00033579879137785626, mse: 0.01987684704363346, rmse: 0.1409852724352209, mae 0.10875390470027924, r2: -0.2871139622304001, nrmse: 0.2389882062117841
+INFO logger 2026-07-18 23:27:04,328 | train_utils.py:97 | Epoch 2 [Train]: loss 0.018009913050466113, mse: 0.013874759897589684, rmse: 0.11779117071151676, mae 0.0930418074131012, r2: -0.15518201760602754, nrmse: 0.19533664609024146
+INFO logger 2026-07-18 23:27:04,328 | train_utils.py:99 | Epoch 2 [Test]: loss 0.0002563142763914438, mse: 0.015657693147659302, rmse: 0.12513070425622683, mae 0.09464461356401443, r2: -0.013908677922188584, nrmse: 0.20104205395977365
+INFO logger 2026-07-18 23:27:04,560 | train_utils.py:97 | Epoch 3 [Train]: loss 0.01184226857084367, mse: 0.010464487597346306, rmse: 0.10229607811322146, mae 0.07509952783584595, r2: 0.12880297616625905, nrmse: 0.15236947389429098
+INFO logger 2026-07-18 23:27:04,560 | train_utils.py:99 | Epoch 3 [Test]: loss 0.00021217100102187208, mse: 0.012873942032456398, rmse: 0.1134633951213183, mae 0.0855332687497139, r2: 0.16634871320021002, nrmse: 0.16807773348230826
+INFO logger 2026-07-18 23:27:04,775 | train_utils.py:97 | Epoch 4 [Train]: loss 0.010019968755336272, mse: 0.010132801719009876, rmse: 0.10066181857591226, mae 0.07026353478431702, r2: 0.15643174536561455, nrmse: 0.14824248475140395
+INFO logger 2026-07-18 23:27:04,775 | train_utils.py:99 | Epoch 4 [Test]: loss 0.0002168251932421817, mse: 0.013010858558118343, rmse: 0.11406515049794282, mae 0.08476504683494568, r2: 0.15748179671374138, nrmse: 0.1660055996747764
+INFO logger 2026-07-18 23:27:04,963 | train_utils.py:97 | Epoch 5 [Train]: loss 0.009383527510282066, mse: 0.00880383513867855, rmse: 0.09382875432765028, mae 0.06564474105834961, r2: 0.26706196807287913, nrmse: 0.1386472661019219
+INFO logger 2026-07-18 23:27:04,963 | train_utils.py:99 | Epoch 5 [Test]: loss 0.00019128305664608248, mse: 0.011595167219638824, rmse: 0.10768085818583925, mae 0.07900714129209518, r2: 0.2491549412955751, nrmse: 0.15730797225284562
+INFO logger 2026-07-18 23:27:04,964 | train_utils.py:142 | Best Loss: 0.00019128305664608248
+[92mINFO [0m:      Sent reply
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 1138, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 1121, in main
+    fl.client.start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 576, in start_client_internal
+    delete_node()  # pylint: disable=not-callable
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/contextlib.py", line 120, in __exit__
+    next(self.gen)
+RuntimeError: generator raised StopIteration

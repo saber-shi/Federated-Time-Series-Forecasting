@@ -1,0 +1,50 @@
+INFO logger 2026-07-18 23:27:00,897 | data_utils.py:28 | Reading 12163-0's data...
+INFO logger 2026-07-18 23:27:00,907 | data_utils.py:417 | 	Total number of samples:  1440
+INFO logger 2026-07-18 23:27:00,907 | data_utils.py:418 | 	Number of samples for training: 1152
+INFO logger 2026-07-18 23:27:00,907 | data_utils.py:419 | 	Number of samples for validation:  288
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1784388423.537759 3464508 fork_posix.cc:75] Other threads are currently calling into gRPC, skipping fork() handlers
+[92mINFO [0m:      
+[92mINFO [0m:      Received: train message cc598329-710e-46c1-a7ca-2e5121b3a2f5
+INFO logger 2026-07-18 23:27:04,081 | train_utils.py:97 | Epoch 1 [Train]: loss 0.18512088836481175, mse: 0.017901156097650528, rmse: 0.13379520207260995, mae 0.1015961691737175, r2: -0.2320127983198101, nrmse: 0.21686357156596453
+INFO logger 2026-07-18 23:27:04,081 | train_utils.py:99 | Epoch 1 [Test]: loss 0.0003047024807598017, mse: 0.018212584778666496, rmse: 0.13495400986508885, mae 0.10385310649871826, r2: -0.07263962325164944, nrmse: 0.21495647953644717
+INFO logger 2026-07-18 23:27:04,307 | train_utils.py:97 | Epoch 2 [Train]: loss 0.02001190459769633, mse: 0.016723431646823883, rmse: 0.1293191078179241, mae 0.1016397625207901, r2: -0.1509579957411032, nrmse: 0.20175452827410467
+INFO logger 2026-07-18 23:27:04,307 | train_utils.py:99 | Epoch 2 [Test]: loss 0.0003405277723375755, mse: 0.020414035767316818, rmse: 0.14287769513579374, mae 0.11317959427833557, r2: -0.20155515543796776, nrmse: 0.23086407325281483
+INFO logger 2026-07-18 23:27:04,528 | train_utils.py:97 | Epoch 3 [Train]: loss 0.014029250635455051, mse: 0.01291037630289793, rmse: 0.1136238368604842, mae 0.08315001428127289, r2: 0.11146831544347233, nrmse: 0.15795801503004978
+INFO logger 2026-07-18 23:27:04,528 | train_utils.py:99 | Epoch 3 [Test]: loss 0.000254251176829328, mse: 0.015257742255926132, rmse: 0.12352223385255844, mae 0.09254966676235199, r2: 0.10246217200610455, nrmse: 0.1736708791259326
+INFO logger 2026-07-18 23:27:04,746 | train_utils.py:97 | Epoch 4 [Train]: loss 0.012650991479555765, mse: 0.01214703731238842, rmse: 0.11021359858197363, mae 0.07664632797241211, r2: 0.16400363532748333, nrmse: 0.15539699811648444
+INFO logger 2026-07-18 23:27:04,747 | train_utils.py:99 | Epoch 4 [Test]: loss 0.00022779170518057255, mse: 0.013659821823239326, rmse: 0.1168752404200279, mae 0.08434701710939407, r2: 0.19616766174121825, nrmse: 0.17210298493105067
+INFO logger 2026-07-18 23:27:04,938 | train_utils.py:97 | Epoch 5 [Train]: loss 0.012126120738685131, mse: 0.011736521497368813, rmse: 0.10833522740719573, mae 0.07430435717105865, r2: 0.19225649470597092, nrmse: 0.15310302718074328
+INFO logger 2026-07-18 23:27:04,938 | train_utils.py:99 | Epoch 5 [Test]: loss 0.00022107510501322364, mse: 0.013254987075924873, rmse: 0.11513030476779289, mae 0.08233126252889633, r2: 0.2200134099252542, nrmse: 0.16955261747210248
+INFO logger 2026-07-18 23:27:04,939 | train_utils.py:142 | Best Loss: 0.00022107510501322364
+[92mINFO [0m:      Sent reply
+Traceback (most recent call last):
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/grpc_client/connection.py", line 242, in grpc_connection
+    channel.close()
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/grpc/_channel.py", line 2250, in close
+    self._close()
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/grpc/_channel.py", line 2231, in _close
+    self._channel.close(cygrpc.StatusCode.cancelled, "Channel closed!")
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 564, in grpc._cython.cygrpc.Channel.close
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 449, in grpc._cython.cygrpc._close
+  File "src/python/grpcio/grpc/_cython/_cygrpc/channel.pyx.pxi", line 470, in grpc._cython.cygrpc._close
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/threading.py", line 270, in wait
+    def wait(self, timeout=None):
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 767, in signal_handler
+    raise StopIteration from None
+StopIteration
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 1138, in <module>
+    main()
+  File "/home/saber/Federated-Time-Series-Forecasting/client-hetero.py", line 1121, in main
+    fl.client.start_client(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 175, in start_client
+    start_client_internal(
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/site-packages/flwr/client/app.py", line 576, in start_client_internal
+    delete_node()  # pylint: disable=not-callable
+  File "/home/saber/miniconda3/envs/time/lib/python3.8/contextlib.py", line 120, in __exit__
+    next(self.gen)
+RuntimeError: generator raised StopIteration

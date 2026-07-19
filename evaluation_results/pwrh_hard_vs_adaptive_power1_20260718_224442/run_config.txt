@@ -1,0 +1,14 @@
+run_name=pwrh_hard_vs_adaptive_power1_20260718_224442
+started_at=2026-07-18T22:44:42+0800
+experiment_families=evaluation heterogeneity ablation
+variants=hard adaptive_power1
+hard_prototype_mode=hard
+hard_server_weight_power=0.0
+adaptive_power1_prototype_mode=adaptive
+adaptive_power1_server_weight_power=1.0
+gpu_id=0
+gpu_ids=0
+wandb=disabled
+saved_results=CSV metrics and raw process logs
+git_commit=ddb6e4b333d6d6815512200df9e6405d3e0583b5
+resumed_at=2026-07-19T12:07:56+0800

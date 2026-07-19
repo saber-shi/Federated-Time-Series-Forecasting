@@ -1,0 +1,138 @@
+nohup: ignoring input
+[2026-07-19T12:07:56+0800] SKIP completed evaluation/hard
+[2026-07-19T12:07:56+0800] SKIP completed model_heterogeneity/hard
+[2026-07-19T12:07:56+0800] ablation: variant=hard mode=hard power=0.0
+[2026-07-19T12:07:56+0800] Archiving incomplete heads_1_scale_0p0 before resuming
+[2026-07-19T12:07:56+0800] Starting heads_1_scale_0p0 on GPU 0, port 8800
+[2026-07-19T12:21:16+0800] Completed heads_1_scale_0p0
+[2026-07-19T12:21:16+0800] Starting heads_1_scale_0p25 on GPU 0, port 8801
+[2026-07-19T12:34:38+0800] Completed heads_1_scale_0p25
+[2026-07-19T12:34:38+0800] Starting heads_1_scale_0p5 on GPU 0, port 8802
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3525395 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T12:48:06+0800] WARNING: client pid 3525395 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_1_scale_0p5/raw_logs/client_12166-0_L3.log
+[2026-07-19T12:48:06+0800] Completed heads_1_scale_0p5
+[2026-07-19T12:48:06+0800] Starting heads_1_scale_1p0 on GPU 0, port 8803
+[2026-07-19T13:01:36+0800] Completed heads_1_scale_1p0
+[2026-07-19T13:01:36+0800] Starting heads_1_scale_2p0 on GPU 0, port 8804
+[2026-07-19T13:15:03+0800] Completed heads_1_scale_2p0
+[2026-07-19T13:15:03+0800] Starting heads_2_scale_0p0 on GPU 0, port 8805
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3541396 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T13:28:51+0800] WARNING: client pid 3541396 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_2_scale_0p0/raw_logs/client_12167-0_L3.log
+[2026-07-19T13:28:53+0800] Completed heads_2_scale_0p0
+[2026-07-19T13:28:53+0800] Starting heads_2_scale_0p25 on GPU 0, port 8806
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3546948 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T13:42:38+0800] WARNING: client pid 3546948 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_2_scale_0p25/raw_logs/client_12167-0_L3.log
+[2026-07-19T13:42:38+0800] Completed heads_2_scale_0p25
+[2026-07-19T13:42:38+0800] Starting heads_2_scale_0p5 on GPU 0, port 8807
+[2026-07-19T13:56:18+0800] Completed heads_2_scale_0p5
+[2026-07-19T13:56:18+0800] Starting heads_2_scale_1p0 on GPU 0, port 8808
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3557680 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T14:10:05+0800] WARNING: client pid 3557680 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_2_scale_1p0/raw_logs/client_12164-0_L2.log
+[2026-07-19T14:10:05+0800] Completed heads_2_scale_1p0
+[2026-07-19T14:10:05+0800] Starting heads_2_scale_2p0 on GPU 0, port 8809
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3563317 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T14:23:50+0800] WARNING: client pid 3563317 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_2_scale_2p0/raw_logs/client_12166-0_L3.log
+[2026-07-19T14:23:52+0800] Completed heads_2_scale_2p0
+[2026-07-19T14:23:52+0800] Starting heads_4_scale_0p0 on GPU 0, port 8810
+[2026-07-19T14:38:17+0800] Completed heads_4_scale_0p0
+[2026-07-19T14:38:17+0800] Starting heads_4_scale_0p25 on GPU 0, port 8811
+[2026-07-19T14:52:27+0800] Completed heads_4_scale_0p25
+[2026-07-19T14:52:27+0800] Starting heads_4_scale_0p5 on GPU 0, port 8812
+[2026-07-19T15:06:40+0800] Completed heads_4_scale_0p5
+[2026-07-19T15:06:40+0800] Starting heads_4_scale_1p0 on GPU 0, port 8813
+[2026-07-19T15:21:08+0800] Completed heads_4_scale_1p0
+[2026-07-19T15:21:08+0800] Starting heads_4_scale_2p0 on GPU 0, port 8814
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3590912 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T15:35:20+0800] WARNING: client pid 3590912 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_4_scale_2p0/raw_logs/client_12164-0_L2.log
+[2026-07-19T15:35:20+0800] Completed heads_4_scale_2p0
+[2026-07-19T15:35:20+0800] Starting heads_6_scale_0p0 on GPU 0, port 8815
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3596918 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T15:50:39+0800] WARNING: client pid 3596918 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard/heads_6_scale_0p0/raw_logs/client_12167-0_L3.log
+[2026-07-19T15:50:39+0800] Completed heads_6_scale_0p0
+[2026-07-19T15:50:39+0800] Starting heads_6_scale_0p25 on GPU 0, port 8816
+[2026-07-19T16:05:38+0800] Completed heads_6_scale_0p25
+[2026-07-19T16:05:38+0800] Starting heads_6_scale_0p5 on GPU 0, port 8817
+[2026-07-19T16:20:54+0800] Completed heads_6_scale_0p5
+[2026-07-19T16:20:54+0800] Starting heads_6_scale_1p0 on GPU 0, port 8818
+[2026-07-19T16:36:15+0800] Completed heads_6_scale_1p0
+[2026-07-19T16:36:15+0800] Starting heads_6_scale_2p0 on GPU 0, port 8819
+[2026-07-19T16:51:41+0800] Completed heads_6_scale_2p0
+[2026-07-19T16:51:41+0800] Starting heads_8_scale_0p0 on GPU 0, port 8820
+[2026-07-19T17:07:39+0800] Completed heads_8_scale_0p0
+[2026-07-19T17:07:39+0800] Starting heads_8_scale_0p25 on GPU 0, port 8821
+[2026-07-19T17:24:02+0800] Completed heads_8_scale_0p25
+[2026-07-19T17:24:02+0800] Starting heads_8_scale_0p5 on GPU 0, port 8822
+[2026-07-19T17:40:22+0800] Completed heads_8_scale_0p5
+[2026-07-19T17:40:22+0800] Starting heads_8_scale_1p0 on GPU 0, port 8823
+[2026-07-19T17:56:43+0800] Completed heads_8_scale_1p0
+[2026-07-19T17:56:43+0800] Starting heads_8_scale_2p0 on GPU 0, port 8824
+[2026-07-19T18:12:54+0800] Completed heads_8_scale_2p0
+PWRH ablation complete.
+Results: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/hard
+[2026-07-19T18:12:54+0800] evaluation: variant=adaptive_power1 mode=adaptive power=1.0
+[2026-07-19T18:12:54+0800] Starting pwrh on port 8500
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_evaluation_experiments.sh: line 236: 3659239 Aborted                 (core dumped) python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 "${rate_args[@]}" --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" "${client_args[@]}" "${WANDB_ARGS[@]}" --metrics_log_path "$METRICS_DIR/${method}_client_${cid}_L${layers}_metrics.csv" --model_save_path "$MODEL_SAVE_DIR/${method}_{cid}_{model_name}_final.pt" --prediction_save_path "$PREDICTION_SAVE_DIR/${method}_{cid}_{model_name}_last_{num_lags}.csv" > "$client_log" 2>&1
+[2026-07-19T18:28:17+0800] WARNING: client pid 3659239 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/evaluation/adaptive_power1/raw_logs/pwrh_client_12163-0_L1.log
+[2026-07-19T18:28:17+0800] Completed pwrh
+Evaluation experiments complete.
+Results: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/evaluation/adaptive_power1
+Per-round CSV metrics: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/evaluation/adaptive_power1/metrics
+[2026-07-19T18:28:17+0800] heterogeneity: variant=adaptive_power1 mode=adaptive power=1.0
+[2026-07-19T18:28:17+0800] beta=0 (0/6 three-layer), method=pwrh, port=8700
+  server log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/model_heterogeneity/adaptive_power1/beta_0/raw_logs/pwrh_server.log
+  client=12162-0 layers=1 gpu=0
+  client=12163-0 layers=1 gpu=0
+  client=12164-0 layers=1 gpu=0
+  client=12165-0 layers=1 gpu=0
+  client=12166-0 layers=1 gpu=0
+  client=12167-0 layers=1 gpu=0
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_model_heterogeneity_sweep.sh: line 331: 3665199 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$gpu_id" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 "${rate_args[@]}" --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts "${client_args[@]}" --metrics_log_path "$metrics_dir/${method}_client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T18:34:31+0800] WARNING: client pid 3665199 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/model_heterogeneity/adaptive_power1/beta_0/raw_logs/pwrh_client_12167-0_L1.log
+[2026-07-19T18:34:31+0800] completed beta=0, method=pwrh
+[2026-07-19T18:34:31+0800] beta=1/3 (2/6 three-layer), method=pwrh, port=8701
+  server log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/model_heterogeneity/adaptive_power1/beta_1_3/raw_logs/pwrh_server.log
+  client=12162-0 layers=3 gpu=0
+  client=12163-0 layers=3 gpu=0
+  client=12164-0 layers=1 gpu=0
+  client=12165-0 layers=1 gpu=0
+  client=12166-0 layers=1 gpu=0
+  client=12167-0 layers=1 gpu=0
+[2026-07-19T18:41:16+0800] completed beta=1/3, method=pwrh
+[2026-07-19T18:41:16+0800] beta=2/3 (4/6 three-layer), method=pwrh, port=8702
+  server log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/model_heterogeneity/adaptive_power1/beta_2_3/raw_logs/pwrh_server.log
+  client=12162-0 layers=3 gpu=0
+  client=12163-0 layers=3 gpu=0
+  client=12164-0 layers=3 gpu=0
+  client=12165-0 layers=3 gpu=0
+  client=12166-0 layers=1 gpu=0
+  client=12167-0 layers=1 gpu=0
+[2026-07-19T18:48:25+0800] completed beta=2/3, method=pwrh
+[2026-07-19T18:48:25+0800] beta=1 (6/6 three-layer), method=pwrh, port=8703
+  server log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/model_heterogeneity/adaptive_power1/beta_1/raw_logs/pwrh_server.log
+  client=12162-0 layers=3 gpu=0
+  client=12163-0 layers=3 gpu=0
+  client=12164-0 layers=3 gpu=0
+  client=12165-0 layers=3 gpu=0
+  client=12166-0 layers=3 gpu=0
+  client=12167-0 layers=3 gpu=0
+[2026-07-19T18:55:45+0800] completed beta=1, method=pwrh
+Model-heterogeneity sweep complete.
+Results: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/model_heterogeneity/adaptive_power1
+[2026-07-19T18:55:45+0800] ablation: variant=adaptive_power1 mode=adaptive power=1.0
+[2026-07-19T18:55:45+0800] Starting heads_1_scale_0p0 on GPU 0, port 8900
+[2026-07-19T19:09:12+0800] Completed heads_1_scale_0p0
+[2026-07-19T19:09:12+0800] Starting heads_1_scale_0p25 on GPU 0, port 8901
+[2026-07-19T19:22:46+0800] Completed heads_1_scale_0p25
+[2026-07-19T19:22:46+0800] Starting heads_1_scale_0p5 on GPU 0, port 8902
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3692076 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T19:36:15+0800] WARNING: client pid 3692076 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/adaptive_power1/heads_1_scale_0p5/raw_logs/client_12165-0_L2.log
+[2026-07-19T19:36:18+0800] Completed heads_1_scale_0p5
+[2026-07-19T19:36:18+0800] Starting heads_1_scale_1p0 on GPU 0, port 8903
+[2026-07-19T19:49:39+0800] Completed heads_1_scale_1p0
+[2026-07-19T19:49:39+0800] Starting heads_1_scale_2p0 on GPU 0, port 8904
+/home/saber/Federated-Time-Series-Forecasting/experiments/H4-sequence-pattern-alignment/run_pwrh_ablation.sh: line 281: 3703089 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES="$GPU_ID" python3 "$ROOT_DIR/client-hetero.py" --server_address "127.0.0.1:$port" --cid "$cid" --data_path "$DATA_PATH" --model_name lstm --prediction_steps "$PREDICTION_STEPS" --local_num_layers "$layers" --global_num_layers 3 --epochs "$EPOCHS" --batch_size "$BATCH_SIZE" --require_cuda --no_save_artifacts --pattern_weighted_residual_heads --num_residual_heads "$num_heads" --residual_head_temperature "$PWRH_TEMPERATURE" --residual_head_init_scale "$PWRH_INIT_SCALE" --residual_head_scale "$head_scale" --spc_pattern_source y_hist --metrics_log_path "$metrics_dir/client_${cid}_L${layers}_metrics.csv" > "$client_log" 2>&1
+[2026-07-19T20:03:12+0800] WARNING: client pid 3703089 exited 134 after a clean disconnect (benign post-shutdown crash); log: /home/saber/Federated-Time-Series-Forecasting/evaluation_results/pwrh_hard_vs_adaptive_power1_20260718_224442/ablation/adaptive_power1/heads_1_scale_2p0/raw_logs/client_12167-0_L3.log
+[2026-07-19T20:03:14+0800] Completed heads_1_scale_2p0
+[2026-07-19T20:03:14+0800] Starting heads_2_scale_0p0 on GPU 0, port 8905
+[2026-07-19T20:17:07+0800] Completed heads_2_scale_0p0
+[2026-07-19T20:17:07+0800] Starting heads_2_scale_0p25 on GPU 0, port 8906

@@ -1,0 +1,2 @@
+round,split,loss,forecast_accuracy,global_num_layers,local_num_layers,model_rate,hetero_fedavg,inclusive_fl,spa_hfl,spc,pattern_weighted_residual_heads,fedprox,fedprox_mu,inclusive_group_count,inclusive_beta,mse,rmse,mae,r2,nrmse,round_train_time_seconds,round_evaluate_time_seconds,round_time_seconds,align_train_loss,align_train_rmse,latent_mean_norm
+1,train,6.71134620244329e-05,0.8729946892421389,3.0,2.5690030474532,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,,,0.004230868806215788,0.05933893175461672,0.0379518482008601,0.7478702754477725,0.12700531075786115,4.586112498683484,,,,,

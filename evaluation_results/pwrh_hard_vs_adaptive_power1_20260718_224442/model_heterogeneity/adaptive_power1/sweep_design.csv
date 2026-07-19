@@ -1,0 +1,5 @@
+model_beta,num_three_layer_clients,num_one_layer_clients
+0,0,6
+1/3,2,4
+2/3,4,2
+1,6,0

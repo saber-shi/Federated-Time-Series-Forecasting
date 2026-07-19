@@ -1,0 +1,3 @@
+num_residual_heads=2
+head_scale=2.0
+port=8809
