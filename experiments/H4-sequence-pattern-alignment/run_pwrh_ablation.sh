@@ -18,6 +18,7 @@ PREDICTION_STEPS="${PREDICTION_STEPS:-4}"
 BASE_PORT="${BASE_PORT:-8200}"
 SERVER_STARTUP_SECONDS="${SERVER_STARTUP_SECONDS:-3}"
 GPU_ID="${GPU_ID:-0}"
+RESUME="${RESUME:-0}"
 
 # Total attempts per configuration, including the first. A configuration
 # only retries after a genuine failure (a client/server that did not exit
@@ -58,9 +59,9 @@ scale_label() {
   printf '%s\n' "$label"
 }
 
-if [[ -e "$RUN_DIR" ]]; then
+if [[ -e "$RUN_DIR" && "$RESUME" != "1" ]]; then
   echo "Refusing to reuse existing run directory: $RUN_DIR" >&2
-  echo "Set RUN_NAME to a new value and run again." >&2
+  echo "Set RUN_NAME to a new value, or set RESUME=1 to continue it." >&2
   exit 1
 fi
 if [[ ! -f "$DATA_PATH" ]]; then
@@ -90,34 +91,46 @@ done
 
 mkdir -p "$RUN_DIR"
 
-printf '%s\n' \
-  "run_name=$RUN_NAME" \
-  "started_at=$(timestamp)" \
-  "data_path=$DATA_PATH" \
-  "ablation=full factorial: PWRH_NUM_RESIDUAL_HEADS x PWRH_HEAD_SCALE" \
-  "num_residual_heads_values=${PWRH_NUM_RESIDUAL_HEADS_VALUES[*]}" \
-  "head_scale_values=${PWRH_HEAD_SCALE_VALUES[*]}" \
-  "pwrh_temperature=$PWRH_TEMPERATURE" \
-  "pwrh_init_scale=$PWRH_INIT_SCALE" \
-  "pwrh_server_weight_power=$PWRH_SERVER_WEIGHT_POWER" \
-  "pwrh_prototype_mode=$PWRH_PROTOTYPE_MODE" \
-  "pwrh_prototype_seed=$PWRH_PROTOTYPE_SEED" \
-  "run_config_max_attempts=$RUN_CONFIG_MAX_ATTEMPTS" \
-  "rounds=$ROUNDS" \
-  "epochs=$EPOCHS" \
-  "batch_size=$BATCH_SIZE" \
-  "prediction_steps=$PREDICTION_STEPS" \
-  "gpu_id=$GPU_ID" \
-  "clients=${CLIENT_CIDS[*]}" \
-  "client_layers=${CLIENT_LAYERS[*]}" \
-  "wandb=disabled" \
-  "saved_results=CSV metrics and raw process logs" \
-  "forecast_accuracy_definition=min(1, max(0, 1 - NRMSE))" \
-  "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf unknown)" \
-  > "$RUN_DIR/run_config.txt"
+if [[ "$RESUME" == "1" ]]; then
+  if [[ ! -f "$RUN_DIR/run_config.txt" ]]; then
+    echo "Cannot resume because run_config.txt is missing from $RUN_DIR" >&2
+    exit 1
+  fi
+  printf 'resumed_at=%s\n' "$(timestamp)" >> "$RUN_DIR/run_config.txt"
+  if [[ ! -f "$RUN_DIR/ablation_design.csv" ]]; then
+    printf 'run_index,num_residual_heads,head_scale,port,result_directory\n' \
+      > "$RUN_DIR/ablation_design.csv"
+  fi
+else
+  printf '%s\n' \
+    "run_name=$RUN_NAME" \
+    "started_at=$(timestamp)" \
+    "data_path=$DATA_PATH" \
+    "ablation=full factorial: PWRH_NUM_RESIDUAL_HEADS x PWRH_HEAD_SCALE" \
+    "num_residual_heads_values=${PWRH_NUM_RESIDUAL_HEADS_VALUES[*]}" \
+    "head_scale_values=${PWRH_HEAD_SCALE_VALUES[*]}" \
+    "pwrh_temperature=$PWRH_TEMPERATURE" \
+    "pwrh_init_scale=$PWRH_INIT_SCALE" \
+    "pwrh_server_weight_power=$PWRH_SERVER_WEIGHT_POWER" \
+    "pwrh_prototype_mode=$PWRH_PROTOTYPE_MODE" \
+    "pwrh_prototype_seed=$PWRH_PROTOTYPE_SEED" \
+    "run_config_max_attempts=$RUN_CONFIG_MAX_ATTEMPTS" \
+    "rounds=$ROUNDS" \
+    "epochs=$EPOCHS" \
+    "batch_size=$BATCH_SIZE" \
+    "prediction_steps=$PREDICTION_STEPS" \
+    "gpu_id=$GPU_ID" \
+    "clients=${CLIENT_CIDS[*]}" \
+    "client_layers=${CLIENT_LAYERS[*]}" \
+    "wandb=disabled" \
+    "saved_results=CSV metrics and raw process logs" \
+    "forecast_accuracy_definition=min(1, max(0, 1 - NRMSE))" \
+    "git_commit=$(git -C "$ROOT_DIR" rev-parse HEAD 2>/dev/null || printf unknown)" \
+    > "$RUN_DIR/run_config.txt"
 
-printf 'run_index,num_residual_heads,head_scale,port,result_directory\n' \
-  > "$RUN_DIR/ablation_design.csv"
+  printf 'run_index,num_residual_heads,head_scale,port,result_directory\n' \
+    > "$RUN_DIR/ablation_design.csv"
+fi
 
 SERVER_PID=""
 CLIENT_PIDS=()
@@ -150,6 +163,33 @@ archive_failed_variant() {
     mkdir -p "$(dirname "$archive_dir")"
     mv "$variant_dir" "$archive_dir"
   fi
+}
+
+# New runs write an explicit marker. For runs created before resume support,
+# infer completion by requiring a final-round validation row from the server
+# and every configured client.
+variant_is_complete() {
+  local variant_dir="$1"
+  if [[ -f "$variant_dir/COMPLETED" ]]; then
+    return 0
+  fi
+
+  local metrics_dir="$variant_dir/metrics"
+  if [[ ! -f "$metrics_dir/server_metrics.csv" ]] || \
+     ! grep -q "^${ROUNDS},val," "$metrics_dir/server_metrics.csv"; then
+    return 1
+  fi
+
+  local idx cid layers client_metrics
+  for idx in "${!CLIENT_CIDS[@]}"; do
+    cid="${CLIENT_CIDS[$idx]}"
+    layers="${CLIENT_LAYERS[$idx]}"
+    client_metrics="$metrics_dir/client_${cid}_L${layers}_metrics.csv"
+    if [[ ! -f "$client_metrics" ]] || ! grep -q "^${ROUNDS},val," "$client_metrics"; then
+      return 1
+    fi
+  done
+  return 0
 }
 
 run_configuration() {
@@ -263,6 +303,7 @@ run_configuration() {
     echo "[$(timestamp)] FAILED $variant" >&2
     return 1
   fi
+  touch "$variant_dir/COMPLETED"
   echo "[$(timestamp)] Completed $variant"
 }
 
@@ -271,9 +312,22 @@ for num_heads in "${PWRH_NUM_RESIDUAL_HEADS_VALUES[@]}"; do
   for head_scale in "${PWRH_HEAD_SCALE_VALUES[@]}"; do
     scale_slug="$(scale_label "$head_scale")"
     variant="heads_${num_heads}_scale_${scale_slug}"
-    printf '%d,%s,%s,%d,%s\n' \
-      "$run_index" "$num_heads" "$head_scale" "$((BASE_PORT + run_index))" "$variant" \
-      >> "$RUN_DIR/ablation_design.csv"
+    variant_dir="$RUN_DIR/$variant"
+    if ! grep -q ",${variant}$" "$RUN_DIR/ablation_design.csv"; then
+      printf '%d,%s,%s,%d,%s\n' \
+        "$run_index" "$num_heads" "$head_scale" "$((BASE_PORT + run_index))" "$variant" \
+        >> "$RUN_DIR/ablation_design.csv"
+    fi
+
+    if [[ "$RESUME" == "1" ]] && variant_is_complete "$variant_dir"; then
+      echo "[$(timestamp)] SKIP completed $variant"
+      run_index="$((run_index + 1))"
+      continue
+    fi
+    if [[ "$RESUME" == "1" && -e "$variant_dir" ]]; then
+      echo "[$(timestamp)] Archiving incomplete $variant before resuming"
+      archive_failed_variant "$variant_dir" "resume_$(date +%s)"
+    fi
 
     attempt=1
     while true; do
